@@ -57,7 +57,9 @@ export default function ItemTypeConfigurations(props) {
     showKinematicSliderMove,
     setShowKinematicSliderMove,
     xyzEndEffectorPosition,
-    setXYZEndEffectorPosition
+    setXYZEndEffectorPosition,
+    xyzControlPosition,
+    setXYZControlPosition
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -370,21 +372,36 @@ export default function ItemTypeConfigurations(props) {
   };
   const OnChangeOfPosition = (xyz, data) => {
     if (xyz === 'X') {
-      setXYZEndEffectorPosition({
+      // setXYZEndEffectorPosition({
+      //   X: data,
+      //   Y: xyzEndEffectorPosition.Y,
+      //   Z: xyzEndEffectorPosition.Z
+      // });
+      setXYZControlPosition({
         X: data,
         Y: xyzEndEffectorPosition.Y,
         Z: xyzEndEffectorPosition.Z
       });
     }
     if (xyz === 'Y') {
-      setXYZEndEffectorPosition({
+      // setXYZEndEffectorPosition({
+      //   X: xyzEndEffectorPosition.X,
+      //   Y: data,
+      //   Z: xyzEndEffectorPosition.Z
+      // });
+      setXYZControlPosition({
         X: xyzEndEffectorPosition.X,
         Y: data,
         Z: xyzEndEffectorPosition.Z
       });
     }
     if (xyz === 'Z') {
-      setXYZEndEffectorPosition({
+      // setXYZEndEffectorPosition({
+      //   X: xyzEndEffectorPosition.X,
+      //   Y: xyzEndEffectorPosition.Y,
+      //   Z: data
+      // });
+      setXYZControlPosition({
         X: xyzEndEffectorPosition.X,
         Y: xyzEndEffectorPosition.Y,
         Z: data
@@ -431,7 +448,7 @@ export default function ItemTypeConfigurations(props) {
           <>
             <PlusMinus
               label={'X'}
-              step={0.1}
+              step={1}
               value={xyzEndEffectorPosition.X}
               onChange={(event, data) => {
                 OnChangeOfPosition('X', data);
@@ -440,7 +457,7 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <PlusMinus
               label={'Y'}
-              step={0.1}
+              step={1}
               value={xyzEndEffectorPosition.Y}
               onChange={(event, data) => {
                 OnChangeOfPosition('Y', data);
@@ -449,7 +466,7 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <PlusMinus
               label={'Z'}
-              step={0.1}
+              step={1}
               value={xyzEndEffectorPosition.Z}
               onChange={(event, data) => {
                 OnChangeOfPosition('Z', data);
@@ -499,8 +516,11 @@ export default function ItemTypeConfigurations(props) {
         drawAxisLines={drawAxisLines}
         setDrawAxisLines={setDrawAxisLines}
         kinematicItemList={kinematicItemList}
+        setKinematicItemList={setKinematicItemList}
         xyzEndEffectorPosition={xyzEndEffectorPosition}
         setXYZEndEffectorPosition={setXYZEndEffectorPosition}
+        xyzControlPosition={xyzControlPosition}
+        setXYZControlPosition={setXYZControlPosition}
         itemProperties={itemProperties}
         //{...{ whatchange }}
       />

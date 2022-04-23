@@ -42,12 +42,12 @@ import {
   Object3D,
   Group,
   CatmullRomCurve3,
-  Quaternion
+  Quaternion,
+  SphereBufferGeometry
   /*
     LineSegments,    
     Mesh,
-    Group,
-    SphereBufferGeometry,
+    Group,   
     BoxBufferGeometry, 
     ObjectSpaceNormalMap
     */
@@ -63,7 +63,7 @@ import { GLTFLoader, GLTFParser } from './gltfloader.js';
 import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from './TrackballControls.js';
-
+import DraggerControl from './DraggerControl.js';
 /*
 import LineGeometry from './lines/LineGeometry.js';
 import LineMesh from './lines/LineMesh.js';
@@ -599,7 +599,7 @@ class GLTFRenderer extends Component {
           indexLines++
         ) {
           const element = this.props.drawAxisLines[indexLines];
-          console.log('Getting an element to draw axis', element);
+          //console.log('Getting an element to draw axis', element);
           this.drawAxisLine(element.axis, element.position, element.name);
         }
       } else if (this.props.drawAxisLines.length > 0) {
@@ -612,7 +612,14 @@ class GLTFRenderer extends Component {
     }
     if (this.props.showKinematicSliderMove) {
       console.log('Getting from Component DID update', prevProps);
-      this.kinematicMovement(prevProps, this.state.parsedKinematicInfo);
+      this.ApplyForwardKinematicMovement(
+        prevProps,
+        this.state.parsedKinematicInfo
+      );
+      this.calculateInverseKinematicMovement(
+        prevProps,
+        this.state.parsedKinematicInfo
+      );
     }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
@@ -670,6 +677,8 @@ class GLTFRenderer extends Component {
       this.axisArray = [];
     } */
     this.removeDrawnAxisLines();
+    this.removeSphere();
+    this.removeDragger();
     if (this.content) {
       for (let index = this.content.length - 1; index > 0; index--) {
         if (index > 0) {
@@ -1412,7 +1421,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  assignPositionToElement = (
+  assignPositionToNode = (
     element,
     revisedPosition,
     revisedQuaternion,
@@ -1428,7 +1437,7 @@ class GLTFRenderer extends Component {
       ) {
         //element.position.sub(originalPosition);
         //const centerFactor = originalPosition.clone();
-        console.log(
+        /*console.log(
           'element.position1',
           element.name,
           element.position,
@@ -1440,9 +1449,9 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         element.position.sub(element.shiftingPosition);
-        console.log(
+        /*console.log(
           'element.position2',
           element.name,
           element.position,
@@ -1454,13 +1463,13 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         element.updateMatrix();
         element.updateMatrixWorld();
         element.applyQuaternion(element.localQuaternion.clone().invert());
         element.updateMatrix();
         element.updateMatrixWorld();
-        console.log(
+        /*console.log(
           'element.position3',
           element.name,
           element.position,
@@ -1472,7 +1481,7 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         //console.log('Got vector as', addedVector, centre, element.centre);
         //element.position.add(addedVector);
         //revisedPosition.clone(); //originalPosition; //revisedPosition; //new Vector3(0, 0, 0);
@@ -1559,7 +1568,7 @@ class GLTFRenderer extends Component {
         element.applyQuaternion(revisedQuaternion);
         element.updateMatrix();
         element.updateMatrixWorld();
-        console.log(
+        /*console.log(
           'element.position5',
           element.name,
           element.position,
@@ -1571,7 +1580,7 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         // console.log(
         //   'element local3',
         //   element.localPosition,
@@ -1582,7 +1591,7 @@ class GLTFRenderer extends Component {
         //   elementLocalPosition
         // );
         element.position.add(shiftingPosition);
-        console.log(
+        /* console.log(
           'element.position6',
           element.name,
           element.position,
@@ -1594,11 +1603,11 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         //element.position.add(originalPosition);
         element.updateMatrix();
         element.updateMatrixWorld(true);
-        console.log(
+        /* console.log(
           'element.position7',
           element,
           element.name,
@@ -1611,7 +1620,7 @@ class GLTFRenderer extends Component {
           revisedPosition,
           revisedQuaternion,
           shiftingPosition
-        );
+        );*/
         element.localPosition = revisedPosition.clone();
         element.localQuaternion = revisedQuaternion.clone();
         //element.centre = centerFactor.clone();
@@ -1789,7 +1798,7 @@ class GLTFRenderer extends Component {
         this.props.kinematicItemList
       );
       console.log('Entering setting state');
-      this.kinematicMovement(null, parsedInfo);
+      this.ApplyForwardKinematicMovement(null, parsedInfo);
       console.log('Completed kinematic movement from initialization routine');
       this.setStateWithoutError({ parsedKinematicInfo: parsedInfo });
       console.log('Completed Entering setting state');
@@ -2815,6 +2824,8 @@ class GLTFRenderer extends Component {
       });
     }
     this.removeDrawnAxisLines();
+    this.removeSphere();
+    this.removeDragger();
   };
 
   onWindowResize = () => {
@@ -2919,7 +2930,7 @@ class GLTFRenderer extends Component {
 
   onMouseMove = (event) => {
     event.preventDefault();
-    //console.log("On Movuse Move",event);
+    //console.log('On Movuse Move', event);
     /* this.mouse3D = new Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
           -( event.clientY / window.innerHeight ) * 2 + 1,  
           0.5 );   */
@@ -3119,7 +3130,7 @@ class GLTFRenderer extends Component {
   };
 
   onMouseDown = (event) => {
-    //console.log("Down",event);
+    //console.log('Down', event);
     event.preventDefault();
     if (event.button === 0) {
       this.pickControlToEnable(this.getPointerInNdc(event.pageX, event.pageY));
@@ -3149,7 +3160,7 @@ class GLTFRenderer extends Component {
   };
 
   onMouseUp = (event) => {
-    //console.log("Up",event);
+    //console.log('Up', event);
     if (this.controls) {
       this.controls.enabled = false;
       if (this.controls.onMouseUp) {
@@ -3529,9 +3540,21 @@ class GLTFRenderer extends Component {
   };
 
   visibllity = (mynode, display, option, consolelog = false) => {
-    if (mynode?.type == 'Line' || mynode?.type == 'MeshLine') {
-      //console.log("Returning true");
+    if (
+      mynode?.type == 'Line' ||
+      mynode?.type == 'MeshLine' ||
+      mynode?.type == 'Sphere'
+    ) {
+      //console.log('Returning true', mynode);
       if (display) {
+        // console.log(
+        //   'Returning in display',
+        //   mynode,
+        //   this.state.showedges ||
+        //     option == SELECTEDGE ||
+        //     option == SELECTLINEAR ||
+        //     option == SELECTCIRCULAR
+        // );
         return (
           this.state.showedges ||
           option == SELECTEDGE ||
@@ -3556,7 +3579,11 @@ class GLTFRenderer extends Component {
       );
     }
     //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
-    if (first4chars != 'PART' && first4chars != 'AXIS') {
+    if (
+      first4chars != 'PART' &&
+      first4chars != 'AXIS' &&
+      first4chars != 'ENDE'
+    ) {
       if (first4chars == 'FACE') {
         if (display) {
           visible =
@@ -3759,7 +3786,8 @@ class GLTFRenderer extends Component {
         //console.log("First",intersects[ i ].object);
         if (
           intersects[i].object.type == 'Line' ||
-          intersects[i].object.type == 'MeshLine'
+          intersects[i].object.type == 'MeshLine' ||
+          intersects[i].object.type == 'Sphere'
         ) {
           myObject = i;
           //console.log("I found a face",intersects[i].object.name);
@@ -3798,7 +3826,8 @@ class GLTFRenderer extends Component {
           if (
             intersects[i].object.type == 'Mesh' ||
             intersects[i].object.type == 'Line' ||
-            intersects[i].object.type == 'MeshLine'
+            intersects[i].object.type == 'MeshLine' ||
+            intersects[i].object.type == 'Sphere'
           ) {
             //console.log(intersects[ i ].object);
             myObject = i;
@@ -5668,16 +5697,16 @@ class GLTFRenderer extends Component {
   getSequencedItem = (parsedItem, getSequence, getChain = 1) => {
     let kinematicInformation, maxChain, maxSequence;
     [kinematicInformation, maxChain, maxSequence] = parsedItem;
-    console.log(
-      'Parsed Item',
-      parsedItem,
-      'Kinematic Information',
-      kinematicInformation,
-      'maxChain',
-      maxChain,
-      'maxSequence',
-      maxSequence
-    );
+    // console.log(
+    //   'Parsed Item',
+    //   parsedItem,
+    //   'Kinematic Information',
+    //   kinematicInformation,
+    //   'maxChain',
+    //   maxChain,
+    //   'maxSequence',
+    //   maxSequence
+    // );
     const lengthOfKinematicInfo = kinematicInformation.length;
     for (
       var kinematicInfo = 0, _pj_a = lengthOfKinematicInfo;
@@ -5871,7 +5900,8 @@ class GLTFRenderer extends Component {
     }
     return null;
   };
-  animateParts = (
+
+  animateKinematicChain = (
     //differenceElement,
     propsElement,
     //currentNode,
@@ -5959,7 +5989,7 @@ class GLTFRenderer extends Component {
                   // );
                   // centre = localPosition;
                   //if (prevProps == null) {
-                  this.assignPositionToElement(
+                  this.assignPositionToNode(
                     node,
                     localPosition,
                     localQuaternion,
@@ -6174,7 +6204,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  findNextPart = (propsElement) => {
+  findNextChain = (propsElement) => {
     if (
       propsElement.actuator_motion_control &&
       propsElement.actuator_motion_control.cylindrical_axis_of_rotation
@@ -6220,19 +6250,1558 @@ class GLTFRenderer extends Component {
     }
     return axis;
   };
-  kinematicMovement = (prevProps, parsedInfo) => {
+  cloneList = (nodesArray) => {
+    return arrayCopy(nodesArray);
+  };
+  getPerpendicularDirection = (axis, point) => {
+    const dotLength = point.x * axis.x + point.y * axis.y + point.z * axis.z;
+    const direction = new Vector3().subVectors(
+      point,
+      new Vector3(axis.x * dotLength, axis.y * dotLength, axis.z * dotLength)
+    );
+    return direction;
+  };
+  angleToMoveToTarget = (axis, endEffector, target) => {
+    // let targetPos = target.clone();
+    // let axisNorm = axis.clone().normalize();
+    // //console.log('normal axis', axisNorm);
+    // let endEffectorPos = endEffector.clone();
+    // let targetDir = targetPos
+    //   .clone()
+    //   .sub(axisNorm.clone().multiplyScalar(targetPos.dot(axisNorm)))
+    //   .normalize();
+    // let currentDir = endEffectorPos
+    //   .clone()
+    //   .sub(axisNorm.clone().multiplyScalar(endEffectorPos.dot(axisNorm)))
+    //   .normalize();
+    const currentDir = this.getPerpendicularDirection(axis, endEffector);
+    const targetDir = this.getPerpendicularDirection(axis, target);
+    const angleBetween = this.getAngleBetweenVectorsFromAxis(
+      axis,
+      currentDir,
+      targetDir
+    );
+    // console.log('target dir', targetDir);
+    // console.log('current dir', currentDir);
+    console.log(
+      'target, end effector, axis, currentDir, targetDir, angleBetween',
+      target,
+      endEffector,
+      axis,
+      currentDir,
+      targetDir,
+      angleBetween
+    );
+    // console.log('angle change', Math.acos(targetDir.dot(currentDir)));
+    return angleBetween;
+  };
+  getAngleBetweenVectorsFromAxis = (
+    currentPositionAxis,
+    currentEndEffectorposition,
+    currentTargetPosition
+  ) => {
+    let crossProduct = new Vector3().crossVectors(
+      currentEndEffectorposition,
+      currentTargetPosition
+    );
+    let endEffectorDot = currentEndEffectorposition.dot(currentTargetPosition);
+    let targetDot = crossProduct.dot(currentPositionAxis);
+    return Math.atan2(targetDot, endEffectorDot);
+  };
+  calculateKinematicMovement_old = (prevProps, parsedInfo) => {
+    if (
+      JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
+        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(parsedInfo || []) !== JSON.stringify([])
+    ) {
+      if (
+        this.props.showKinematicSliderMove &&
+        this.props.kinematicItemList &&
+        this.partsMeshes &&
+        this.partsMeshes.length > 0 &&
+        this.props.kinematicItemList.length > 0 &&
+        this.props.xyzEndEffectorPosition
+      ) {
+        // console.log(
+        //   'My Object KinematicItelList',
+        //   this.props.kinematicItemList
+        // );
+        let calculatedKinematicItemList = this.cloneList(
+          this.props.kinematicItemList
+        );
+        let currentMountPosition = new Vector3(
+          this.props.xyzEndEffectorPosition.X,
+          this.props.xyzEndEffectorPosition.Y,
+          this.props.xyzEndEffectorPosition.Z
+        );
+        let targetEndEffectorPosition = new Vector3(
+          this.props.xyzControlPosition.X,
+          this.props.xyzControlPosition.Y,
+          this.props.xyzControlPosition.Z
+        );
+        const differenceBetweenTargetAndEndEffector = new Vector3().subVectors(
+          targetEndEffectorPosition,
+          currentMountPosition
+        );
+        let lengthBetweenTargetAndEndEffector =
+          differenceBetweenTargetAndEndEffector.x *
+            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.y *
+            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.z *
+            differenceBetweenTargetAndEndEffector.z;
+        if (lengthBetweenTargetAndEndEffector == 0) {
+          return;
+        }
+        let originalEndEffectorPosition =
+          this.props.xyzEndEffectorPosition.M.clone();
+        let originalLocalPosition = this.props.xyzEndEffectorPosition.L.clone();
+
+        let originalLocalQuaternion =
+          this.props.xyzEndEffectorPosition.Q.clone().invert();
+        let originalTargetPosition = targetEndEffectorPosition.clone();
+        originalTargetPosition.sub(originalLocalPosition);
+        originalTargetPosition.applyQuaternion(originalLocalQuaternion);
+        originalTargetPosition.add(originalLocalPosition);
+
+        let calculatedMountPosition = currentMountPosition.clone();
+        // let noOfSteps = this.props.steps||5;
+        // for (let steppedIndex = 0; steppedIndex < noOfSteps; steppedIndex++) {
+        //   const element = array[steppedIndex];
+
+        // }
+
+        let direction = -1;
+        let directionMultiplier = -1;
+        let foundThePosition = false;
+        let changeMade = false;
+        let directionIndex = 0;
+        // let globalQuaternionArray = this.cloneList(
+        //   this.props.xyzEndEffectorPosition.CQ
+        // );
+        // let globalPositionArray = this.cloneList(
+        //   this.props.xyzEndEffectorPosition.LA
+        // );
+        // let globalIndexArray = this.cloneList(
+        //   this.props.xyzEndEffectorPosition.IA
+        // );
+
+        for (
+          let iteration = 0;
+          iteration < (this.props.kinematiciteration || 20) * 2 + 1;
+          iteration++
+        ) {
+          direction *= directionMultiplier;
+          let couldFindTheta = false;
+          for (
+            ;
+            directionIndex < calculatedKinematicItemList.length - 1;
+            directionIndex++
+          ) {
+            const positionalIndex =
+              direction == 1
+                ? directionIndex
+                : calculatedKinematicItemList.length - directionIndex - 2;
+
+            let previousCalculatedKinematicItemList = this.cloneList(
+              calculatedKinematicItemList
+            );
+            let leastTheta = 6.28;
+            let mostTheta = -6.28;
+            for (let methodIndex = 0; methodIndex < 5; methodIndex++) {
+              let localQuaternion = new Quaternion(0, 0, 0, 1);
+              let localPosition = new Vector3(0, 0, 0);
+              //let localPreviousPosition = new Vector3(0, 0, 0);
+              let localTranslation = new Vector3(0, 0, 0);
+              let localShiftedPosition = new Vector3(0, 0, 0);
+              // let localQuaternionArray = [];
+              // localQuaternionArray.push(localQuaternion.clone());
+              // let currentQuaternionArray = [];
+              // currentQuaternionArray.push(localQuaternion.clone());
+              // let localPositionArray = [];
+              // localPositionArray.push(localPosition.clone());
+              // //let localPreviousPosition = new Vector3(0, 0, 0);
+              // let localTranslationArray = [];
+              // localTranslationArray.push(localTranslation.clone());
+              // let localShiftedPositionArray = [];
+              // localShiftedPositionArray.push(localShiftedPosition.clone());
+              // let indexArray = [];
+              // indexArray.push(0);
+              let changeMadeInInnerLoop = false;
+              let positionalIndexFound = false;
+              for (
+                let index = 0;
+                index < calculatedKinematicItemList.length;
+                index++
+              ) {
+                const sequencedElement = this.getSequencedItem(
+                  parsedInfo,
+                  index + 1,
+                  1
+                );
+
+                const propsElement = sequencedElement
+                  ? this.getKinematicItem(
+                      calculatedKinematicItemList,
+                      sequencedElement
+                    )
+                  : calculatedKinematicItemList[index];
+
+                const currentNode = this.findNodeFrom(propsElement);
+                // console.log(
+                //   'Comparing stringingfication',
+                //   parsedInfo,
+                //   propsElement,
+                //   sequencedElement,
+                //   currentNode
+                // );
+                if (
+                  currentNode &&
+                  propsElement &&
+                  propsElement.actuator_motion_control &&
+                  !propsElement.actuator_motion_control.is_end_effector &&
+                  propsElement.actuator_motion_control.child_part_type ===
+                    'ACTUATOR'
+                ) {
+                  let currentAxis = propsElement.actuator_motion_control
+                    .cylindrical_axis_of_rotation
+                    ? propsElement.actuator_motion_control
+                        .cylindrical_axis_of_rotation.axis
+                      ? new Vector3(
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                        )
+                      : new Vector3()
+                    : new Vector3();
+                  let currentPosition = propsElement.actuator_motion_control
+                    .cylindrical_axis_of_rotation
+                    ? propsElement.actuator_motion_control
+                        .cylindrical_axis_of_rotation.position
+                      ? new Vector3(
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                        )
+                      : new Vector3()
+                    : new Vector3();
+
+                  //let mydummyquaternion = localQuaternion; //new Quaternion();
+                  //mydummyquaternion.setFromAxisAngle(new Vector3(0.19, 1, 0), 0);
+                  let localCurrentQuaternion = localQuaternion.clone();
+                  let currentOriginalPosition = currentPosition.clone();
+                  let localCurrentTranslation = localTranslation.clone();
+                  currentPosition.sub(localPosition);
+                  currentPosition.applyQuaternion(localCurrentQuaternion);
+                  //currentPosition.applyQuaternion(currentQuaternion);
+                  currentPosition.add(localPosition);
+                  //let currentAnotherAxis = currentAxis.clone();
+                  let currentPositionAxis = currentAxis.clone();
+                  currentPositionAxis.add(currentOriginalPosition);
+                  currentPositionAxis.sub(localPosition);
+                  currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                  currentPositionAxis.add(localPosition);
+                  currentPositionAxis.sub(currentPosition);
+                  currentPositionAxis.normalize();
+
+                  const isLinear =
+                    propsElement.actuator_motion_control
+                      .is_linear_or_rotational;
+                  console.log(
+                    'Positional Index',
+                    positionalIndex,
+                    index,
+                    isLinear
+                  );
+                  if (positionalIndex == index) {
+                    positionalIndexFound = true;
+                    let differenceBetween = 0;
+                    if (isLinear) {
+                      let currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition,
+                        currentEndEffectorposition,
+                        currentTargetPosition,
+                        differencePosition;
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 3 ||
+                        methodIndex == 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex == 1 || methodIndex == 2) {
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(localPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalEndEffectorPosition.add(localPosition);
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(localPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalTargetPosition.add(localPosition);
+                      }
+
+                      currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      differencePosition = new Vector3().subVectors(
+                        currentTargetPosition,
+                        currentEndEffectorposition
+                      );
+
+                      if (methodIndex == 3) {
+                        differenceBetween = leastTheta / 2;
+                      }
+                      if (methodIndex == 4) {
+                        differenceBetween = mostTheta / 2;
+                      }
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 1 ||
+                        methodIndex == 2
+                      ) {
+                        differenceBetween = math.sqrt(
+                          differencePosition.x * differencePosition.x +
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
+                        );
+                        if (methodIndex == 0) {
+                          leastTheta = differenceBetween;
+                          mostTheta = differenceBetween;
+                        }
+                      }
+                    } else {
+                      let currentBeforeLocalQuaternion,
+                        currentBeforeLocalQuaternionApplied,
+                        currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 2 ||
+                        methodIndex == 3 ||
+                        methodIndex == 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex == 1) {
+                        currentBeforeLocalQuaternion = new Quaternion();
+
+                        currentBeforeLocalQuaternion
+                          .setFromAxisAngle(
+                            currentPositionAxis,
+                            propsElement.actuator_motion_control.chain_number
+                          )
+                          .normalize();
+                        currentBeforeLocalQuaternionApplied =
+                          localCurrentQuaternion.clone();
+                        currentBeforeLocalQuaternionApplied
+                          .premultiply(currentBeforeLocalQuaternion)
+                          .normalize();
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(currentPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalEndEffectorPosition.add(currentPosition);
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(currentPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalTargetPosition.add(currentPosition);
+                      }
+
+                      // let localInverseQuaternion = new Quaternion();
+                      // console.log(
+                      //   'indexes',
+                      //   globalIndexArray,
+                      //   globalPositionArray,
+                      //   globalQuaternionArray
+                      // );
+                      // for (
+                      //   let globalIndex = 0;
+                      //   globalIndex < globalIndexArray.length;
+                      //   globalIndex++
+                      // ) {
+                      //   const refIndex =
+                      //     globalIndexArray.length - globalIndex - 1;
+                      //   const myIndex = globalIndexArray[refIndex];
+                      //   if (myIndex >= index + 2) {
+                      //     localInverseQuaternion
+                      //       .premultiply(
+                      //         globalQuaternionArray[refIndex].clone().invert()
+                      //       )
+                      //       .normalize();
+                      //     console.log(
+                      //       'Got the inverse multiplier',
+                      //       localInverseQuaternion,
+                      //       globalIndex,
+                      //       refIndex,
+                      //       myIndex
+                      //     );
+                      //   }
+                      //   if (myIndex == index + 2) {
+                      //     const globalPosition = globalPositionArray[refIndex];
+                      //     currentOriginalTargetPosition.sub(globalPosition);
+                      //     currentOriginalTargetPosition.applyQuaternion(
+                      //       localInverseQuaternion
+                      //     );
+                      //     currentOriginalTargetPosition.add(globalPosition);
+                      //     console.log(
+                      //       'Got the global Position',
+                      //       globalPosition,
+                      //       localInverseQuaternion,
+                      //       globalIndex,
+                      //       refIndex,
+                      //       myIndex,
+                      //       originalTargetPosition,
+                      //       originalEndEffectorPosition,
+                      //       currentOriginalFalseTargetPosition,
+                      //       currentOriginalEndEffectorPosition,
+                      //       currentOriginalTargetPosition
+                      //     );
+                      //     break;
+                      //   }
+                      //   if (myIndex < index) {
+                      //     break;
+                      //   }
+                      // }
+
+                      // let currentBeforeTargetQuaternion = new Quaternion();
+                      // currentBeforeTargetQuaternion
+                      //   .setFromAxisAngle(
+                      //     currentPositionAxis,
+                      //     /* index >= 2 && false
+                      //         ? 0
+                      //         : */
+                      //     propsElement.actuator_motion_control.chain_number
+                      //   )
+                      //   .normalize();
+                      // let localBeforeTargetQuaternion =
+                      //   localCurrentQuaternion.clone();
+                      // localBeforeTargetQuaternion
+                      //   .premultiply(currentBeforeTargetQuaternion)
+                      //   .normalize();
+                      // localBeforeTargetQuaternion =
+                      //   localBeforeTargetQuaternion.invert();
+                      let currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      let currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      currentEndEffectorposition.sub(currentPosition);
+                      // currentEndEffectorposition.applyQuaternion(
+                      //   localBeforeTargetQuaternion
+                      // );
+                      currentTargetPosition.sub(currentPosition);
+                      // currentTargetPosition.applyQuaternion(
+                      //   localBeforeTargetQuaternion
+                      // );
+                      // let crossProduct = new Vector3().crossVectors(
+                      //   currentEndEffectorposition,
+                      //   currentTargetPosition
+                      // );
+                      // let endEffectorDot = currentEndEffectorposition.dot(
+                      //   currentTargetPosition
+                      // );
+                      // let targetDot = crossProduct.dot(currentPositionAxis);
+                      // differenceBetween = Math.atan2(targetDot, endEffectorDot);
+                      // differenceBetween = this.getAngleBetweenVectorsFromAxis(
+                      //   currentPositionAxis,
+                      //   currentEndEffectorposition,
+                      //   currentTargetPosition
+                      // );
+                      if (methodIndex == 2) {
+                        differenceBetween = this.getAngleBetweenVectorsFromAxis(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex == 0 || methodIndex == 1) {
+                        differenceBetween = this.angleToMoveToTarget(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex == 3) {
+                        differenceBetween = leastTheta / 2;
+                        console.log('Least method theta', leastTheta);
+                      }
+                      if (methodIndex == 4) {
+                        differenceBetween = mostTheta / 2;
+                        console.log('Most method theta', mostTheta);
+                      }
+                      // let testCurrentPostionAxis = currentPositionAxis.clone();
+                      // //testCurrentPostionAxis = new Vector3(0, 0, 1);
+                      // let testMountPosition =
+                      //   currentEndEffectorposition.clone();
+                      // //testMountPosition = new Vector3(3, 4, 0);
+                      // let currentTestTargetPosition =
+                      //   currentTargetPosition.clone();
+                      // // currentTestTargetPosition = new Vector3(
+                      // //   4,
+                      // //   3,
+                      // //   12
+                      // // );
+                      // let testDifferenceBetween = differenceBetween;
+
+                      // let currentTestQuaternion = new Quaternion();
+                      // currentTestQuaternion
+                      //   .setFromAxisAngle(
+                      //     testCurrentPostionAxis,
+                      //     testDifferenceBetween
+                      //   )
+                      //   .normalize();
+                      // let localTestCurrentQuaternion = new Quaternion();
+
+                      // localTestCurrentQuaternion
+                      //   .premultiply(currentTestQuaternion)
+                      //   .normalize();
+
+                      // let testdifferenceCalcuatedPosition =
+                      //   new Vector3().subVectors(
+                      //     currentTestTargetPosition,
+                      //     testMountPosition
+                      //   );
+                      // let testdifferenceCalculatedBetweenBefore =
+                      //   testdifferenceCalcuatedPosition.x *
+                      //     testdifferenceCalcuatedPosition.x +
+                      //   testdifferenceCalcuatedPosition.y *
+                      //     testdifferenceCalcuatedPosition.y +
+                      //   testdifferenceCalcuatedPosition.z *
+                      //     testdifferenceCalcuatedPosition.z;
+                      // //const testLocalPosition = currentPosition.clone();
+                      // //testLocalPosition = new Vector3(0, 0, 0);
+                      // //testMountPosition.sub(testLocalPosition);
+                      // testMountPosition.applyQuaternion(
+                      //   localTestCurrentQuaternion
+                      // );
+                      // //currentPosition.applyQuaternion(currentQuaternion);
+                      // //testMountPosition.add(testLocalPosition);
+                      // testdifferenceCalcuatedPosition =
+                      //   new Vector3().subVectors(
+                      //     currentTestTargetPosition,
+                      //     testMountPosition
+                      //   );
+                      // let testdifferenceCalculatedBetweenAfter =
+                      //   testdifferenceCalcuatedPosition.x *
+                      //     testdifferenceCalcuatedPosition.x +
+                      //   testdifferenceCalcuatedPosition.y *
+                      //     testdifferenceCalcuatedPosition.y +
+                      //   testdifferenceCalcuatedPosition.z *
+                      //     testdifferenceCalcuatedPosition.z;
+                      // console.log(
+                      //   'After applying quaternion',
+                      //   testdifferenceCalculatedBetweenAfter,
+                      //   testdifferenceCalculatedBetweenBefore,
+                      //   testMountPosition,
+                      //   currentTestTargetPosition,
+                      //   calculatedMountPosition,
+                      //   targetEndEffectorPosition,
+                      //   testDifferenceBetween,
+                      //   differenceBetween,
+                      //   originalEndEffectorPosition,
+                      //   originalTargetPosition,
+                      //   currentOriginalEndEffectorPosition,
+                      //   currentOriginalTargetPosition,
+                      //   propsElement.actuator_motion_control.chain_number
+                      // );
+                      // const constAngle = this.angleToMoveToTarget(
+                      //   new Vector3(0, 1, 0),
+                      //   new Vector3(2, 0.8, 1),
+                      //   new Vector3(1.5, 0.5, 1)
+                      // );
+                      //console.log('Const Anlge', constAngle);
+                      /* let endEffectorDot = currentEndEffectorposition
+                        .normalize()
+                        .dot(currentPositionAxis);
+                      let targetDot = currentTargetPosition
+                        .normalize()
+                        .dot(currentPositionAxis); 
+                      differenceBetween =
+                        Math.acos(targetDot) - Math.acos(endEffectorDot); */
+                      /*console.log(
+                        'Found difference',
+                        differenceBetween,
+                        targetEndEffectorPosition,
+                        calculatedMountPosition,
+                        //endEffectorDot,
+                        //targetDot,
+                        currentEndEffectorposition,
+                        currentTargetPosition,
+                        propsElement.actuator_motion_control.chain_number
+                      );*/
+                    }
+                    if (differenceBetween != 0) {
+                      propsElement.actuator_motion_control.chain_number +=
+                        differenceBetween;
+                      console.log(
+                        'Applying difference',
+                        differenceBetween,
+                        propsElement.actuator_motion_control.chain_number,
+                        propsElement.actuator_motion_control.minimum_limit,
+                        propsElement.actuator_motion_control.maximum_limit
+                      );
+                      if (
+                        propsElement.actuator_motion_control.chain_number >
+                        propsElement.actuator_motion_control.maximum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.maximum_limit -
+                          propsElement.actuator_motion_control.chain_number -
+                          differenceBetween;
+                        propsElement.actuator_motion_control.chain_number =
+                          propsElement.actuator_motion_control.maximum_limit;
+                        console.log(
+                          'Applied Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          propsElement.actuator_motion_control.chain_number,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (
+                        propsElement.actuator_motion_control.chain_number <
+                        propsElement.actuator_motion_control.minimum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.minimum_limit -
+                          propsElement.actuator_motion_control.chain_number -
+                          differenceBetween;
+                        propsElement.actuator_motion_control.chain_number =
+                          propsElement.actuator_motion_control.minimum_limit;
+                        console.log(
+                          'Applied Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          propsElement.actuator_motion_control.chain_number,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (leastTheta > differenceBetween) {
+                        leastTheta = differenceBetween;
+                      }
+                      if (mostTheta < differenceBetween) {
+                        mostTheta = differenceBetween;
+                      }
+                    }
+                  }
+
+                  let currentAxisQuaternion = new Quaternion();
+
+                  if (isLinear) {
+                    const currentLength = math.sqrt(
+                      currentPositionAxis.x * currentPositionAxis.x +
+                        currentPositionAxis.y * currentPositionAxis.y +
+                        currentPositionAxis.z * currentPositionAxis.z
+                    );
+                    if (currentLength != 0) {
+                      localCurrentTranslation.add(
+                        new Vector3(
+                          (currentPositionAxis.x *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength,
+                          (currentPositionAxis.y *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength,
+                          (currentPositionAxis.z *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength
+                        )
+                      );
+                    }
+                  } else {
+                    currentAxisQuaternion
+                      .setFromAxisAngle(
+                        currentPositionAxis,
+                        /* index >= 2 && false
+                              ? 0
+                              : */
+                        propsElement.actuator_motion_control.chain_number
+                      )
+                      .normalize();
+                    localCurrentQuaternion
+                      .premultiply(currentAxisQuaternion)
+                      .normalize();
+                  }
+
+                  let shiftedPosition = currentOriginalPosition.clone();
+                  shiftedPosition.applyQuaternion(localQuaternion);
+                  shiftedPosition.add(localShiftedPosition);
+                  let shiftingPosition = currentOriginalPosition.clone();
+                  shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                  shiftedPosition.sub(shiftingPosition);
+                  shiftedPosition.add(localCurrentTranslation);
+                  //shiftingPosition.sub(shiftedPosition);
+
+                  localPosition = currentPosition.clone();
+                  localQuaternion = localCurrentQuaternion.clone();
+                  localShiftedPosition = shiftedPosition.clone();
+                  localTranslation = localCurrentTranslation.clone();
+                  // localQuaternionArray.push(localQuaternion.clone());
+                  // localPositionArray.push(localPosition.clone());
+                  // //let localPreviousPosition = new Vector3(0, 0, 0);
+                  // localTranslationArray.push(localTranslation.clone());
+                  // localShiftedPositionArray.push(localShiftedPosition.clone());
+                  // currentQuaternionArray.push(currentAxisQuaternion.clone());
+                  // indexArray.push(index + 1);
+                } else {
+                  // console.log(
+                  //   'Not an actuator',
+                  //   propsElement,
+                  //   index,
+                  //   localPosition,
+                  //   localQuaternion,
+                  //   calculatedMountPosition
+                  // );
+                }
+                if (
+                  currentNode &&
+                  propsElement &&
+                  propsElement.actuator_motion_control &&
+                  propsElement.actuator_motion_control.is_end_effector &&
+                  propsElement.actuator_motion_control.child_part_type ===
+                    'ACTUATOR'
+                ) {
+                  if (this.props.itemProperties) {
+                    const itemProperties = this.props.itemProperties;
+                    //console.log('Got itemproperties as', itemProperties);
+                    if (
+                      itemProperties.actuator_motion_control &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation.mountobb
+                    ) {
+                      const mountSurface =
+                        itemProperties.actuator_motion_control
+                          .cylindrical_axis_of_rotation.mountobb;
+                      let mountPosition = new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      );
+                      mountPosition.sub(localPosition);
+                      mountPosition.applyQuaternion(localQuaternion);
+                      //currentPosition.applyQuaternion(currentQuaternion);
+                      mountPosition.add(localPosition);
+                      let currentTargetPosition =
+                        targetEndEffectorPosition.clone();
+                      let differenceCalcuatedPosition =
+                        new Vector3().subVectors(
+                          currentTargetPosition,
+                          mountPosition
+                        );
+                      let differenceCalculatedBetween =
+                        differenceCalcuatedPosition.x *
+                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.y *
+                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.z *
+                          differenceCalcuatedPosition.z;
+                      if (
+                        differenceCalculatedBetween <
+                        lengthBetweenTargetAndEndEffector
+                      ) {
+                        changeMadeInInnerLoop = true;
+                        couldFindTheta = true;
+                        changeMade = true;
+                        if (
+                          differenceCalculatedBetween <=
+                          (this.props.kinematicPrecision || 0.00000001)
+                        ) {
+                          foundThePosition = true;
+                          console.log(
+                            'Reached after ',
+                            iteration + 1,
+                            'iterations',
+                            'error rate',
+                            differenceCalculatedBetween
+                          );
+                        } else {
+                          console.log(
+                            'Difference Length',
+                            differenceCalculatedBetween,
+                            lengthBetweenTargetAndEndEffector,
+                            calculatedMountPosition,
+                            targetEndEffectorPosition,
+                            mountPosition,
+                            'iteration no',
+                            iteration + 1
+                          );
+                        }
+                        lengthBetweenTargetAndEndEffector =
+                          differenceCalculatedBetween;
+                        calculatedMountPosition = mountPosition.clone();
+                        originalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                        originalTargetPosition.sub(localPosition);
+                        originalTargetPosition.applyQuaternion(
+                          localQuaternion.clone().invert()
+                        );
+                        originalTargetPosition.add(localPosition);
+                        console.log(
+                          'Got original target pos',
+                          originalTargetPosition,
+                          new Vector3(
+                            mountSurface.cx,
+                            mountSurface.cy,
+                            mountSurface.cz
+                          )
+                        );
+                        // globalQuaternionArray = this.cloneList(
+                        //   currentQuaternionArray
+                        // );
+                        // globalPositionArray = this.cloneList(localPositionArray);
+                        // globalIndexArray = this.cloneList(indexArray);
+                      } else {
+                        console.log(
+                          'Difference Length Exceeds',
+                          differenceCalculatedBetween,
+                          lengthBetweenTargetAndEndEffector,
+                          calculatedMountPosition,
+                          targetEndEffectorPosition,
+                          mountPosition,
+                          localPosition,
+                          localQuaternion
+                        );
+                        // for (
+                        //   let chainPrintIndex = 0;
+                        //   chainPrintIndex < calculatedKinematicItemList.length;
+                        //   chainPrintIndex++
+                        // ) {
+                        //   console.log(
+                        //     calculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control,
+                        //     previousCalculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control
+                        //   );
+                        // }
+                        calculatedKinematicItemList = this.cloneList(
+                          previousCalculatedKinematicItemList
+                        );
+                      }
+                    }
+                  }
+                }
+                if (foundThePosition) {
+                  break;
+                }
+              }
+              if (foundThePosition) {
+                break;
+              }
+              if (changeMadeInInnerLoop) {
+                break;
+              }
+              if (!positionalIndexFound) {
+                console.log('end effector or not an actuator');
+                break;
+              }
+            }
+
+            if (foundThePosition) {
+              break;
+            }
+          }
+          if (foundThePosition) {
+            break;
+          }
+          directionIndex = 1;
+          if (!couldFindTheta) {
+            console.log(
+              'Not reachable beyond this',
+              iteration + 1,
+              'iterations',
+              lengthBetweenTargetAndEndEffector,
+              'error rate'
+            );
+            break;
+          }
+        }
+        if (this.props.setKinematicItemList && changeMade) {
+          /*console.log(
+            'Setting from',
+            this.props.kinematicItemList,
+            'To',
+            calculatedKinematicItemList
+          );*/
+          for (
+            let displayIndex = 0;
+            displayIndex < this.props.kinematicItemList.length;
+            displayIndex++
+          ) {
+            const propsElement = this.props.kinematicItemList[displayIndex];
+            const calcElement = calculatedKinematicItemList[displayIndex];
+            console.log(
+              'My values',
+              displayIndex,
+              propsElement.actuator_motion_control.chain_number,
+              calcElement.actuator_motion_control.chain_number
+            );
+          }
+          this.props.setKinematicItemList(
+            this.cloneList(calculatedKinematicItemList)
+          );
+        }
+
+        //To do set kinematic item list with newly found values...
+      }
+    }
+  };
+  calculateInverseKinematicMovement = (prevProps, parsedInfo) => {
+    if (
+      JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
+        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(parsedInfo || []) !== JSON.stringify([])
+    ) {
+      if (
+        this.props.showKinematicSliderMove &&
+        this.props.kinematicItemList &&
+        this.partsMeshes &&
+        this.partsMeshes.length > 0 &&
+        this.props.kinematicItemList.length > 0 &&
+        this.props.xyzEndEffectorPosition
+      ) {
+        let calculatedKinematicItemList = this.cloneList(
+          this.props.kinematicItemList
+        );
+        let currentMountPosition = new Vector3(
+          this.props.xyzEndEffectorPosition.X,
+          this.props.xyzEndEffectorPosition.Y,
+          this.props.xyzEndEffectorPosition.Z
+        );
+        let targetEndEffectorPosition = new Vector3(
+          this.props.xyzControlPosition.X,
+          this.props.xyzControlPosition.Y,
+          this.props.xyzControlPosition.Z
+        );
+        const differenceBetweenTargetAndEndEffector = new Vector3().subVectors(
+          targetEndEffectorPosition,
+          currentMountPosition
+        );
+        let lengthBetweenTargetAndEndEffector =
+          differenceBetweenTargetAndEndEffector.x *
+            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.y *
+            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.z *
+            differenceBetweenTargetAndEndEffector.z;
+        if (lengthBetweenTargetAndEndEffector == 0) {
+          return;
+        }
+        let originalEndEffectorPosition =
+          this.props.xyzEndEffectorPosition.M.clone();
+        let originalLocalPosition = this.props.xyzEndEffectorPosition.L.clone();
+        let originalLocalShiftedPosition =
+          this.props.xyzEndEffectorPosition.S.clone();
+        let originalLocalQuaternion =
+          this.props.xyzEndEffectorPosition.Q.clone().invert();
+        let originalTargetPosition = targetEndEffectorPosition.clone();
+        originalTargetPosition.sub(originalLocalShiftedPosition);
+        originalTargetPosition.applyQuaternion(originalLocalQuaternion);
+        originalTargetPosition.add(originalLocalPosition);
+
+        let calculatedMountPosition = currentMountPosition.clone();
+
+        let direction = -1;
+        let directionMultiplier = -1;
+        let foundThePosition = false;
+        let changeMade = false;
+        let directionIndex = 0;
+
+        for (
+          let iteration = 0;
+          iteration < (this.props.kinematiciteration || 20) * 2 + 1;
+          iteration++
+        ) {
+          direction *= directionMultiplier;
+          let couldFindTheta = false;
+          for (
+            ;
+            directionIndex < calculatedKinematicItemList.length - 1;
+            directionIndex++
+          ) {
+            const positionalIndex =
+              direction == 1
+                ? directionIndex
+                : calculatedKinematicItemList.length - directionIndex - 2;
+
+            let previousCalculatedKinematicItemList = this.cloneList(
+              calculatedKinematicItemList
+            );
+            let leastTheta = 6.28;
+            let mostTheta = -6.28;
+            for (let methodIndex = 0; methodIndex < 5; methodIndex++) {
+              let localQuaternion = new Quaternion(0, 0, 0, 1);
+              let localPosition = new Vector3(0, 0, 0);
+              //let localPreviousPosition = new Vector3(0, 0, 0);
+              let localTranslation = new Vector3(0, 0, 0);
+              let localShiftedPosition = new Vector3(0, 0, 0);
+              let globalShiftedPosition = new Vector3(0, 0, 0);
+              let changeMadeInInnerLoop = false;
+              let positionalIndexFound = false;
+              for (
+                let index = 0;
+                index < calculatedKinematicItemList.length;
+                index++
+              ) {
+                const sequencedElement = this.getSequencedItem(
+                  parsedInfo,
+                  index + 1,
+                  1
+                );
+
+                const propsElement = sequencedElement
+                  ? this.getKinematicItem(
+                      calculatedKinematicItemList,
+                      sequencedElement
+                    )
+                  : calculatedKinematicItemList[index];
+
+                const currentNode = this.findNodeFrom(propsElement);
+
+                if (
+                  currentNode &&
+                  propsElement &&
+                  propsElement.actuator_motion_control &&
+                  !propsElement.actuator_motion_control.is_end_effector &&
+                  propsElement.actuator_motion_control.child_part_type ===
+                    'ACTUATOR'
+                ) {
+                  let currentAxis = propsElement.actuator_motion_control
+                    .cylindrical_axis_of_rotation
+                    ? propsElement.actuator_motion_control
+                        .cylindrical_axis_of_rotation.axis
+                      ? new Vector3(
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                        )
+                      : new Vector3()
+                    : new Vector3();
+                  let currentPosition = propsElement.actuator_motion_control
+                    .cylindrical_axis_of_rotation
+                    ? propsElement.actuator_motion_control
+                        .cylindrical_axis_of_rotation.position
+                      ? new Vector3(
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                        )
+                      : new Vector3()
+                    : new Vector3();
+
+                  let localCurrentQuaternion = localQuaternion.clone();
+                  let localCurrentTranslation = localTranslation.clone();
+                  let currentShiftedPosition = currentPosition.clone();
+                  currentShiftedPosition.sub(localPosition);
+                  currentShiftedPosition.applyQuaternion(
+                    localCurrentQuaternion
+                  );
+                  currentShiftedPosition.add(localShiftedPosition);
+                  let currentPositionAxis = currentAxis.clone();
+                  currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                  currentPositionAxis.normalize();
+
+                  const isLinear =
+                    propsElement.actuator_motion_control
+                      .is_linear_or_rotational;
+                  console.log(
+                    'Positional Index',
+                    positionalIndex,
+                    index,
+                    isLinear
+                  );
+                  if (positionalIndex == index) {
+                    positionalIndexFound = true;
+                    let differenceBetween = 0;
+                    if (isLinear) {
+                      let currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition,
+                        currentEndEffectorposition,
+                        currentTargetPosition,
+                        differencePosition;
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 3 ||
+                        methodIndex == 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex == 1 || methodIndex == 2) {
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(currentPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalEndEffectorPosition.add(
+                          currentShiftedPosition
+                        );
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(currentPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalTargetPosition.add(
+                          currentShiftedPosition
+                        );
+                      }
+
+                      currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      differencePosition = new Vector3().subVectors(
+                        currentTargetPosition,
+                        currentEndEffectorposition
+                      );
+
+                      if (methodIndex == 3) {
+                        differenceBetween = leastTheta / 2;
+                      }
+                      if (methodIndex == 4) {
+                        differenceBetween = mostTheta / 2;
+                      }
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 1 ||
+                        methodIndex == 2
+                      ) {
+                        differenceBetween = math.sqrt(
+                          differencePosition.x * differencePosition.x +
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
+                        );
+                        if (methodIndex == 0) {
+                          leastTheta = differenceBetween;
+                          mostTheta = differenceBetween;
+                        }
+                      }
+                    } else {
+                      let currentBeforeLocalQuaternion,
+                        currentBeforeLocalQuaternionApplied,
+                        currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      if (
+                        methodIndex == 0 ||
+                        methodIndex == 2 ||
+                        methodIndex == 3 ||
+                        methodIndex == 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex == 1) {
+                        currentBeforeLocalQuaternion = new Quaternion();
+
+                        currentBeforeLocalQuaternion
+                          .setFromAxisAngle(
+                            currentPositionAxis,
+                            propsElement.actuator_motion_control.chain_number
+                          )
+                          .normalize();
+                        currentBeforeLocalQuaternionApplied =
+                          localCurrentQuaternion.clone();
+                        currentBeforeLocalQuaternionApplied
+                          .premultiply(currentBeforeLocalQuaternion)
+                          .normalize();
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(currentPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalEndEffectorPosition.add(
+                          currentShiftedPosition
+                        );
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(currentPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalTargetPosition.add(
+                          currentShiftedPosition
+                        );
+                      }
+
+                      let currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      let currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      currentEndEffectorposition.sub(currentShiftedPosition);
+
+                      currentTargetPosition.sub(currentShiftedPosition);
+
+                      if (methodIndex == 2) {
+                        differenceBetween = this.getAngleBetweenVectorsFromAxis(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex == 0 || methodIndex == 1) {
+                        differenceBetween = this.angleToMoveToTarget(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex == 3) {
+                        differenceBetween = leastTheta / 2;
+                        console.log('Least method theta', leastTheta);
+                      }
+                      if (methodIndex == 4) {
+                        differenceBetween = mostTheta / 2;
+                        console.log('Most method theta', mostTheta);
+                      }
+                    }
+                    if (differenceBetween != 0) {
+                      propsElement.actuator_motion_control.chain_number +=
+                        differenceBetween;
+                      console.log(
+                        'Applying difference',
+                        differenceBetween,
+                        propsElement.actuator_motion_control.chain_number,
+                        propsElement.actuator_motion_control.minimum_limit,
+                        propsElement.actuator_motion_control.maximum_limit
+                      );
+                      if (
+                        propsElement.actuator_motion_control.chain_number >
+                        propsElement.actuator_motion_control.maximum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.maximum_limit -
+                          propsElement.actuator_motion_control.chain_number +
+                          differenceBetween;
+                        propsElement.actuator_motion_control.chain_number =
+                          propsElement.actuator_motion_control.maximum_limit;
+                        console.log(
+                          'Applied maximum Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          propsElement.actuator_motion_control.chain_number,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (
+                        propsElement.actuator_motion_control.chain_number <
+                        propsElement.actuator_motion_control.minimum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.minimum_limit -
+                          propsElement.actuator_motion_control.chain_number +
+                          differenceBetween;
+                        propsElement.actuator_motion_control.chain_number =
+                          propsElement.actuator_motion_control.minimum_limit;
+                        console.log(
+                          'Applied Minimum Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          propsElement.actuator_motion_control.chain_number,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (leastTheta > differenceBetween) {
+                        leastTheta = differenceBetween;
+                      }
+                      if (mostTheta < differenceBetween) {
+                        mostTheta = differenceBetween;
+                      }
+                    }
+                  }
+
+                  let currentAxisQuaternion = new Quaternion();
+
+                  if (isLinear) {
+                    const currentLength = math.sqrt(
+                      currentPositionAxis.x * currentPositionAxis.x +
+                        currentPositionAxis.y * currentPositionAxis.y +
+                        currentPositionAxis.z * currentPositionAxis.z
+                    );
+                    if (currentLength != 0) {
+                      localCurrentTranslation.add(
+                        new Vector3(
+                          (currentPositionAxis.x *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength,
+                          (currentPositionAxis.y *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength,
+                          (currentPositionAxis.z *
+                            propsElement.actuator_motion_control.chain_number) /
+                            currentLength
+                        )
+                      );
+                    }
+                  } else {
+                    currentAxisQuaternion
+                      .setFromAxisAngle(
+                        currentPositionAxis,
+                        propsElement.actuator_motion_control.chain_number
+                      )
+                      .normalize();
+                    localCurrentQuaternion
+                      .premultiply(currentAxisQuaternion)
+                      .normalize();
+                  }
+
+                  let shiftedPosition = currentPosition.clone();
+                  shiftedPosition.applyQuaternion(localQuaternion);
+                  shiftedPosition.add(globalShiftedPosition);
+                  let shiftingPosition = currentPosition.clone();
+                  shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                  shiftedPosition.sub(shiftingPosition);
+                  shiftedPosition.sub(localTranslation);
+                  shiftedPosition.add(localCurrentTranslation);
+
+                  localPosition = currentPosition.clone();
+                  localQuaternion = localCurrentQuaternion.clone();
+                  localShiftedPosition = currentShiftedPosition.clone();
+                  localTranslation = localCurrentTranslation.clone();
+                  globalShiftedPosition = shiftedPosition.clone();
+                } else {
+                  // console.log(
+                  //   'Not an actuator',
+                  //   propsElement,
+                  //   index,
+                  //   localPosition,
+                  //   localQuaternion,
+                  //   calculatedMountPosition
+                  // );
+                }
+                if (
+                  currentNode &&
+                  propsElement &&
+                  propsElement.actuator_motion_control &&
+                  propsElement.actuator_motion_control.is_end_effector &&
+                  propsElement.actuator_motion_control.child_part_type ===
+                    'ACTUATOR'
+                ) {
+                  if (this.props.itemProperties) {
+                    const itemProperties = this.props.itemProperties;
+                    //console.log('Got itemproperties as', itemProperties);
+                    if (
+                      itemProperties.actuator_motion_control &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation.mountobb
+                    ) {
+                      const mountSurface =
+                        itemProperties.actuator_motion_control
+                          .cylindrical_axis_of_rotation.mountobb;
+                      let mountPosition = new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      );
+                      mountPosition.sub(localPosition);
+                      mountPosition.applyQuaternion(localQuaternion);
+                      mountPosition.add(localShiftedPosition);
+                      let currentTargetPosition =
+                        targetEndEffectorPosition.clone();
+                      let differenceCalcuatedPosition =
+                        new Vector3().subVectors(
+                          currentTargetPosition,
+                          mountPosition
+                        );
+                      let differenceCalculatedBetween =
+                        differenceCalcuatedPosition.x *
+                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.y *
+                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.z *
+                          differenceCalcuatedPosition.z;
+                      if (
+                        differenceCalculatedBetween <
+                        lengthBetweenTargetAndEndEffector
+                      ) {
+                        changeMadeInInnerLoop = true;
+                        couldFindTheta = true;
+                        changeMade = true;
+                        if (
+                          differenceCalculatedBetween <=
+                          (this.props.kinematicPrecision || 0.00000001)
+                        ) {
+                          foundThePosition = true;
+                          console.log(
+                            'Reached after ',
+                            iteration + 1,
+                            'iterations',
+                            'error rate',
+                            differenceCalculatedBetween
+                          );
+                        } else {
+                          console.log(
+                            'Difference Length',
+                            differenceCalculatedBetween,
+                            lengthBetweenTargetAndEndEffector,
+                            calculatedMountPosition,
+                            targetEndEffectorPosition,
+                            mountPosition,
+                            'iteration no',
+                            iteration + 1
+                          );
+                        }
+                        lengthBetweenTargetAndEndEffector =
+                          differenceCalculatedBetween;
+                        calculatedMountPosition = mountPosition.clone();
+                        originalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                        originalTargetPosition.sub(localShiftedPosition);
+                        originalTargetPosition.applyQuaternion(
+                          localQuaternion.clone().invert()
+                        );
+                        originalTargetPosition.add(localPosition);
+                        console.log(
+                          'Got original target pos',
+                          originalTargetPosition,
+                          new Vector3(
+                            mountSurface.cx,
+                            mountSurface.cy,
+                            mountSurface.cz
+                          )
+                        );
+                      } else {
+                        console.log(
+                          'Difference Length Exceeds',
+                          differenceCalculatedBetween,
+                          lengthBetweenTargetAndEndEffector,
+                          calculatedMountPosition,
+                          targetEndEffectorPosition,
+                          mountPosition,
+                          localPosition,
+                          localQuaternion,
+                          'iteration',
+                          iteration + 1
+                        );
+                        // for (
+                        //   let chainPrintIndex = 0;
+                        //   chainPrintIndex < calculatedKinematicItemList.length;
+                        //   chainPrintIndex++
+                        // ) {
+                        //   console.log(
+                        //     calculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control,
+                        //     previousCalculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control
+                        //   );
+                        // }
+                        calculatedKinematicItemList = this.cloneList(
+                          previousCalculatedKinematicItemList
+                        );
+                      }
+                    }
+                  }
+                }
+                if (foundThePosition) {
+                  break;
+                }
+              }
+              if (foundThePosition) {
+                break;
+              }
+              if (changeMadeInInnerLoop) {
+                break;
+              }
+              if (!positionalIndexFound) {
+                console.log('end effector or not an actuator');
+                break;
+              }
+            }
+
+            if (foundThePosition) {
+              break;
+            }
+          }
+          if (foundThePosition) {
+            break;
+          }
+          directionIndex = 1;
+          if (!couldFindTheta) {
+            console.log(
+              'Not reachable beyond this',
+              iteration + 1,
+              'iterations',
+              lengthBetweenTargetAndEndEffector,
+              'error rate'
+            );
+            break;
+          }
+        }
+        if (this.props.setKinematicItemList && changeMade) {
+          for (
+            let displayIndex = 0;
+            displayIndex < this.props.kinematicItemList.length;
+            displayIndex++
+          ) {
+            const propsElement = this.props.kinematicItemList[displayIndex];
+            const calcElement = calculatedKinematicItemList[displayIndex];
+            console.log(
+              'My values',
+              displayIndex,
+              propsElement.actuator_motion_control.chain_number,
+              calcElement.actuator_motion_control.chain_number
+            );
+          }
+          this.props.setKinematicItemList(
+            this.cloneList(calculatedKinematicItemList)
+          );
+        }
+
+        //To do set kinematic item list with newly found values...
+      }
+    }
+  };
+  performKinematicMovement_old = (prevProps, parsedInfo) => {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
         JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
           JSON.stringify(this.props.kinematicItemList || []) &&
         JSON.stringify(parsedInfo || []) !== JSON.stringify([])
       ) {
-        console.log(
+        /*console.log(
           'Got in GltfRender',
           this.props.kinematicItemList,
           this.partsMeshes,
           this.props.gltfobj
-        );
+        );*/
 
         if (
           this.partsMeshes &&
@@ -6246,12 +7815,27 @@ class GLTFRenderer extends Component {
           if (prevProps == null) {
             this.removeDrawnAxisLines();
             this.axisArray = [];
+            this.removeSphere();
+            this.removeDragger();
           }
           let localQuaternion = new Quaternion(0, 0, 0, 1);
           let localPosition = new Vector3(0, 0, 0);
           //let localPreviousPosition = new Vector3(0, 0, 0);
           let localTranslation = new Vector3(0, 0, 0);
           let localShiftedPosition = new Vector3(0, 0, 0);
+          // let localQuaternionArray = [];
+          // localQuaternionArray.push(localQuaternion.clone());
+          // let currentQuaternionArray = [];
+          // currentQuaternionArray.push(localQuaternion.clone());
+          // let localPositionArray = [];
+          // localPositionArray.push(localPosition.clone());
+          // //let localPreviousPosition = new Vector3(0, 0, 0);
+          // let localTranslationArray = [];
+          // localTranslationArray.push(localTranslation.clone());
+          // let localShiftedPositionArray = [];
+          // localShiftedPositionArray.push(localShiftedPosition.clone());
+          // let indexArray = [];
+          // indexArray.push(0);
           for (
             let index = 0;
             index < this.props.kinematicItemList.length;
@@ -6271,13 +7855,13 @@ class GLTFRenderer extends Component {
               : this.props.kinematicItemList[index];
 
             const currentNode = this.findNodeFrom(propsElement);
-            console.log(
+            /*console.log(
               'Comparing stringingfication',
               parsedInfo,
               propsElement,
               sequencedElement,
               currentNode
-            );
+            );*/
             if (
               currentNode &&
               propsElement &&
@@ -6407,7 +7991,7 @@ class GLTFRenderer extends Component {
                 // currentPosition.add(localPosition);
                 const isLinear =
                   propsElement.actuator_motion_control.is_linear_or_rotational;
-                let currentQuaternion = new Quaternion();
+                let currentAxisQuaternion = new Quaternion();
                 if (isLinear) {
                   const currentLength = math.sqrt(
                     currentPositionAxis.x * currentPositionAxis.x +
@@ -6438,7 +8022,7 @@ class GLTFRenderer extends Component {
                     .setFromAxisAngle(currentAxis, differenceElement)
                     .normalize();
                   localQuaternion = currentQuaternion.clone(); */
-                  currentQuaternion
+                  currentAxisQuaternion
                     .setFromAxisAngle(
                       currentPositionAxis,
                       /* index >= 2 && false
@@ -6448,13 +8032,13 @@ class GLTFRenderer extends Component {
                     )
                     .normalize();
                   localCurrentQuaternion
-                    .premultiply(currentQuaternion)
+                    .premultiply(currentAxisQuaternion)
                     .normalize();
                 }
 
                 // const multipliedAxis =
                 //   this.getAxisFromQuaternion(localQuaternion);
-                console.log(
+                /*console.log(
                   'Quaternion inside loop',
                   currentQuaternion,
                   localQuaternion,
@@ -6464,7 +8048,7 @@ class GLTFRenderer extends Component {
                   currentAxis,
                   currentPositionAxis,
                   localTranslation
-                );
+                );*/
 
                 // let localPreviousCUrrentPosition =
                 //   currentOriginalPosition.clone();
@@ -6542,6 +8126,14 @@ class GLTFRenderer extends Component {
                 localQuaternion = localCurrentQuaternion.clone();
                 localShiftedPosition = shiftedPosition.clone();
                 localTranslation = localCurrentTranslation.clone();
+
+                // localQuaternionArray.push(localQuaternion.clone());
+                // localPositionArray.push(localPosition.clone());
+                // //let localPreviousPosition = new Vector3(0, 0, 0);
+                // localTranslationArray.push(localTranslation.clone());
+                // localShiftedPositionArray.push(localShiftedPosition.clone());
+                // currentQuaternionArray.push(currentAxisQuaternion.clone());
+                // indexArray.push(index + 1);
                 //localPosition = localPreviousCUrrentPosition.clone();
                 //localPreviousPosition = currentOriginalPosition.clone();
                 /*
@@ -6622,7 +8214,7 @@ class GLTFRenderer extends Component {
                 // const nextNode = nextElement
                 //   ? this.findNodeFrom(nextElement)
                 //   : null;
-                console.log(
+                /*console.log(
                   'Animating for',
                   propsElement,
                   differenceElement,
@@ -6635,13 +8227,16 @@ class GLTFRenderer extends Component {
                   currentQuaternion,
                   currentPosition,
                   index,
-                  /* index >= 2 && false
+                  
+                  currentOriginalPosition
+                );*/
+
+                /* index >= 2 && false
                     ? localPreviousCUrrentPosition
                     :  */
-                  currentOriginalPosition
-                );
+
                 //if (nextNode) {
-                this.animateParts(
+                this.animateKinematicChain(
                   //differenceElement,
                   propsElement,
                   //currentNode,
@@ -6719,19 +8314,333 @@ class GLTFRenderer extends Component {
                   mountPosition.applyQuaternion(localQuaternion);
                   //currentPosition.applyQuaternion(currentQuaternion);
                   mountPosition.add(localPosition);
-                  console.log('Mount Position', mountPosition);
+                  //console.log('Mount Position', mountPosition);
                   if (this.props.setXYZEndEffectorPosition) {
                     this.props.setXYZEndEffectorPosition({
                       X: Number(mountPosition.x).toFixed(3),
                       Y: Number(mountPosition.y).toFixed(3),
-                      Z: Number(mountPosition.z).toFixed(3)
+                      Z: Number(mountPosition.z).toFixed(3),
+                      Q: localQuaternion,
+                      L: localPosition,
+                      M: new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      ) /* ,
+                      QA: localQuaternionArray,
+                      CQ: currentQuaternionArray,
+                      LA: localPositionArray,
+                      TA: localTranslationArray,
+                      SA: localShiftedPositionArray,
+                      IA: indexArray */
                     });
+                  }
+                  if (prevProps == null) {
+                    this.createSphere(mountPosition);
+                  } else {
+                    this.setSpherePosition(mountPosition);
                   }
                 }
               }
             }
           }
         }
+      } else {
+        // console.log(
+        //   'Looks like both prev props and current props are same',
+        //   prevProps,
+        //   this.props
+        // );
+      }
+    }
+  };
+  ApplyForwardKinematicMovement = (prevProps, parsedInfo) => {
+    if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
+      if (
+        JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
+          JSON.stringify(this.props.kinematicItemList || []) &&
+        JSON.stringify(parsedInfo || []) !== JSON.stringify([])
+      ) {
+        if (
+          this.partsMeshes &&
+          this.partsMeshes.length > 0 &&
+          this.props.kinematicItemList &&
+          this.props.kinematicItemList.length > 0
+        ) {
+          const sameGLTF = prevProps
+            ? prevProps.activeGLTFFile === this.props.activeGLTFFile
+            : false;
+          if (prevProps == null) {
+            this.removeDrawnAxisLines();
+            this.axisArray = [];
+            this.removeSphere();
+            this.removeDragger();
+          }
+          let localQuaternion = new Quaternion(0, 0, 0, 1);
+          let localPosition = new Vector3(0, 0, 0);
+          let localTranslation = new Vector3(0, 0, 0);
+          let localShiftedPosition = new Vector3(0, 0, 0);
+          let globalShiftedPosition = new Vector3(0, 0, 0);
+          for (
+            let index = 0;
+            index < this.props.kinematicItemList.length;
+            index++
+          ) {
+            const sequencedElement = this.getSequencedItem(
+              parsedInfo,
+              index + 1,
+              1
+            );
+
+            const propsElement = sequencedElement
+              ? this.getKinematicItem(
+                  this.props.kinematicItemList,
+                  sequencedElement
+                )
+              : this.props.kinematicItemList[index];
+
+            const currentNode = this.findNodeFrom(propsElement);
+
+            if (
+              currentNode &&
+              propsElement &&
+              propsElement.actuator_motion_control &&
+              !propsElement.actuator_motion_control.is_end_effector &&
+              propsElement.actuator_motion_control.child_part_type ===
+                'ACTUATOR'
+            ) {
+              if (prevProps == null) {
+                const axisLine = this.drawAxisLineToKinematic(propsElement);
+                if (currentNode) {
+                  currentNode.axisLine = axisLine
+                    ? axisLine.children
+                      ? axisLine.children.length > 0
+                        ? axisLine.children[0]
+                        : null
+                      : null
+                    : null;
+                  //this.AssignPositionToSingleNode(currentNode.axisLine, 0);
+                } else {
+                  console.log('Current node is null for', propsElement);
+                }
+              }
+
+              const prevPropsElement = sameGLTF
+                ? prevProps.kinematicItemList
+                  ? prevProps.kinematicItemList[index].filePartName ===
+                    propsElement.filePartName
+                    ? prevProps.kinematicItemList[index]
+                    : this.getPrevPropsItem(prevProps, propsElement)
+                  : null
+                : null;
+              let differenceElement =
+                prevPropsElement && propsElement
+                  ? prevPropsElement.actuator_motion_control &&
+                    propsElement.actuator_motion_control
+                    ? propsElement.actuator_motion_control.chain_number -
+                      prevPropsElement.actuator_motion_control.chain_number
+                    : 0
+                  : 0;
+              if (!sameGLTF || !prevPropsElement) {
+                differenceElement = propsElement
+                  ? propsElement.actuator_motion_control
+                    ? propsElement.actuator_motion_control.chain_number
+                    : 0
+                  : 0;
+              }
+              if (
+                differenceElement ||
+                propsElement.actuator_motion_control.chain_number !=
+                  0 /* || prevProps == null */
+              ) {
+                let currentAxis = propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation
+                  ? propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.axis
+                    ? new Vector3(
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                      )
+                    : new Vector3()
+                  : new Vector3();
+                let currentPosition = propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation
+                  ? propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.position
+                    ? new Vector3(
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                      )
+                    : new Vector3()
+                  : new Vector3();
+
+                let localCurrentQuaternion = localQuaternion.clone();
+                let localCurrentTranslation = localTranslation.clone();
+                let currentShiftedPosition = currentPosition.clone();
+                currentShiftedPosition.sub(localPosition);
+                currentShiftedPosition.applyQuaternion(localCurrentQuaternion);
+                currentShiftedPosition.add(localShiftedPosition);
+                let currentPositionAxis = currentAxis.clone();
+                //currentPositionAxis.add(currentPosition);
+                //currentPositionAxis.sub(localPosition);
+                currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                //currentPositionAxis.add(localShiftedPosition);
+                //currentPositionAxis.sub(currentShiftedPosition);
+                currentPositionAxis.normalize();
+
+                const isLinear =
+                  propsElement.actuator_motion_control.is_linear_or_rotational;
+                let currentAxisQuaternion = new Quaternion();
+                if (isLinear) {
+                  const currentLength = math.sqrt(
+                    currentPositionAxis.x * currentPositionAxis.x +
+                      currentPositionAxis.y * currentPositionAxis.y +
+                      currentPositionAxis.z * currentPositionAxis.z
+                  );
+                  if (currentLength != 0) {
+                    localCurrentTranslation.add(
+                      new Vector3(
+                        (currentPositionAxis.x *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength,
+                        (currentPositionAxis.y *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength,
+                        (currentPositionAxis.z *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength
+                      )
+                    );
+                  }
+                } else {
+                  currentAxisQuaternion
+                    .setFromAxisAngle(
+                      currentPositionAxis,
+                      propsElement.actuator_motion_control.chain_number
+                    )
+                    .normalize();
+                  localCurrentQuaternion
+                    .premultiply(currentAxisQuaternion)
+                    .normalize();
+                }
+                // console.log(
+                //   'Previous Values',
+                //   localPosition,
+                //   localQuaternion,
+                //   localShiftedPosition
+                // );
+                let shiftedPosition = currentPosition.clone();
+                shiftedPosition.applyQuaternion(localQuaternion);
+                shiftedPosition.add(globalShiftedPosition);
+                let shiftingPosition = currentPosition.clone();
+                shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                shiftedPosition.sub(shiftingPosition);
+                shiftedPosition.sub(localTranslation);
+                shiftedPosition.add(localCurrentTranslation);
+
+                localPosition = currentPosition.clone();
+                localQuaternion = localCurrentQuaternion.clone();
+                localShiftedPosition = currentShiftedPosition.clone();
+                localTranslation = localCurrentTranslation.clone();
+                globalShiftedPosition = shiftedPosition.clone();
+                // console.log(
+                //   'Current Values',
+                //   localPosition,
+                //   localQuaternion,
+                //   localShiftedPosition
+                // );
+                this.animateKinematicChain(
+                  //differenceElement,
+                  propsElement,
+                  //currentNode,
+                  //nextNode,
+                  //prevProps,
+                  index,
+                  parsedInfo,
+                  localQuaternion.clone(),
+                  /* index >= 2 && false
+                      ? localPreviousStoredPosition.clone()
+                      :  */
+                  localPosition.clone(),
+                  /* index >= 2 && false
+                      ? localPreviousCUrrentPosition.clone()
+                      :  */
+                  //currentOriginalPosition.clone(),
+                  globalShiftedPosition.clone()
+                );
+              } else {
+                console.log(index, propsElement, 'No difference found');
+              }
+            }
+            if (
+              currentNode &&
+              propsElement &&
+              propsElement.actuator_motion_control &&
+              propsElement.actuator_motion_control.is_end_effector &&
+              propsElement.actuator_motion_control.child_part_type ===
+                'ACTUATOR'
+            ) {
+              if (this.props.itemProperties) {
+                const itemProperties = this.props.itemProperties;
+                console.log('Got itemproperties as', itemProperties);
+                if (
+                  itemProperties.actuator_motion_control &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation.mountobb
+                ) {
+                  const mountSurface =
+                    itemProperties.actuator_motion_control
+                      .cylindrical_axis_of_rotation.mountobb;
+                  let mountPosition = new Vector3(
+                    mountSurface.cx,
+                    mountSurface.cy,
+                    mountSurface.cz
+                  );
+                  mountPosition.sub(localPosition);
+                  mountPosition.applyQuaternion(localQuaternion);
+                  mountPosition.add(localShiftedPosition);
+                  if (this.props.setXYZEndEffectorPosition) {
+                    this.props.setXYZEndEffectorPosition({
+                      X: Number(mountPosition.x).toFixed(3),
+                      Y: Number(mountPosition.y).toFixed(3),
+                      Z: Number(mountPosition.z).toFixed(3),
+                      Q: localQuaternion,
+                      L: localPosition,
+                      S: localShiftedPosition,
+                      M: new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      ) /* ,
+                      QA: localQuaternionArray,
+                      CQ: currentQuaternionArray,
+                      LA: localPositionArray,
+                      TA: localTranslationArray,
+                      SA: localShiftedPositionArray,
+                      IA: indexArray */
+                    });
+                  }
+                  if (prevProps == null) {
+                    this.createSphere(mountPosition);
+                    this.createDragger();
+                  } else {
+                    this.setSpherePosition(mountPosition);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else {
+        // console.log(
+        //   'Looks like both prev props and current props are same',
+        //   prevProps,
+        //   this.props
+        // );
       }
     }
   };
@@ -6764,6 +8673,122 @@ class GLTFRenderer extends Component {
       //const position = element.geometry.attributes.position;
       //console.log('Got positiion in 3js', position, position.applyMatrix4);
       //console.log('element', element, element.geometry);
+    }
+  };
+  createDragger = () => {
+    this.mouseDragger = new DraggerControl(
+      this.sphereNode.children,
+      this.activeCamera,
+      this.renderer.domElement
+    );
+    this.mouseDragger.addEventListener(
+      'dragstart',
+      this.dragStart.bind(this),
+      false
+    );
+    this.mouseDragger.addEventListener(
+      'drag',
+      this.dragFunction.bind(this),
+      false
+    );
+    this.mouseDragger.addEventListener(
+      'dragend',
+      this.dragEnd.bind(this),
+      false
+    );
+  };
+  removeDragger = () => {
+    if (this.mouseDragger) {
+      this.mouseDragger.removeEventListener('dragend', this.dragEnd);
+      this.mouseDragger.removeEventListener('drag', this.dragFunction);
+      this.mouseDragger.removeEventListener('dragstart', this.dragStart);
+      this.mouseDragger.dispose();
+      this.mouseDragger = null;
+    }
+  };
+  createSphere = (showPosition) => {
+    if (this.scene) {
+      this.sphereNode = new Group(); //new Object3D();
+      this.sphereNode.name = 'EndEffectorPosition';
+      this.dotGeometry = new SphereBufferGeometry(0.01, 8, 8);
+      var material = new MeshBasicMaterial({ color: 0xffdd00 });
+      this.sphere = new Mesh(this.dotGeometry, material);
+      this.sphere.name = 'ENDEFFECTORSphere';
+      this.sphere.type = 'Sphere';
+      this.sphereNode.add(this.sphere);
+      this.setSpherePosition(showPosition);
+      this.sphereNode.position.x += this.shiftposition.x;
+      this.sphereNode.position.y += this.shiftposition.y;
+      this.sphereNode.position.z += this.shiftposition.z;
+      this.sphereNode.renderOrder = 60;
+      this.sphere.renderOrder = 60;
+      this.scene.add(this.sphereNode);
+      console.log('Sphere', showPosition, this.sphereNode);
+      this.raycastObjects = [
+        ...this.raycastObjects,
+        ...this.rayCastObjectFilters(this.sphereNode.children)
+      ];
+    }
+  };
+  removeSphere = () => {
+    if (this.scene && this.sphereNode) {
+      this.scene.remove(this.sphereNode);
+      this.dotGeometry.dispose();
+    }
+    this.sphereNode = null;
+  };
+  setSpherePosition = (localPosition) => {
+    if (this.sphereNode) {
+      // this.dotGeometry.setAttribute(
+      //   'position',
+      //   new Float32BufferAttribute(
+      //     [
+      //       localPosition.x * 0.001,
+      //       localPosition.z * 0.001,
+      //       -localPosition.y * 0.001
+      //     ],
+      //     3
+      //   )
+      // );
+      this.sphere.position.x = localPosition.x * 0.001;
+      this.sphere.position.y = localPosition.z * 0.001;
+      this.sphere.position.z = -localPosition.y * 0.001;
+      this.sphere.updateMatrix();
+      this.sphere.updateMatrixWorld(true);
+    }
+  };
+  getSpherePosition = () => {
+    if (this.sphereNode) {
+      // const localPosition = this.dotGeometry.getAttribute('position');
+      // return new Vector3(
+      //   localPosition[0] / 0.001,
+      //   -localPosition[2] / 0.001,
+      //   localPosition[1] / 0.001
+      // );
+      return new Vector3(
+        this.sphere.position.x / 0.001,
+        -this.sphere.position.z / 0.001,
+        this.sphere.position.y / 0.001
+      );
+    }
+    return new Vector3();
+  };
+
+  dragStart = (data) => {
+    this.controls.enabled = false;
+  };
+  dragEnd = (data) => {
+    this.controls.enabled = true;
+  };
+  dragFunction = (data) => {
+    const { target, object } = data;
+    console.log('Got positiion as', object.position, target, data);
+    if (this.props.setXYZControlPosition) {
+      this.props.setXYZControlPosition({
+        X: object.position.x / 0.001,
+        Y: -object.position.z / 0.001,
+        Z: object.position.y / 0.001
+      });
     }
   };
 

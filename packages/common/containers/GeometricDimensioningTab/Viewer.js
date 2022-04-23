@@ -55,8 +55,11 @@ export default function Viewer({
   drawAxisLines = null,
   showKinematicSliderMove = false,
   kinematicItemList = [],
+  setKinematicItemList = () => {},
   xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
   setXYZEndEffectorPosition = () => {},
+  xyzControlPosition = { X: 0, Y: 0, Z: 0 },
+  setXYZControlPosition = () => {},
   itemProperties = null
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
@@ -186,8 +189,11 @@ export default function Viewer({
           showKinematicMove={showKinematicMove}
           showKinematicSliderMove={showKinematicSliderMove}
           kinematicItemList={kinematicItemList}
+          setKinematicItemList={setKinematicItemList}
           xyzEndEffectorPosition={xyzEndEffectorPosition}
           setXYZEndEffectorPosition={setXYZEndEffectorPosition}
+          xyzControlPosition={xyzControlPosition}
+          setXYZControlPosition={setXYZControlPosition}
           itemProperties={itemProperties}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */

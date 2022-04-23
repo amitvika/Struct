@@ -92,6 +92,11 @@ const ItemDetail = ({ itemValue }) => {
     Y: 0,
     Z: 0
   });
+  const [xyzControlPosition, setXYZControlPosition] = useState({
+    X: 0,
+    Y: 0,
+    Z: 0
+  });
 
   /* useEffect(() => {
     if (itemValue) {
@@ -790,6 +795,8 @@ const ItemDetail = ({ itemValue }) => {
             setDrawAxisLines={setDrawAxisLines}
             xyzEndEffectorPosition={xyzEndEffectorPosition}
             setXYZEndEffectorPosition={setXYZEndEffectorPosition}
+            xyzControlPosition={xyzControlPosition}
+            setXYZControlPosition={setXYZControlPosition}
             {...{ handleSave }}
           />
         );

@@ -591,7 +591,7 @@ class TrackballControls extends EventDispatcher {
 
     function onMouseDown(event) {
       event.preventDefault();
-
+      //console.log('Reached to get mouse down', event);
       if (_state === STATE.NONE) {
         switch (event.button) {
           case scope.mouseButtons.LEFT:

@@ -521,7 +521,7 @@ export const PlusMinus = (props) => {
     onChange = () => {}
   } = props;
 
-  const [counter, setCounter] = useState(value);
+  const [counter, setCounter] = useState(parseFloat(value || 0));
   useEffect(() => {
     assignValue(value);
   }, [value]);
@@ -529,9 +529,20 @@ export const PlusMinus = (props) => {
     const newValue = counter + step;
     if (newValue < max) {
       setCounter(newValue);
+      console.log('Setting increment and calling onchange', newValue);
       onChange(null, newValue);
     } else if (counter != max) {
       setCounter(max);
+      console.log(
+        'Setting increment max and calling onchange',
+        newValue,
+        max,
+        counter,
+        step,
+        typeof counter,
+        typeof step,
+        typeof newValue
+      );
       onChange(null, max);
     }
   };
@@ -539,27 +550,34 @@ export const PlusMinus = (props) => {
     const newValue = counter - step;
     if (newValue > min) {
       setCounter(newValue);
+      console.log('Setting decrement and calling onchange', newValue);
       onChange(null, newValue);
     } else if (counter != min) {
       setCounter(min);
+      console.log('Setting decrement min and calling onchange', newValue, min);
       onChange(null, min);
     }
   };
-  const assignValue = (data) => {
+  const assignValue = (value) => {
+    const data = parseFloat(value || 0);
+    console.log('Assigning Value', data);
     if (data <= max && data >= min) {
       if (counter != data) {
         setCounter(data);
+        console.log('Setting counter and calling onchange', data);
         onChange(null, data);
       }
     } else {
       if (data > max) {
         if (counter != max) {
           setCounter(max);
+          console.log('Setting counter max and calling onchange', data, max);
           onChange(null, max);
         }
       } else {
         if (counter != min) {
           setCounter(min);
+          console.log('Setting counter min and calling onchange', data, min);
           onChange(null, min);
         }
       }

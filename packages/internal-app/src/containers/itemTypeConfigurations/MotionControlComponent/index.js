@@ -124,6 +124,12 @@ export default function MotionControlComponent({
                   ? actuator_motion_control.linear_distance_limit
                   : actuator_motion_control.rotational_angle_limit
                 : null;
+            item.actuator_motion_control.maximum_limit =
+              actuator_motion_control.child_part_type == 'ACTUATOR'
+                ? getLimit(item.actuator_motion_control)
+                : 0;
+            item.actuator_motion_control.minimum_limit =
+              -item.actuator_motion_control.maximum_limit;
             console.log(
               'Changing structure from',
               thisList[index],
@@ -145,7 +151,7 @@ export default function MotionControlComponent({
   React.useEffect(() => {
     setItemList(kinematicItemList);
     setSelectedOption(SELECTASSEMBLY);
-    //console.log('Reaching here to change option to Select Assembly');
+    console.log('Reaching here to change items', kinematicItemList, itemList);
   }, [kinematicItemList]);
 
   React.useEffect(() => {
@@ -304,7 +310,7 @@ export default function MotionControlComponent({
     }
     return actuator_motion_control.is_linear_or_rotational ? 100 : 3.14;
   };
-
+  //console.log('After effect', itemList, kinematicItemList);
   return (
     <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
       <Typography

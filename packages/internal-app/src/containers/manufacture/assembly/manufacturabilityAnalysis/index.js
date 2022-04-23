@@ -1717,6 +1717,8 @@ export default function ManufacturabilityAnalysis(props) {
             setActiveGLTFile={setActiveGLTFile}
             xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
             setXYZEndEffectorPosition={null}
+            xyzControlPosition={{ X: 0, Y: 0, Z: 0 }}
+            setXYZControlPosition={null}
             itemProperties={null}
             //resetSelectionFromTree={resetSelectionFromTree}
           />

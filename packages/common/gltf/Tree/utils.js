@@ -970,7 +970,7 @@ export const extractKinematicInformation = (kinematicparts) => {
       isActuator,
       isEndEffector
     ] = myInfo;
-    console.log('What I got as Axis', axisDict, kinematicinfo, myInfo);
+    //console.log('What I got as Axis', axisDict, kinematicinfo, myInfo);
     axis = null;
     position = null;
     if (axisDict === null) {
@@ -1115,7 +1115,7 @@ export const extractKinematicInformation = (kinematicparts) => {
       position,
       axisPosition
     ];
-    console.log('Each Kinematic Info', myInfo, kinematicinfo);
+    //console.log('Each Kinematic Info', myInfo, kinematicinfo);
     kinematicInformation.push(myInfo);
   }
   lengthOfKinematicInfo = kinematicInformation.length;
@@ -1129,11 +1129,11 @@ export const extractKinematicInformation = (kinematicparts) => {
     kinematicInfo < _pj_a;
     kinematicInfo += 1
   ) {
-    console.log(
-      'Kinematic Info of checking linkage to insert array',
-      kinematicInfo,
-      kinematicInformation[kinematicInfo]
-    );
+    // console.log(
+    //   'Kinematic Info of checking linkage to insert array',
+    //   kinematicInfo,
+    //   kinematicInformation[kinematicInfo]
+    // );
     [
       partName,
       displayName,
@@ -1374,17 +1374,17 @@ export const extractKinematicInformation = (kinematicparts) => {
           position,
           axisPosition
         ] = kinematicInformation[kinematicInfo];
-        console.log(
-          'What I got for axis copy',
-          currentIndex,
-          kinematicInformation[kinematicInfo],
-          chainIndex + 1,
-          chains,
-          sequence,
-          chains.includes(chainIndex + 1),
-          sequence === currentIndex,
-          sequence === currentIndex + 1
-        );
+        // console.log(
+        //   'What I got for axis copy',
+        //   currentIndex,
+        //   kinematicInformation[kinematicInfo],
+        //   chainIndex + 1,
+        //   chains,
+        //   sequence,
+        //   chains.includes(chainIndex + 1),
+        //   sequence === currentIndex,
+        //   sequence === currentIndex + 1
+        // );
         if (chains.includes(chainIndex + 1) && sequence === currentIndex) {
           BelowFound = kinematicInfo;
           doRotateAxis = partType === 'ACTUATOR';
