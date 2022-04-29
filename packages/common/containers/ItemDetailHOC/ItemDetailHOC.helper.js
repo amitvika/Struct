@@ -98,7 +98,7 @@ export const fetchGLTFAndTree = async (props) => {
         const datafile = whichOneToLoad;
         let fetchStatus = () => getAFileFromStore(datafile, 'status');
         let validateStatus = (result) => {
-          return result.data.percent != 100;
+          return result.data.percent !== 100;
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;
@@ -296,7 +296,7 @@ export const handleOtherTabCase = async (props) => {
       const datafile = item.fileUUId + '/' + datastore;
       let fetchStatus = () => getAFileFromStore(datafile, 'status');
       let validateStatus = (result) => {
-        return result.data.percent != 100;
+        return result.data.percent !== 100;
       };
       let percentFunction = (result) =>
         result.data.percent ? result.data.percent : percentage;
@@ -610,7 +610,7 @@ export const setOrder = async (props) => {
         const datafile = item.fileUUId + '/' + datastore;
         let fetchStatus = () => getAFileFromStore(datafile, 'status');
         let validateStatus = (result) => {
-          return result.data.percent != 100;
+          return result.data.percent !== 100;
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;

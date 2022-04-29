@@ -1667,6 +1667,13 @@ export default function ManufacturabilityAnalysis(props) {
             setXYZEndEffectorPosition={null}
             xyzControlPosition={{ X: 0, Y: 0, Z: 0 }}
             setXYZControlPosition={null}
+            kinematicParameters={{
+              step: 1,
+              error: 8,
+              iterations: 41,
+              methods: 2
+            }}
+            setKinematicParameters={null}
             itemProperties={null}
             //resetSelectionFromTree={resetSelectionFromTree}
           />

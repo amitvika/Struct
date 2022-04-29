@@ -283,7 +283,7 @@ export default function BaseItemProperties({
             //   result.data.percent,
             //   result.data.percent != 100
             // );
-            return result.data.percent != 100;
+            return result.data.percent !== 100;
           };
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentager;
@@ -466,6 +466,13 @@ export default function BaseItemProperties({
                   setXYZEndEffectorPosition={null}
                   xyzControlPosition={{ X: 0, Y: 0, Z: 0 }}
                   setXYZControlPosition={null}
+                  kinematicParameters={{
+                    step: 1,
+                    error: 8,
+                    iterations: 41,
+                    methods: 2
+                  }}
+                  setKinematicParameters={null}
                   itemProperties={null}
                 />
               }

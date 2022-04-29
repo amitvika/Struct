@@ -102,7 +102,7 @@ export const createChildItems = async ({
     let fetchStatus = () => getAFileFromStore(datafile, 'status');
     let validateStatus = (result) => {
       //console.log(result.data,result.data.percent,result.data.percent!=100);
-      return result.data.percent != 100;
+      return result.data.percent !== 100;
     };
     let percentFunction = (result) =>
       result.data.percent ? result.data.percent : percentage;
@@ -157,9 +157,10 @@ export const createChildItems = async ({
       return (
         !result ||
         !result.data ||
-        result.data.begin != result.data.end ||
-        result.data.begin == 0 ||
-        JSON.stringify(result.data) == JSON.stringify({})
+        !result.data.begin ||
+        result.data.begin !== result.data.end ||
+        result.data.begin === 0 ||
+        JSON.stringify(result.data) === JSON.stringify({})
       );
     };
     percentFunction = (result) =>

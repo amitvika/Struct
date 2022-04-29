@@ -303,7 +303,10 @@ class GLTFRenderer extends Component {
     autoHideDuration: 1000,
     edgelinewidth: 2.0,
     freezeNonSelection: false,
-    parsedKinematicInfo: []
+    //parsedKinematicInfo: [],
+    indexedKinematicParsedInfo: [],
+    kinematicErrorDigits: 8,
+    kinematicPrecision: 0.00000001
     //gltfobj:this.props.gltfobj
   };
   state_selectedObjects = [];
@@ -388,7 +391,7 @@ class GLTFRenderer extends Component {
     this.setStateWithoutError({
       snackBarAlertType: alert,
       snackBarMessage: message,
-      autoHideDuration: alert == 'success' ? 1000 : 5000,
+      autoHideDuration: alert === 'success' ? 1000 : 5000,
       snackBarState: true
     });
     //console.log("Snack Bar",alert,message);
@@ -413,7 +416,7 @@ class GLTFRenderer extends Component {
                     ? this.props.gltfobj.gdttable[this.props.activeDataTable]
                         .edges
                       ? this.props.gltfobj.gdttable[this.props.activeDataTable]
-                          .edges.length == 0
+                          .edges.length === 0
                       : true
                     : true
                   : true
@@ -429,9 +432,9 @@ class GLTFRenderer extends Component {
     if (
       this.scene &&
       axis &&
-      axis.length == 3 &&
+      axis.length === 3 &&
       position &&
-      position.length == 3
+      position.length === 3
     ) {
       let axisLineNodes = new Group(); //new Object3D();
       axisLineNodes.linetype = 5;
@@ -529,9 +532,9 @@ class GLTFRenderer extends Component {
       prevProps.activeDataTable !== this.props.activeDataTable; //prevProps.activefile !== this.props.activefile;
 
     var toChange = toChangeGLTF;
-    toChange = toChange || prevProps.materialtype != this.props.materialtype;
+    toChange = toChange || prevProps.materialtype !== this.props.materialtype;
     const edgeChange = toChange ? this.findEdgeChange(prevProps) : false;
-    if (prevProps.selectedoption != this.props.selectedoption) {
+    if (prevProps.selectedoption !== this.props.selectedoption) {
       const thisoption = this.getValueOptionFromString(
         this.props.selectedoption
       );
@@ -541,9 +544,9 @@ class GLTFRenderer extends Component {
     toChange = toChange || edgeChange;
 
     this.changedctrlkey = this.props.ctrlKey;
-    var changeback = this.databackcolor != this.props.backcolor;
-    changeback = changeback || this.dataselectcolor != this.props.selectcolor;
-    changeback = changeback || this.datatouchcolor != this.props.touchcolor;
+    var changeback = this.databackcolor !== this.props.backcolor;
+    changeback = changeback || this.dataselectcolor !== this.props.selectcolor;
+    changeback = changeback || this.datatouchcolor !== this.props.touchcolor;
     if (changeback) {
       this.changeBackgroundWhenPropsChange();
     }
@@ -555,7 +558,7 @@ class GLTFRenderer extends Component {
         if (
           prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
           !this.content ||
-          this.content.length == 0
+          this.content.length === 0
         ) {
           console.log(
             'Doing this.props.gltfobj in toChangeGLTF',
@@ -590,7 +593,7 @@ class GLTFRenderer extends Component {
 
     if (this.props.drawAxisLines) {
       if (
-        JSON.stringify(prevProps.drawAxisLines || []) !=
+        JSON.stringify(prevProps.drawAxisLines || []) !==
         JSON.stringify(this.props.drawAxisLines || [])
       ) {
         for (
@@ -610,19 +613,30 @@ class GLTFRenderer extends Component {
         // );
       }
     }
+    if (this.props.kinematicParameters) {
+      if (
+        this.props.kinematicParameters.error != this.state.kinematicErrorDigits
+      ) {
+        const precision = Math.pow(10, -this.props.kinematicParameters.error);
+        this.setStateWithoutError({
+          kinematicErrorDigits: this.props.kinematicParameters.error,
+          kinematicPrecision: precision
+        });
+      }
+    }
     if (this.props.showKinematicSliderMove) {
       console.log('Getting from Component DID update', prevProps);
       this.ApplyForwardKinematicMovement(
         prevProps,
-        this.state.parsedKinematicInfo
+        this.state.indexedKinematicParsedInfo
       );
       this.calculateInverseKinematicMovement(
         prevProps,
-        this.state.parsedKinematicInfo
+        this.state.indexedKinematicParsedInfo
       );
     }
     /* 
-        if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
+        if((this.state.gltfobj!==this.props.gltfobj) || (prevState.gltfobj !==this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
             console.log("Setting",this.state.gltfobj,"props obj",this.props.gltfobj);
             this.alter(this.props.gltfobj);
@@ -630,14 +644,14 @@ class GLTFRenderer extends Component {
             console.log("Not Setting",this.state.gltfobj,"props obj",this.props.gltfobj);
         }
         //console.log("Reachibg here my set",list,prevProps,prevState,this.state.sortedlist);
-            if (toChange && this.changeState==false) {
+            if (toChange && this.changeState===false) {
             //this.setState({gltfobj:this.props.gltfobj});
-            if (this.selectedoption != this.props.selectedoption) {
+            if (this.selectedoption !== this.props.selectedoption) {
                 this.changeSelectedOption();                       
             } 
-            if (this.activeFile != this.props.activefile ||
-                this.materialtype != this.props.materialtype || 
-                this.activeDataTable != this.props.activeDataTable ||
+            if (this.activeFile !== this.props.activefile ||
+                this.materialtype !== this.props.materialtype || 
+                this.activeDataTable !== this.props.activeDataTable ||
                 edgeChange ) {               
                
                 if(this.initDone) {
@@ -648,7 +662,7 @@ class GLTFRenderer extends Component {
             }          
         }
         
-        if(this.changeState==true) {
+        if(this.changeState===true) {
             console.log("I am not changing state eventhough props changed")
             this.changeState=false;
         } else {
@@ -720,7 +734,7 @@ class GLTFRenderer extends Component {
   };
   handlePopperClick = (event, param) => {
     let anchorEls = [...this.state.anchorEls];
-    if (this.state.selectedmenu != param) {
+    if (this.state.selectedmenu !== param) {
       if (anchorEls[this.state.selectedmenu]) {
         anchorEls[this.state.selectedmenu] = null;
         this.openEl[this.state.selectedmenu] = false;
@@ -761,7 +775,7 @@ class GLTFRenderer extends Component {
     this.disposeCameraAndControls();
     //console.log(myView);
     const viewport = this.setSameSize();
-    if (myView == 'Orthographic') {
+    if (myView === 'Orthographic') {
       this.defaultCamera = new OrthographicCamera(
         viewport.left,
         viewport.right,
@@ -1011,7 +1025,7 @@ class GLTFRenderer extends Component {
     //this.stats = new Stats();
     //this.stats.dom.height = '48px';
     //[].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
-    if (this.renderer == null) {
+    if (!this.renderer) {
       this.scene = new Scene();
       //this.lineScene = new Scene();
       const viewport = this.setSameSize();
@@ -1133,8 +1147,8 @@ class GLTFRenderer extends Component {
           //console.log("My Groups", myMenus[index].groups);
           if (
             index < 3 ||
-            (this.props.fileGDT && index == 3) ||
-            (this.props.fileAnimation && index == 4)
+            (this.props.fileGDT && index === 3) ||
+            (this.props.fileAnimation && index === 4)
           ) {
             for (let group = 0; group < myMenus[index].groups.length; group++) {
               //console.log("My Fields and Values",myMenus[index].groups[group]);
@@ -1176,7 +1190,7 @@ class GLTFRenderer extends Component {
     let innerWidth = 1;
     let innerHeight = 1;
     if (this.node) {
-      if (this.node.clientHeight != this.node.clientWidth) {
+      if (this.node.clientHeight !== this.node.clientWidth) {
         let minsize = Math.max(this.node.clientWidth, this.node.clientHeight);
         //console.log('minsize',this.node.clientWidth,this.node.clientHeight);
         if (minsize <= 0) {
@@ -1185,11 +1199,11 @@ class GLTFRenderer extends Component {
 
         let minsizePX = minsize.toString() + 'px';
         //console.log(minsizePX,this.node.clientWidth,this.node.clientHeight,this.node.style.width,this.node.style.height);
-        if (this.node.style.width != minsizePX) {
+        if (this.node.style.width !== minsizePX) {
           //console.log('minsizePX',minsizePX);
           this.node.style.width = minsizePX;
         }
-        if (this.node.style.height != minsizePX) {
+        if (this.node.style.height !== minsizePX) {
           this.node.style.height = minsizePX;
           //console.log(this.node.style.width,this.node.style.height);
         }
@@ -1201,12 +1215,12 @@ class GLTFRenderer extends Component {
       innerHeight = window.innerHeight;
       //console.log("Window",innerWidth,innerHeight)
     }
-    if (innerHeight == 0) {
+    if (innerHeight === 0) {
       innerWidth = innerHeight;
     }
-    if (innerWidth == 0) {
+    if (innerWidth === 0) {
       innerHeight = innerWidth;
-      if (innerHeight == 0) {
+      if (innerHeight === 0) {
         innerWidth = 1;
         innerHeight = 1;
       }
@@ -1313,42 +1327,42 @@ class GLTFRenderer extends Component {
                   node.material.transparent = false;
                 }
                 for (var i = 0; i < this.state_selectedObjects.length; i++) {
-                  if (node.name == this.state_selectedObjects[i].name) {
+                  if (node.name === this.state_selectedObjects[i].name) {
                     this.setSelectionColor(node);
                     this.state_selectedObjects[i] = node;
                     break;
                   }
                 }
                 if (this.firstshell) {
-                  if (node.name == this.firstshell.name) {
+                  if (node.name === this.firstshell.name) {
                     this.setSelectionColor(node);
                     this.firstshell = node;
                   }
                 }
                 if (this.secondshell) {
-                  if (node.name == this.secondshell.name) {
+                  if (node.name === this.secondshell.name) {
                     this.setSelectionColor(node);
                     this.secondshell = node;
                   }
                 }
                 const visibility = this.visibllity(node, true, option);
-                if (this.props.materialtype != 'Basic') {
+                if (this.props.materialtype !== 'Basic') {
                   const materials = Array.isArray(node.material)
                     ? node.material
                     : [node.material];
                   materials.forEach((material) => {
                     material.visible = visibility;
                     var prevMaterial = material;
-                    if (this.props.materialtype == 'Standard') {
+                    if (this.props.materialtype === 'Standard') {
                       material = new MeshStandardMaterial();
                     } else {
-                      if (this.props.materialtype == 'Lambert') {
+                      if (this.props.materialtype === 'Lambert') {
                         material = new MeshLambertMaterial();
                       } else {
-                        if (this.props.materialtype == 'Phong') {
+                        if (this.props.materialtype === 'Phong') {
                           material = new MeshPhongMaterial();
                         } else {
-                          if (this.props.materialtype == 'Physical') {
+                          if (this.props.materialtype === 'Physical') {
                             material = new MeshPhysicalMaterial();
                           }
                         }
@@ -1395,7 +1409,7 @@ class GLTFRenderer extends Component {
     ); */
     if (
       this.props.fileGDT &&
-      !this.props.showKinematicMove /*&& this.props.fileAnimation == false*/
+      !this.props.showKinematicMove /*&& this.props.fileAnimation === false*/
     ) {
       const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
@@ -1430,9 +1444,9 @@ class GLTFRenderer extends Component {
   ) => {
     if (element.geometry && element.centre) {
       if (
-        (element.centre.x == 0 &&
-          element.centre.y == 0 &&
-          element.centre.z == 0) ||
+        (element.centre.x === 0 &&
+          element.centre.y === 0 &&
+          element.centre.z === 0) ||
         true
       ) {
         //element.position.sub(originalPosition);
@@ -1792,18 +1806,25 @@ class GLTFRenderer extends Component {
       }
     }
     if (this.props.showKinematicSliderMove) {
-      this.assignPositions(0); //1 means exact centriod, 0 means origin
+      this.assignPositions(0); //1 means position at centriod, 0 means position at origin
       console.log('Getting from initialization routine, setcontent');
       const parsedInfo = extractKinematicInformation(
         this.props.kinematicItemList
       );
+      const parsedIndexInfo = this.getIndexedItemsFromParsedInfo(parsedInfo);
       console.log('Entering setting state');
-      this.ApplyForwardKinematicMovement(null, parsedInfo);
+      this.ApplyForwardKinematicMovement(null, parsedIndexInfo);
       console.log('Completed kinematic movement from initialization routine');
-      this.setStateWithoutError({ parsedKinematicInfo: parsedInfo });
+      this.setStateWithoutError({
+        //parsedKinematicInfo: parsedInfo,
+        indexedKinematicParsedInfo: parsedIndexInfo
+      });
       console.log('Completed Entering setting state');
     } else {
-      this.setStateWithoutError({ parsedKinematicInfo: [] });
+      this.setStateWithoutError({
+        //parsedKinematicInfo: [],
+        indexedKinematicParsedInfo: []
+      });
     }
 
     await this.loadAdditionalFeatures();
@@ -1875,7 +1896,7 @@ class GLTFRenderer extends Component {
         );
         firstTime = false;
       }
-      if (gdttableEdges.edges.length == 0) {
+      if (gdttableEdges.edges.length === 0) {
         let event = {};
         event['ctrlKey'] = false;
         if (Array.isArray(gdttableEdges.selectedObjects)) {
@@ -1884,7 +1905,7 @@ class GLTFRenderer extends Component {
             //console.log('setting selections to clear all selections');
             await this.doOneSelection(element, event, false);
           });
-          if (gdttableEdges.selectedObjects.length == 0) {
+          if (gdttableEdges.selectedObjects.length === 0) {
             //console.log('Resetting blank selections to clear all selections');
             await this.changeStateOfSelection(null, event, false);
           }
@@ -1943,7 +1964,7 @@ class GLTFRenderer extends Component {
           this.props.activeDataTable
         );
         if (
-          Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ==
+          Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ===
           false
         ) {
           gltfobj.gdttable[this.props.activeDataTable].edges = arrayCopy(
@@ -2018,7 +2039,7 @@ class GLTFRenderer extends Component {
       //console.log(clip,reset);
       if (clip) {
         try {
-          if (pauseAnimation == 'Continue') {
+          if (pauseAnimation === 'Continue') {
             if (reset) {
               this.mixer.clipAction(clip).reset().play();
             } else {
@@ -2042,7 +2063,7 @@ class GLTFRenderer extends Component {
   };
 
   updateAimationSpeed = (animationSpeed) => {
-    if (this.mixer && animationSpeed != 0) {
+    if (this.mixer && animationSpeed !== 0) {
       this.mixer.timeScale = animationSpeed;
     }
   };
@@ -2063,7 +2084,7 @@ class GLTFRenderer extends Component {
           action.getEffectiveWeight(),
           pauseAnimation
         ); */
-        action.paused = pauseAnimation == 'Pause';
+        action.paused = pauseAnimation === 'Pause';
       });
       //console.log(this.mixer.timeScale);
     } else {
@@ -2077,11 +2098,11 @@ class GLTFRenderer extends Component {
         const action = this.mixer.clipAction(clip);
         const actiontime = (clip.duration * animationTime) / 10;
         action.reset();
-        if (actiontime != 0) {
+        if (actiontime !== 0) {
           this.mixer.setTime(actiontime);
         }
         //console.log(this.state.pauseAnimation);
-        action.paused = this.state.pauseAnimation == 'Pause';
+        action.paused = this.state.pauseAnimation === 'Pause';
       });
     }
   };
@@ -2323,7 +2344,7 @@ class GLTFRenderer extends Component {
     this.axesScene = new Scene();
 
     //this.axesCamera = new OrthographicCamera(-clientWidth/2, clientWidth/2, clientHeight/2, -clientHeight/2,0.1,10);
-    if (myView == 'Orthographic') {
+    if (myView === 'Orthographic') {
       this.axesCamera = new OrthographicCamera(-1, 1, 1, -1);
     } else {
       this.axesCamera = new PerspectiveCamera(
@@ -2745,7 +2766,7 @@ class GLTFRenderer extends Component {
 
         for (var i = 0; i < this.partsMeshes.length; i++) {
 
-            if (this.partsMeshes[i].type == "Mesh") {
+            if (this.partsMeshes[i].type === "Mesh") {
                 this.partsMeshes[i].partSelected = false;
                 this.ListBoxes.push(this.partsMeshes[i].name);
                 this.ListValues.push(i);
@@ -2761,12 +2782,12 @@ class GLTFRenderer extends Component {
 
   hiLightMesh = (name) => {
     for (var i = 0; i < this.ListBoxes.length; i++) {
-      if (this.ListBoxes[i] == name) {
+      if (this.ListBoxes[i] === name) {
         if (this.SELECTED) {
           this.SELECTED.material.emissive.setHex(this.SELECTED.currentEmissive);
           this.SELECTED.partSelected = false;
         }
-        if (this.ListValues[i] == this.partsMeshes.length) {
+        if (this.ListValues[i] === this.partsMeshes.length) {
           this.SELECTED = null;
         } else {
           this.SELECTED = this.partsMeshes[this.ListValues[i]];
@@ -2976,7 +2997,7 @@ class GLTFRenderer extends Component {
       //console.log("Before",this.INTERSECTED.material.color);
       this.setStateWithoutError({ lastClickedNode: { ...this.INTERSECTED } });
       //console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
-      if (this.selectedoption == SELECTMEASURE || event.ctrlKey) {
+      if (this.selectedoption === SELECTMEASURE || event.ctrlKey) {
         this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
       } else {
         this.INTERSECTED.selectedshell = true;
@@ -3512,7 +3533,7 @@ class GLTFRenderer extends Component {
     if (!first && !second) return true;
     if (first && !second) return false;
     if (!first && second) return false;
-    if (first.name == second.name) return true;
+    if (first.name === second.name) return true;
     return false;
   };
 
@@ -3531,7 +3552,7 @@ class GLTFRenderer extends Component {
     }
     var valToRet = false;
     for (var i = 0; i < secondArray.length; i++) {
-      if (first.name == secondArray[i].name) {
+      if (first.name === secondArray[i].name) {
         valToRet = true;
         break;
       }
@@ -3541,9 +3562,9 @@ class GLTFRenderer extends Component {
 
   visibllity = (mynode, display, option, consolelog = false) => {
     if (
-      mynode?.type == 'Line' ||
-      mynode?.type == 'MeshLine' ||
-      mynode?.type == 'Sphere'
+      mynode?.type === 'Line' ||
+      mynode?.type === 'MeshLine' ||
+      mynode?.type === 'Sphere'
     ) {
       //console.log('Returning true', mynode);
       if (display) {
@@ -3551,15 +3572,15 @@ class GLTFRenderer extends Component {
         //   'Returning in display',
         //   mynode,
         //   this.state.showedges ||
-        //     option == SELECTEDGE ||
-        //     option == SELECTLINEAR ||
-        //     option == SELECTCIRCULAR
+        //     option === SELECTEDGE ||
+        //     option === SELECTLINEAR ||
+        //     option === SELECTCIRCULAR
         // );
         return (
           this.state.showedges ||
-          option == SELECTEDGE ||
-          option == SELECTLINEAR ||
-          option == SELECTCIRCULAR
+          option === SELECTEDGE ||
+          option === SELECTLINEAR ||
+          option === SELECTCIRCULAR
         );
       }
     }
@@ -3567,7 +3588,7 @@ class GLTFRenderer extends Component {
     const first4chars = mynode?.name?.slice(0, 4);
     const curvechar = mynode?.name?.slice(4, 5);
     const first6chars = mynode?.name?.slice(0, 6);
-    var visible = option == SELECTMEASURE || option == SELECTFEATURE;
+    var visible = option === SELECTMEASURE || option === SELECTFEATURE;
     if (consolelog) {
       console.log(
         'VVIISBLE',
@@ -3578,22 +3599,23 @@ class GLTFRenderer extends Component {
         visible
       );
     }
-    //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
+    //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name===data.name))
     if (
-      first4chars != 'PART' &&
-      first4chars != 'AXIS' &&
-      first4chars != 'ENDE'
+      first4chars !== 'PART' &&
+      first4chars !== 'AXIS' &&
+      first4chars !== 'ENDE'
     ) {
-      if (first4chars == 'FACE') {
+      if (first4chars === 'FACE') {
         if (display) {
           visible =
             visible ||
-            option == SELECTFACE ||
-            option == SELECTEDGE ||
-            option == SELECTCORNER ||
-            (option == SELECTLINEAR && curvechar == 'L') ||
-            (option == SELECTCIRCULAR &&
-              (curvechar == 'C' || curvechar == 'N'));
+            option === SELECTFACE ||
+            option === SELECTEDGE ||
+            option === SELECTCORNER ||
+            (option === SELECTLINEAR &&
+              (curvechar === 'L' || curvechar === 'C' || curvechar === 'N')) ||
+            (option === SELECTCIRCULAR &&
+              (curvechar === 'C' || curvechar === 'N'));
           if (consolelog) {
             console.log(
               'VVIISBLE2',
@@ -3607,10 +3629,11 @@ class GLTFRenderer extends Component {
         } else {
           visible =
             visible ||
-            option == SELECTFACE ||
-            (option == SELECTLINEAR && curvechar == 'L') ||
-            (option == SELECTCIRCULAR &&
-              (curvechar == 'C' || curvechar == 'N')); //||
+            option === SELECTFACE ||
+            (option === SELECTLINEAR &&
+              (curvechar === 'L' || curvechar === 'C' || curvechar === 'N')) ||
+            (option === SELECTCIRCULAR &&
+              (curvechar === 'C' || curvechar === 'N')); //||
           if (consolelog) {
             console.log(
               'VVIISBLE3',
@@ -3621,45 +3644,47 @@ class GLTFRenderer extends Component {
               visible
             );
           }
-          //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) ||
-          //(this.props.selectedoption == SELECTCIRCULAR &&
-          //(curvechar == 'C' || curvechar == 'N'));
+          //((this.props.selectedoption === SELECTLINEAR) && (curvechar==="L")) ||
+          //(this.props.selectedoption === SELECTCIRCULAR &&
+          //(curvechar === 'C' || curvechar === 'N'));
         }
-      } else if (first4chars == 'EDGE') {
+      } else if (first4chars === 'EDGE') {
         if (display) {
           //console.log("What i got in side display",this.props.selectedoption, SELECTLINEAR,curvechar);
           visible =
             visible ||
-            option == SELECTEDGE ||
-            option == SELECTCORNER ||
-            (option == SELECTLINEAR && curvechar == 'L') ||
-            (option == SELECTCIRCULAR &&
-              (curvechar == 'C' || curvechar == 'E'));
+            option === SELECTEDGE ||
+            option === SELECTCORNER ||
+            (option === SELECTLINEAR &&
+              (curvechar === 'L' || curvechar === 'C' || curvechar === 'N')) ||
+            (option === SELECTCIRCULAR &&
+              (curvechar === 'C' || curvechar === 'E'));
         } else {
           //console.log("What i got in side intersection",this.props.selectedoption, SELECTLINEAR,curvechar);
           visible =
             visible ||
-            option == SELECTEDGE ||
-            (option == SELECTLINEAR && curvechar == 'L') ||
-            (option == SELECTCIRCULAR &&
-              (curvechar == 'C' || curvechar == 'E'));
+            option === SELECTEDGE ||
+            (option === SELECTLINEAR &&
+              (curvechar === 'L' || curvechar === 'C' || curvechar === 'N')) ||
+            (option === SELECTCIRCULAR &&
+              (curvechar === 'C' || curvechar === 'E'));
         }
-      } else if (first6chars == 'VERTEX') {
+      } else if (first6chars === 'VERTEX') {
         if (display) {
-          visible = visible || option == SELECTCORNER;
+          visible = visible || option === SELECTCORNER;
         } else {
-          visible = visible || option == SELECTCORNER;
+          visible = visible || option === SELECTCORNER;
         }
       }
     } else {
       if (display) {
         visible = true;
       } else {
-        if (option == SELECTFACE) {
+        if (option === SELECTFACE) {
           visible = !mynode.facesLoaded;
-        } else if (option == SELECTEDGE) {
+        } else if (option === SELECTEDGE) {
           visible = !mynode.edgesLoaded;
-        } else if (option == SELECTCORNER) {
+        } else if (option === SELECTCORNER) {
           visible = !mynode.verticesLoaded;
         } else {
           visible = true;
@@ -3679,17 +3704,17 @@ class GLTFRenderer extends Component {
     }
     //console.log(visible,name,this.props.selectedoption);
     /*
-        if (first4chars == "EDGE") {
-            visible = (this.props.selectedoption == SELECTEDGE) || ((this.props.selectedoption == SELECTCORNER) && (display))
-                || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE) 
-                || (this.props.selectedoption==SELECTLOADEDGES);
+        if (first4chars === "EDGE") {
+            visible = (this.props.selectedoption === SELECTEDGE) || ((this.props.selectedoption === SELECTCORNER) && (display))
+                || (this.props.selectedoption === SELECTMEASURE) || (this.props.selectedoption === SELECTFEATURE) 
+                || (this.props.selectedoption===SELECTLOADEDGES);
         } else {
-            if (first6chars == "VERTEX") {
-                visible = (this.props.selectedoption == SELECTCORNER)
-                    || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
+            if (first6chars === "VERTEX") {
+                visible = (this.props.selectedoption === SELECTCORNER)
+                    || (this.props.selectedoption === SELECTMEASURE) || (this.props.selectedoption === SELECTFEATURE);
             } else {
-                visible = ((this.props.selectedoption != SELECTEDGE) && (this.props.selectedoption != SELECTCORNER))
-                    || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
+                visible = ((this.props.selectedoption !== SELECTEDGE) && (this.props.selectedoption !== SELECTCORNER))
+                    || (this.props.selectedoption === SELECTMEASURE) || (this.props.selectedoption === SELECTFEATURE);
             }
         }
         */
@@ -3777,7 +3802,7 @@ class GLTFRenderer extends Component {
       true
     );
 
-    if (intersects.length == 0) {
+    if (intersects.length === 0) {
       this.resetSelection();
     } else {
       //console.log(intersects);
@@ -3785,15 +3810,15 @@ class GLTFRenderer extends Component {
       for (var i = 0; i < intersects.length; i++) {
         //console.log("First",intersects[ i ].object);
         if (
-          intersects[i].object.type == 'Line' ||
-          intersects[i].object.type == 'MeshLine' ||
-          intersects[i].object.type == 'Sphere'
+          intersects[i].object.type === 'Line' ||
+          intersects[i].object.type === 'MeshLine' ||
+          intersects[i].object.type === 'Sphere'
         ) {
           myObject = i;
           //console.log("I found a face",intersects[i].object.name);
           break;
         }
-        if (intersects[i].object.type == 'Mesh') {
+        if (intersects[i].object.type === 'Mesh') {
           //console.log("name found",intersects[ i ].object.name);
           if (!this.onlyparts(intersects[i].object.name)) {
             myObject = i;
@@ -3803,11 +3828,11 @@ class GLTFRenderer extends Component {
         }
       }
       /*
-            if (myObject == intersects.length) {
+            if (myObject === intersects.length) {
                 for (var i = 0; i < intersects.length; i++) {
                     //console.log("First",intersects[ i ].object);
                    
-                    if (intersects[i].object.type == "Mesh" ) {
+                    if (intersects[i].object.type === "Mesh" ) {
                         //console.log("name found",intersects[ i ].object.name);
                         
                             myObject = i;
@@ -3819,15 +3844,15 @@ class GLTFRenderer extends Component {
                 }
             }; */
       //console.log("Got",myObject);
-      if (myObject == intersects.length) {
+      if (myObject === intersects.length) {
         //console.log("Entered here");
         for (var i = 0; i < intersects.length; i++) {
           //console.log("Second",intersects[ i ].object);
           if (
-            intersects[i].object.type == 'Mesh' ||
-            intersects[i].object.type == 'Line' ||
-            intersects[i].object.type == 'MeshLine' ||
-            intersects[i].object.type == 'Sphere'
+            intersects[i].object.type === 'Mesh' ||
+            intersects[i].object.type === 'Line' ||
+            intersects[i].object.type === 'MeshLine' ||
+            intersects[i].object.type === 'Sphere'
           ) {
             //console.log(intersects[ i ].object);
             myObject = i;
@@ -3835,8 +3860,8 @@ class GLTFRenderer extends Component {
           }
         }
       }
-      if (myObject != intersects.length) {
-        if (this.INTERSECTED != intersects[myObject].object) {
+      if (myObject !== intersects.length) {
+        if (this.INTERSECTED !== intersects[myObject].object) {
           if (this.INTERSECTED) {
             if (
               this.isObjectSame(this.INTERSECTED, this.firstshell) ||
@@ -3856,7 +3881,7 @@ class GLTFRenderer extends Component {
             intersectedShell: this.INTERSECTED,
             intersectedShellName: this.getIntersectedName(this.INTERSECTED)
           });
-          /* if (this.selectedoption == SELECTASSEMBLY) {
+          /* if (this.selectedoption === SELECTASSEMBLY) {
             console.log(
               'My name to display',
               this.getIntersectedName(this.INTERSECTED.name),
@@ -3919,7 +3944,7 @@ class GLTFRenderer extends Component {
     const myResourcePath = state_gltfobj.resourcepath
       ? state_gltfobj.resourcepath
       : resourcePathURL;
-    if (this.gltfJSON != null) {
+    if (this.gltfJSON !== null) {
       console.log(
         'Getting me3!',
         this.selectedoption,
@@ -4021,13 +4046,13 @@ class GLTFRenderer extends Component {
 
     const myStateTree = state_gltfobj.tree;
     myStateTree.forEach((element) => {
-      if (element[gltf_Dict['parentId']] == myId) {
+      if (element[gltf_Dict['parentId']] === myId) {
         if (element[gltf_Dict['leaf']]) {
           if (element[gltf_Dict['name']]) {
             //console.log('Coming from hre 3');
             const mymesh = this.findMyMaterial(element, false);
             if (mymesh) {
-              if (whatchanged == SELECTCOLOR) {
+              if (whatchanged === SELECTCOLOR) {
                 //console.log(this.partsMeshes[element.binId-1]);
                 //const mymaterial = this.partsMeshes[element.binId-1].material;
 
@@ -4037,7 +4062,7 @@ class GLTFRenderer extends Component {
                   mymaterial.color = myColor;
                 }
               }
-              if (whatchanged == SELECTTEXTURE) {
+              if (whatchanged === SELECTTEXTURE) {
                 //console.log(this.partsMeshes[element.binId-1]);
                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                 const mymaterial = mymesh.material;
@@ -4056,7 +4081,7 @@ class GLTFRenderer extends Component {
                   mymaterial.needsUpdate = true;
                 }
               }
-              if (whatchanged == SELECTMETAL) {
+              if (whatchanged === SELECTMETAL) {
                 //console.log(this.partsMeshes[element.binId-1]);
                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                 const mymaterial = mymesh.material;
@@ -4065,7 +4090,7 @@ class GLTFRenderer extends Component {
                   mymaterial.metalness = myMetal;
                 }
               }
-              if (whatchanged == SELECTROUGH) {
+              if (whatchanged === SELECTROUGH) {
                 //console.log(this.partsMeshes[element.binId-1]);
                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                 const mymaterial = mymesh.material;
@@ -4074,12 +4099,12 @@ class GLTFRenderer extends Component {
                   mymaterial.roughness = myRough;
                 }
               }
-              if (whatchanged == SELECTOPAQUE) {
+              if (whatchanged === SELECTOPAQUE) {
                 //console.log(this.partsMeshes[element.binId-1]);
                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                 const mymaterial = mymesh.material;
                 if (mymaterial) {
-                  mymaterial.transparent = myOpaque != 1;
+                  mymaterial.transparent = myOpaque !== 1;
                   mymaterial.opaque = myOpaque;
                   mymaterial.opacity = myOpaque;
                 }
@@ -4188,9 +4213,9 @@ class GLTFRenderer extends Component {
     const first4chars = name.slice(0, 4);
     const first6chars = name.slice(0, 6);
     if (
-      first4chars == 'PART' ||
-      first4chars == 'EDGE' ||
-      first6chars == 'VERTEX'
+      first4chars === 'PART' ||
+      first4chars === 'EDGE' ||
+      first6chars === 'VERTEX'
     ) {
       return false;
     }
@@ -4199,7 +4224,7 @@ class GLTFRenderer extends Component {
 
   onlyparts = (name) => {
     const first4chars = name.slice(0, 4);
-    return first4chars == 'PART';
+    return first4chars === 'PART';
   };
 
   /*
@@ -4230,7 +4255,7 @@ class GLTFRenderer extends Component {
             getAFileFromStore(progressfile,"progress")
             .then(res => res.data)
             .then((data) => {
-                if(!data || data.begin!=data.end) {
+                if(!data || data.begin!==data.end) {
                     console.log(data);
                     alert("Edges are still under construction. Please try after sometime");
                 } 
@@ -4254,16 +4279,16 @@ class GLTFRenderer extends Component {
       const myStateTree = state_gltfobj.tree;
       //console.log('State tree', myStateTree, this.props.gltfobj);
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
+        if (myStateTree[i][gltf_Dict['name']] === mynode.name) {
           myParentID = myStateTree[i][gltf_Dict['id']];
           //myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
           findEdges = myStateTree[i][gltf_Dict['subfeatures']];
-          if (!findEdges || findEdges == 'f') {
+          if (!findEdges || findEdges === 'f') {
             const myParentPart = this.findMyParentPart(mynode);
             if (myParentPart) {
               myParentID = myParentPart[gltf_Dict['id']];
             } else {
-              if (myStateTree[i][gltf_Dict['element']] == 'F') {
+              if (myStateTree[i][gltf_Dict['element']] === 'F') {
                 myParentID = myStateTree[i][gltf_Dict['parentId']];
                 console.log('Find Parent Edges', myStateTree[i]);
               } else {
@@ -4276,7 +4301,7 @@ class GLTFRenderer extends Component {
           break;
         }
       }
-      if (myParentID == -1) {
+      if (myParentID === -1) {
         //alert("Unable to find a parent for this!");
         console.log(
           'Unable to find a parent for this!',
@@ -4287,38 +4312,38 @@ class GLTFRenderer extends Component {
         );
       }
       console.log('My ID', myParentID, findEdges);
-      if (myParentID != -1) {
+      if (myParentID !== -1) {
         let featureSetStart = 0;
         if (!findEdges) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['parentId']] == myParentID) {
+            if (myStateTree[i][gltf_Dict['parentId']] === myParentID) {
               findEdges = myStateTree[i][gltf_Dict['subfeatures']];
-              if (findEdges == 'v') {
+              if (findEdges === 'v') {
                 featureSetStart = 3;
                 break;
               }
             }
           }
         }
-        if (!findEdges || findEdges != 'v') {
+        if (!findEdges || findEdges !== 'v') {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['parentId']] == myParentID) {
+            if (myStateTree[i][gltf_Dict['parentId']] === myParentID) {
               findEdges = myStateTree[i][gltf_Dict['subfeatures']];
-              if (findEdges == 'e') {
+              if (findEdges === 'e') {
                 featureSetStart = 2;
                 break;
               }
             }
           }
         }
-        // if (findEdges == 'e') {
+        // if (findEdges === 'e') {
         //   featureSetStart = 2;
         // }
-        if (!findEdges || (findEdges != 'e' && findEdges != 'v')) {
+        if (!findEdges || (findEdges !== 'e' && findEdges !== 'v')) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['parentId']] == myParentID) {
+            if (myStateTree[i][gltf_Dict['parentId']] === myParentID) {
               findEdges = myStateTree[i][gltf_Dict['subfeatures']];
-              if (findEdges == 'f') {
+              if (findEdges === 'f') {
                 //findEdges = 'e';
                 featureSetStart = 1;
                 //console.log("Finds already edges",i,this.props.gltfobj.tree[i],this.props.gltfobj.tree[i][gltf_Dict["parentId"]],myParentID,this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]);
@@ -4327,19 +4352,19 @@ class GLTFRenderer extends Component {
             }
           }
         }
-        if (findEdges == 'v') {
+        if (findEdges === 'v') {
           featureSetStart = 3;
         }
-        if (findEdges == 'e') {
+        if (findEdges === 'e') {
           featureSetStart = 2;
         }
-        if (findEdges == 'f') {
+        if (findEdges === 'f') {
           featureSetStart = 1;
         }
-        // if (findEdges != 'f' && findEdges != 'e' && findEdges != 'v') {
+        // if (findEdges !== 'f' && findEdges !== 'e' && findEdges !== 'v') {
         //   for (var i = 0; i < myStateTree.length; i++) {
-        //     if (myStateTree[i][gltf_Dict['parentId']] == myParentID) {
-        //       if (myStateTree[i][gltf_Dict['subfeatures']] == 'f') {
+        //     if (myStateTree[i][gltf_Dict['parentId']] === myParentID) {
+        //       if (myStateTree[i][gltf_Dict['subfeatures']] === 'f') {
         //         findEdges = 'f';
         //         featureSetStart = 1;
         //         //console.log("Finds already edges",i,this.props.gltfobj.tree[i],this.props.gltfobj.tree[i][gltf_Dict["parentId"]],myParentID,this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]);
@@ -4356,19 +4381,19 @@ class GLTFRenderer extends Component {
         );
         if (
           !findEdges ||
-          (findEdges != 'f' && findEdges != 'e' && findEdges != 'v')
+          (findEdges !== 'f' && findEdges !== 'e' && findEdges !== 'v')
         ) {
           featureSetStart = 0;
         }
 
         let featureSetFinish = 3;
-        if (this.selectedoption == SELECTFACE || clickKey.ctrlKey) {
+        if (this.selectedoption === SELECTFACE || clickKey.ctrlKey) {
           featureSetFinish = 1;
-        } else if (this.selectedoption == SELECTEDGE || clickKey.altKey) {
+        } else if (this.selectedoption === SELECTEDGE || clickKey.altKey) {
           featureSetFinish = 2;
         } else if (
-          this.selectedoption == SELECTASSEMBLY ||
-          this.selectedoption == SELECTSOLID
+          this.selectedoption === SELECTASSEMBLY ||
+          this.selectedoption === SELECTSOLID
         ) {
           featureSetFinish = 0;
         }
@@ -4396,7 +4421,7 @@ class GLTFRenderer extends Component {
           }
           if (mynode) {
             const first4chars = mynode.name.slice(0, 4);
-            selectHere = first4chars != 'PART';
+            selectHere = first4chars !== 'PART';
           }
           //selectHere=false;
           /* const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
@@ -4443,12 +4468,12 @@ class GLTFRenderer extends Component {
                     getAFileFromStore(progressFile,"progress")
                     .then(res => res.data)
                     .then((data) => {
-                        if(!data || data.begin!=data.end) {
+                        if(!data || data.begin!==data.end) {
                             console.log(data);
                             alert("Edges are still under construction. Please try after sometime");
                         } else {
                             let howManyFiles = data.files?data.files[myParentID]:1;
-                            if(howManyFiles==0) {
+                            if(howManyFiles===0) {
                                 howManyFiles=1;
                             }
                             let fileStore = progressFile + "-" +myParentID.toString()+"3";
@@ -4491,9 +4516,9 @@ class GLTFRenderer extends Component {
 
     const myStateTree = state_gltfobj.tree;
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
+      if (myStateTree[i][gltf_Dict['name']] === mynode.name) {
         myParentID = myStateTree[i][gltf_Dict['parentId']];
-        if (myStateTree[i][gltf_Dict['element']] == 'P') {
+        if (myStateTree[i][gltf_Dict['element']] === 'P') {
           return myStateTree[i];
         } else {
           break;
@@ -4501,14 +4526,14 @@ class GLTFRenderer extends Component {
       }
     }
 
-    if (myParentID == -1) {
+    if (myParentID === -1) {
       return null;
     } else {
       var myParentsParentID = -1;
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+        if (myStateTree[i][gltf_Dict['id']] === myParentID) {
           myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
-          if (myStateTree[i][gltf_Dict['element']] == 'P') {
+          if (myStateTree[i][gltf_Dict['element']] === 'P') {
             return myStateTree[i];
           } else {
             break;
@@ -4516,14 +4541,14 @@ class GLTFRenderer extends Component {
         }
       }
       //console.log("Parent", myParentsParentID, myParentID, mynode);
-      if (myParentsParentID == -1) {
+      if (myParentsParentID === -1) {
         //RootNode
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
         for (var i = 0; i < myStateTree.length; i++) {
-          if (myStateTree[i][gltf_Dict['id']] == myParentsParentID) {
-            if (myStateTree[i][gltf_Dict['element']] == 'P') {
+          if (myStateTree[i][gltf_Dict['id']] === myParentsParentID) {
+            if (myStateTree[i][gltf_Dict['element']] === 'P') {
               return myStateTree[i];
             }
           }
@@ -4534,7 +4559,7 @@ class GLTFRenderer extends Component {
   };
 
   findSiblingNodes = (mynode, addToGDTTable = true) => {
-    //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+    //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption !== SELECTSOLID);
     const myParentPart = this.findMyParentPart(mynode);
     var myMaterials = [];
     if (myParentPart) {
@@ -4548,18 +4573,18 @@ class GLTFRenderer extends Component {
     /* var myParentID = -1;
         
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
+            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] === mynode.name) {
                 myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                 break;
             }
         } 
         var myMaterials = [];
-        if (myParentID != -1) {
+        if (myParentID !== -1) {
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
+                if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] === myParentID) {
                     var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                     if (myChild) {
-                        if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="F") ||
+                        if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]==="F") ||
                              (this.onlyfaces(myChild.name)) ) {
                             myMaterials.push(myChild);
                         }
@@ -4568,7 +4593,7 @@ class GLTFRenderer extends Component {
             }
         }
         */
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
       return myMaterials;
     }
     return [mynode];
@@ -4578,14 +4603,14 @@ class GLTFRenderer extends Component {
     //console.log(this.partsMeshes);
     if (this.partsMeshes) {
       for (var i = 0; i < this.partsMeshes.length; i++) {
-        //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
+        //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name===data.name))
 
         if (byname) {
-          if (this.partsMeshes[i].name == data.name) {
+          if (this.partsMeshes[i].name === data.name) {
             return this.partsMeshes[i];
           }
         } else {
-          if (this.partsMeshes[i].name == data[gltf_Dict['name']]) {
+          if (this.partsMeshes[i].name === data[gltf_Dict['name']]) {
             return this.partsMeshes[i];
           }
         }
@@ -4608,12 +4633,12 @@ class GLTFRenderer extends Component {
     const myStateTree = state_gltfobj ? state_gltfobj.tree : [];
     const getTopParentNode = (node) => {
       let nodeParentID = node[gltf_Dict['parentId']];
-      if (nodeParentID == null || nodeParentID == 1) {
+      if (nodeParentID === null || nodeParentID === 1) {
         return node;
       } else {
         if (myStateTree) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['id']] == nodeParentID) {
+            if (myStateTree[i][gltf_Dict['id']] === nodeParentID) {
               let myParentsParent = getTopParentNode(myStateTree[i]);
               if (myParentsParent) {
                 return myParentsParent;
@@ -4627,13 +4652,13 @@ class GLTFRenderer extends Component {
     const getAllChildNodes = (node) => {
       const nodeID = node[gltf_Dict['id']];
       let childNodes = [];
-      if (node[gltf_Dict['element']] == 'P') {
+      if (node[gltf_Dict['element']] === 'P') {
         childNodes = [node];
       }
       if (myStateTree) {
         for (var i = 0; i < myStateTree.length; i++) {
           const curNode = myStateTree[i];
-          if (curNode[gltf_Dict['parentId']] == nodeID) {
+          if (curNode[gltf_Dict['parentId']] === nodeID) {
             const curChildNodes = getAllChildNodes(curNode);
             curChildNodes.forEach((element) => {
               childNodes.push(element);
@@ -4645,7 +4670,7 @@ class GLTFRenderer extends Component {
     };
     if (myStateTree) {
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['name']] == mynode['name']) {
+        if (myStateTree[i][gltf_Dict['name']] === mynode['name']) {
           mySelectedNode = myStateTree[i];
           myParentID = mySelectedNode[gltf_Dict['parentId']];
           myID = mySelectedNode[gltf_Dict['id']];
@@ -4660,14 +4685,14 @@ class GLTFRenderer extends Component {
       myParentID = parentNode[gltf_Dict['id']];
     }
     //console.log('GOt parentnode for selctions', myParentPart, myParentID);
-    if (myParentID != -1) {
-      if (myParentID != 1) {
+    if (myParentID !== -1) {
+      if (myParentID !== 1) {
         var myParentsParentID = -1;
         if (myStateTree) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+            if (myStateTree[i][gltf_Dict['id']] === myParentID) {
               myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
-              if (myParentsParentID != 1) {
+              if (myParentsParentID !== 1) {
                 parentNode = myStateTree[i];
               }
               break;
@@ -4684,8 +4709,8 @@ class GLTFRenderer extends Component {
       // );
       if (
         myTopParent &&
-        myTopParent[gltf_Dict['id']] != 1 &&
-        myTopParent[gltf_Dict['parentId']] != 1
+        myTopParent[gltf_Dict['id']] !== 1 &&
+        myTopParent[gltf_Dict['parentId']] !== 1
       ) {
         myTopParent = getTopParentNode(myTopParent);
       }
@@ -4696,7 +4721,7 @@ class GLTFRenderer extends Component {
       //   myTopParent
       // );
       var myParents = [];
-      if (myParentID == 1) {
+      if (myParentID === 1) {
         myParents = getAllChildNodes(mySelectedNode ? mySelectedNode : mynode);
         // console.log(
         //   'GOt parentnode for selctions3',
@@ -4717,7 +4742,7 @@ class GLTFRenderer extends Component {
         //   myMaterials
         // );
       }
-      if (myParents.length != 0) {
+      if (myParents.length !== 0) {
         var myMaterials = [];
         myParents.forEach((elementNode) => {
           var myChild = this.findMyMaterial(elementNode, false);
@@ -4725,7 +4750,7 @@ class GLTFRenderer extends Component {
             myMaterials.push(myChild);
           }
         });
-        if (myMaterials.length != 0) {
+        if (myMaterials.length !== 0) {
           // console.log(
           //   'GOt parentnode for selctions5',
           //   myParentPart,
@@ -4750,7 +4775,7 @@ class GLTFRenderer extends Component {
 
     const myStateTree = state_gltfobj.tree;
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
+      if (myStateTree[i][gltf_Dict['name']] === mynode.name) {
         myParentID = myStateTree[i][gltf_Dict['parentId']];
         myID = myStateTree[i][gltf_Dict['id']];
         //console.log("Getting Here1",this.props.gltfobj.tree[i]);
@@ -4764,26 +4789,26 @@ class GLTFRenderer extends Component {
     }
     //console.log("Parent", myParentID, myID);
     var myMaterials = [];
-    if (myParentID != -1) {
+    if (myParentID !== -1) {
       var myParentsParentID = -1;
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+        if (myStateTree[i][gltf_Dict['id']] === myParentID) {
           myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
           break;
         }
       }
       //console.log("Parent", myParentsParentID, myParentID, myID);
       var myParents = [];
-      if (myParentID == 1) {
+      if (myParentID === 1) {
         myParents.push(myID);
       } else {
-        if (myParentsParentID == -1 || myParentsParentID == 1) {
+        if (myParentsParentID === -1 || myParentsParentID === 1) {
           //RootNode
           //console.log("Pushing", myParentsParentID, myParentID, myID);
           myParents.push(myParentID);
         } else {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['parentId']] == myParentsParentID) {
+            if (myStateTree[i][gltf_Dict['parentId']] === myParentsParentID) {
               myParents.push(myStateTree[i][gltf_Dict['id']]);
             }
           }
@@ -4794,12 +4819,12 @@ class GLTFRenderer extends Component {
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
         for (var i = 0; i < myStateTree.length; i++) {
-          if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+          if (myStateTree[i][gltf_Dict['id']] === myParentID) {
             //console.log('Coming from hre 1');
             var myChild = this.findMyMaterial(myStateTree[i], false);
             if (myChild) {
               if (
-                myStateTree[i][gltf_Dict['element']] == 'P' ||
+                myStateTree[i][gltf_Dict['element']] === 'P' ||
                 this.onlyparts(myChild.name)
               ) {
                 myMaterials.push(myChild);
@@ -4810,7 +4835,7 @@ class GLTFRenderer extends Component {
         }
       }
     }
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
       return myMaterials;
     }
     return [mynode];
@@ -4825,12 +4850,12 @@ class GLTFRenderer extends Component {
     const myStateTree = state_gltfobj ? state_gltfobj.tree : [];
     const getTopParentNode = (node) => {
       let nodeParentID = node[gltf_Dict['parentId']];
-      if (nodeParentID == null || nodeParentID == 1) {
+      if (nodeParentID === null || nodeParentID === 1) {
         return node;
       } else {
         if (myStateTree) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['id']] == nodeParentID) {
+            if (myStateTree[i][gltf_Dict['id']] === nodeParentID) {
               let myParentsParent = getTopParentNode(myStateTree[i]);
               if (myParentsParent) {
                 return myParentsParent;
@@ -4844,7 +4869,7 @@ class GLTFRenderer extends Component {
 
     if (myStateTree) {
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['name']] == mynode[['name']]) {
+        if (myStateTree[i][gltf_Dict['name']] === mynode[['name']]) {
           mySelectedNode = myStateTree[i];
           myParentID = mySelectedNode[gltf_Dict['parentId']];
           myID = mySelectedNode[gltf_Dict['id']];
@@ -4859,14 +4884,14 @@ class GLTFRenderer extends Component {
       myParentID = parentNode[gltf_Dict['id']];
     }
     //console.log('GOt parentnode for selctions', myParentPart, myParentID);
-    if (myParentID != -1) {
-      if (myParentID != 1) {
+    if (myParentID !== -1) {
+      if (myParentID !== 1) {
         var myParentsParentID = -1;
         if (myStateTree) {
           for (var i = 0; i < myStateTree.length; i++) {
-            if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+            if (myStateTree[i][gltf_Dict['id']] === myParentID) {
               myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
-              if (myParentsParentID != 1) {
+              if (myParentsParentID !== 1) {
                 parentNode = myStateTree[i];
               }
               break;
@@ -4883,8 +4908,8 @@ class GLTFRenderer extends Component {
       // );
       if (
         myTopParent &&
-        myTopParent[gltf_Dict['id']] != 1 &&
-        myTopParent[gltf_Dict['parentId']] != 1
+        myTopParent[gltf_Dict['id']] !== 1 &&
+        myTopParent[gltf_Dict['parentId']] !== 1
       ) {
         myTopParent = getTopParentNode(myTopParent);
       }
@@ -4895,7 +4920,7 @@ class GLTFRenderer extends Component {
       //   myTopParent
       // );
 
-      if (myParentID == 1 || !myTopParent) {
+      if (myParentID === 1 || !myTopParent) {
         return mySelectedNode;
       } else {
         return myTopParent;
@@ -4914,18 +4939,18 @@ class GLTFRenderer extends Component {
 
   findMyParentChilds = async (mynode, addToGDTTable = true) => {
     /*console.log(this.props.selectedoption,SELECTSOLID,
-            this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY,
+            this.props.selectedoption !== SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY,
             this.props.splitmethod,SELECTDISECTPARTS); 
         */
     if (
-      (this.selectedoption != SELECTSOLID &&
-        this.selectedoption != SELECTASSEMBLY) ||
-      this.props.splitmethod != SELECTDISECTPARTS
+      (this.selectedoption !== SELECTSOLID &&
+        this.selectedoption !== SELECTASSEMBLY) ||
+      this.props.splitmethod !== SELECTDISECTPARTS
     ) {
       //console.log("I am finding single node");
       return await this.findSingleNode(mynode, addToGDTTable);
     }
-    if (this.selectedoption == SELECTASSEMBLY) {
+    if (this.selectedoption === SELECTASSEMBLY) {
       //console.log("I am finding family node");
       return {
         node: this.findFamilyNodes(mynode, addToGDTTable),
@@ -4942,8 +4967,8 @@ class GLTFRenderer extends Component {
 
   changeBackground = () => {
     if (
-      this.databackcolor != this.props.backcolor &&
-      this.props.dataselection == SELECTBACKCOLOR
+      this.databackcolor !== this.props.backcolor &&
+      this.props.dataselection === SELECTBACKCOLOR
     ) {
       this.databackcolor = this.props.backcolor;
       //console.log(this.databackcolor);
@@ -4955,8 +4980,8 @@ class GLTFRenderer extends Component {
       }
     }
     if (
-      this.dataselectcolor != this.props.selectcolor &&
-      this.props.dataselection == SELECTSELECTCOLOR
+      this.dataselectcolor !== this.props.selectcolor &&
+      this.props.dataselection === SELECTSELECTCOLOR
     ) {
       this.dataselectcolor = this.props.selectcolor;
       if (this.firstshell) {
@@ -4975,8 +5000,8 @@ class GLTFRenderer extends Component {
       }
     }
     if (
-      this.datatouchcolor != this.props.touchcolor &&
-      this.props.dataselection == SELECTTOUCHCOLOR
+      this.datatouchcolor !== this.props.touchcolor &&
+      this.props.dataselection === SELECTTOUCHCOLOR
     ) {
       this.datatouchcolor = this.props.touchcolor;
       if (this.INTERSECTED) {
@@ -4987,13 +5012,13 @@ class GLTFRenderer extends Component {
     }
     //console.log("data2texture",this.data2texture,"prp2",this.props.data2texture,this.props.dataselection )
     if (
-      this.data2texture != this.props.data2texture &&
-      this.props.dataselection == SELECT2DTEXTURE
+      this.data2texture !== this.props.data2texture &&
+      this.props.dataselection === SELECT2DTEXTURE
     ) {
       this.data2texture = this.props.data2texture;
       var myTexture = null;
       if (this.scene) {
-        if (this.data2texture == 'None' || this.data2texture == null) {
+        if (this.data2texture === 'None' || this.data2texture === null) {
           myTexture = null;
         } else {
           const textureLoader = new TextureLoader();
@@ -5012,13 +5037,13 @@ class GLTFRenderer extends Component {
     }
     //console.log("data3texture",this.data3texture,"prp3",this.props.data23texture,this.props.dataselection )
     if (
-      this.data3texture != this.props.data3texture &&
-      this.props.dataselection == SELECT3DTEXTURE
+      this.data3texture !== this.props.data3texture &&
+      this.props.dataselection === SELECT3DTEXTURE
     ) {
       this.data3texture = this.props.data3texture;
       var myTexture = null;
       if (this.scene) {
-        if (this.data3texture == 'None' || this.data3texture == null) {
+        if (this.data3texture === 'None' || this.data3texture === null) {
           myTexture = null;
         } else {
           const textureLoader = new CubeTextureLoader();
@@ -5045,7 +5070,7 @@ class GLTFRenderer extends Component {
   };
 
   changeBackgroundWhenPropsChange = () => {
-    if (this.databackcolor != this.props.backcolor) {
+    if (this.databackcolor !== this.props.backcolor) {
       this.databackcolor = this.props.backcolor;
       console.log('Backcolor change', this.databackcolor);
       if (this.renderer) {
@@ -5055,7 +5080,7 @@ class GLTFRenderer extends Component {
         this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR());
       }
     }
-    if (this.dataselectcolor != this.props.selectcolor) {
+    if (this.dataselectcolor !== this.props.selectcolor) {
       this.dataselectcolor = this.props.selectcolor;
       console.log('selectcolor change', this.dataselectcolor);
       if (this.firstshell) {
@@ -5073,7 +5098,7 @@ class GLTFRenderer extends Component {
         }
       }
     }
-    if (this.datatouchcolor != this.props.touchcolor) {
+    if (this.datatouchcolor !== this.props.touchcolor) {
       this.datatouchcolor = this.props.touchcolor;
       console.log('touchcolor change', this.datatouchcolor);
       if (this.INTERSECTED) {
@@ -5160,7 +5185,7 @@ class GLTFRenderer extends Component {
     event,
     addToGDTTable = true
   ) => {
-    if (meshmaterial && this.selectedoption == SELECTMEASURE) {
+    if (meshmaterial && this.selectedoption === SELECTMEASURE) {
       if (meshmaterial.selectedshell) {
         if (!this.firstshell) {
           this.setSelectionColor(meshmaterial);
@@ -5187,7 +5212,7 @@ class GLTFRenderer extends Component {
           }
         }
       } else {
-        if (this.firstshell && this.firstshell.name == meshmaterial.name) {
+        if (this.firstshell && this.firstshell.name === meshmaterial.name) {
           this.setOriginalColor(this.firstshell);
           //this.firstshell.material.color.setHex(this.firstshell.currentHex);
           this.firstshell.selectedshell = false;
@@ -5195,7 +5220,7 @@ class GLTFRenderer extends Component {
           this.secondshell = null;
           //console.log("First and second making null",this.firstshell,this.secondshell)
         } else {
-          if (this.secondshell && this.secondshell.name == meshmaterial.name) {
+          if (this.secondshell && this.secondshell.name === meshmaterial.name) {
             this.setOriginalColor(this.secondshell);
             //this.secondshell.material.color.setHex(this.secondshell.currentHex);
             this.secondshell.selectedshell = false;
@@ -5214,7 +5239,7 @@ class GLTFRenderer extends Component {
         }
         if (!toAdd) {
           this.state_selectedObjects.forEach((elementobject) => {
-            if (meshmaterial.name != elementobject.name) {
+            if (meshmaterial.name !== elementobject.name) {
               elementobject.selectedshell = false;
               this.setOriginalColor(elementobject);
               //elementobject.material.color.setHex(elementobject.currentHex);
@@ -5228,16 +5253,16 @@ class GLTFRenderer extends Component {
         );
         //console.log('My Mesh name', meshmaterial, myAllChilds);
         if (
-          myAllChilds.select == false &&
-          this.selectedoption != SELECTFEATURE &&
-          this.selectedoption != SELECTASSEMBLY &&
-          this.selectedoption != SELECTSOLID
+          myAllChilds.select === false &&
+          this.selectedoption !== SELECTFEATURE &&
+          this.selectedoption !== SELECTASSEMBLY &&
+          this.selectedoption !== SELECTSOLID
         ) {
           meshmaterial.selectedshell = myAllChilds.select;
           this.setOriginalColor(meshmaterial);
           //meshmaterial.material.color.setHex(meshmaterial.currentHex);
           this.state_selectedObjects.forEach((elementobject) => {
-            if (meshmaterial.name == elementobject.name) {
+            if (meshmaterial.name === elementobject.name) {
               elementobject.selectedshell = false;
               this.setOriginalColor(elementobject);
               //elementobject.material.color.setHex(elementobject.currentHex);
@@ -5281,7 +5306,7 @@ class GLTFRenderer extends Component {
             if (meshmaterial.selectedshell) {
               var alreadyPresent = false;
               for (var i = 0; i < this.state_selectedObjects.length; i++) {
-                if (element.name == this.state_selectedObjects[i].name) {
+                if (element.name === this.state_selectedObjects[i].name) {
                   alreadyPresent = true;
                   break;
                 }
@@ -5341,10 +5366,10 @@ class GLTFRenderer extends Component {
       }
       const aShape = this.getPrefixItem(myItem);
       if (
-        aShape == 'FACE' ||
-        aShape == 'EDGE' ||
-        aShape == 'PART' ||
-        aShape == 'VERTEX'
+        aShape === 'FACE' ||
+        aShape === 'EDGE' ||
+        aShape === 'PART' ||
+        aShape === 'VERTEX'
       ) {
         //console.log("Setting..",element);
         //element.selectedshell=true;
@@ -5393,27 +5418,27 @@ class GLTFRenderer extends Component {
       JSON.stringify(this.changeddataarray)
     ); */
     if (
-      (this.props.whatchanged == SELECTANITEM &&
-        stringify(changedata || {}) !=
+      (this.props.whatchanged === SELECTANITEM &&
+        stringify(changedata || {}) !==
           stringify(this.changeddataarray || {})) ||
-      this.props.whatchanged != this.whatchanged ||
-      (changedata ? changedata[gltf_Dict['name']] : '') != this.activeId ||
-      (this.props.whatchanged == SELECTCOLOR &&
-        (this[gltf_Dict['R']] != changedata[gltf_Dict['R']] ||
-          this[gltf_Dict['G']] != changedata[gltf_Dict['G']] ||
-          this[gltf_Dict['B']] != changedata[gltf_Dict['B']])) ||
-      (this.props.whatchanged == SELECTTEXTURE &&
+      this.props.whatchanged !== this.whatchanged ||
+      (changedata ? changedata[gltf_Dict['name']] : '') !== this.activeId ||
+      (this.props.whatchanged === SELECTCOLOR &&
+        (this[gltf_Dict['R']] !== changedata[gltf_Dict['R']] ||
+          this[gltf_Dict['G']] !== changedata[gltf_Dict['G']] ||
+          this[gltf_Dict['B']] !== changedata[gltf_Dict['B']])) ||
+      (this.props.whatchanged === SELECTTEXTURE &&
         changedata[gltf_Dict['texture']] &&
-        this[gltf_Dict['texture']] != changedata[gltf_Dict['texture']].name) ||
-      (this.props.whatchanged == SELECTMETAL &&
-        this.datametal != changedata[gltf_Dict['metallicFactor']]) ||
-      (this.props.whatchanged == SELECTROUGH &&
-        this.datarough != changedata[gltf_Dict['roughnessFactor']]) ||
-      (this.props.whatchanged == SELECTOPAQUE &&
-        this.dataopaque != changedata[gltf_Dict['A']])
+        this[gltf_Dict['texture']] !== changedata[gltf_Dict['texture']].name) ||
+      (this.props.whatchanged === SELECTMETAL &&
+        this.datametal !== changedata[gltf_Dict['metallicFactor']]) ||
+      (this.props.whatchanged === SELECTROUGH &&
+        this.datarough !== changedata[gltf_Dict['roughnessFactor']]) ||
+      (this.props.whatchanged === SELECTOPAQUE &&
+        this.dataopaque !== changedata[gltf_Dict['A']])
       /* ||
-            ((this.props.whatchanged == SELECTDISTANCE) &&
-                (this.selectedshell != changedata)) */
+            ((this.props.whatchanged === SELECTDISTANCE) &&
+                (this.selectedshell !== changedata)) */
     ) {
       //console.log("BEFore",changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray,this.changedctrlkey,this.props.ctrlKey);
       this.whatchanged = this.props.whatchanged;
@@ -5422,7 +5447,7 @@ class GLTFRenderer extends Component {
       this.activeId = changedata ? changedata[gltf_Dict['name']] : '';
       //console.log("AFTer",changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray,this.changedctrlkey,this.props.ctrlKey);
 
-      if (this.props.whatchanged == SELECTCOLOR) {
+      if (this.props.whatchanged === SELECTCOLOR) {
         this[gltf_Dict['R']] = changedata[gltf_Dict['R']];
         this[gltf_Dict['G']] = changedata[gltf_Dict['G']];
         this[gltf_Dict['B']] = changedata[gltf_Dict['B']];
@@ -5463,7 +5488,7 @@ class GLTFRenderer extends Component {
       }
       var myTexture = null;
       if (
-        this.props.whatchanged == SELECTTEXTURE &&
+        this.props.whatchanged === SELECTTEXTURE &&
         changedata[gltf_Dict['texture']]
       ) {
         this[gltf_Dict['texture']] = changedata[gltf_Dict['texture']].name;
@@ -5478,7 +5503,7 @@ class GLTFRenderer extends Component {
               const mymaterial = mymesh.material;
               //console.log("2",mymaterial);
               if (mymaterial) {
-                if (this[gltf_Dict['texture']] == 'None') {
+                if (this[gltf_Dict['texture']] === 'None') {
                   myTexture = null;
                 } else {
                   const textureLoader = new TextureLoader();
@@ -5505,7 +5530,7 @@ class GLTFRenderer extends Component {
             }
           }
         } else {
-          if (this[gltf_Dict['texture']] == 'None') {
+          if (this[gltf_Dict['texture']] === 'None') {
             myTexture = null;
           } else {
             const textureLoader = new TextureLoader();
@@ -5527,7 +5552,7 @@ class GLTFRenderer extends Component {
           );
         }
       }
-      if (this.props.whatchanged == SELECTMETAL) {
+      if (this.props.whatchanged === SELECTMETAL) {
         this.datametal = changedata[gltf_Dict['metallicFactor']];
         if (changedata[gltf_Dict['leaf']]) {
           if (changedata[gltf_Dict['name']]) {
@@ -5557,7 +5582,7 @@ class GLTFRenderer extends Component {
           );
         }
       }
-      if (this.props.whatchanged == SELECTROUGH) {
+      if (this.props.whatchanged === SELECTROUGH) {
         this.datarough = changedata[gltf_Dict['roughnessFactor']];
         if (changedata[gltf_Dict['leaf']]) {
           if (changedata[gltf_Dict['name']]) {
@@ -5587,7 +5612,7 @@ class GLTFRenderer extends Component {
           );
         }
       }
-      if (this.props.whatchanged == SELECTOPAQUE) {
+      if (this.props.whatchanged === SELECTOPAQUE) {
         this.dataopaque = changedata[gltf_Dict['A']];
         if (changedata[gltf_Dict['leaf']]) {
           if (changedata[gltf_Dict['name']]) {
@@ -5598,7 +5623,7 @@ class GLTFRenderer extends Component {
             if (mymesh) {
               const mymaterial = mymesh.material;
               if (mymaterial) {
-                mymaterial.transparent = changedata[gltf_Dict['A']] != 1;
+                mymaterial.transparent = changedata[gltf_Dict['A']] !== 1;
                 mymaterial.opaque = changedata[gltf_Dict['A']];
                 mymaterial.opacity = changedata[gltf_Dict['A']];
               }
@@ -5616,11 +5641,11 @@ class GLTFRenderer extends Component {
           );
         }
       }
-      if (this.props.whatchanged == SELECTANITEM) {
+      if (this.props.whatchanged === SELECTANITEM) {
         //console.log("Ok Here?",changedata);
         let event = {};
         event['ctrlKey'] = this.changedctrlkey;
-        if (changedata.length == 0) {
+        if (changedata.length === 0) {
           await this.changeStateOfSelection(null, event);
           /*  console.log("I am resetting!");
                     
@@ -5642,8 +5667,8 @@ class GLTFRenderer extends Component {
                         const aShape = element[gltf_Dict['name']];
                         const first4chars = aShape.slice(0, 4);
                         const first6chars = aShape.slice(0, 6);
-                        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
-                        (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+                        if( (first4chars==="FACE") || (first4chars==="EDGE") || 
+                        (first4chars==="PART") || (first6chars==="VERTEX") ) {               
                         element.selectedshell=true;
                         const mymesh = this.findMyMaterial(element);                       
                         console.log("Before",mymesh);
@@ -5753,6 +5778,39 @@ class GLTFRenderer extends Component {
     }
     return null;
   };
+  getSequencedItemIndex = (parsedItem, getSequence, getChain = 1) => {
+    let kinematicInformation, maxChain, maxSequence;
+    [kinematicInformation, maxChain, maxSequence] = parsedItem;
+    const lengthOfKinematicInfo = kinematicInformation.length;
+    for (
+      var kinematicInfo = 0, _pj_a = lengthOfKinematicInfo;
+      kinematicInfo < _pj_a;
+      kinematicInfo += 1
+    ) {
+      let [
+        partName,
+        displayName,
+        partType,
+        sequence,
+        chains,
+        axis,
+        nextAxis,
+        axisAngle,
+        axisDistance,
+        angle,
+        distance,
+        machineLimit,
+        isLinear,
+        isEndEffector,
+        position,
+        axisPosition
+      ] = kinematicInformation[kinematicInfo];
+      if (chains.includes(getChain) && sequence === getSequence) {
+        return [kinematicInfo, kinematicInformation[kinematicInfo]];
+      }
+    }
+    return [-1, null];
+  };
   getKinematicItem = (kinematicItemList, kinematicInformation) => {
     let partName,
       displayName,
@@ -5805,6 +5863,58 @@ class GLTFRenderer extends Component {
     }
     return null;
   };
+  getKinematicIndex = (kinematicItemList, kinematicInformation) => {
+    let partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition;
+    [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition
+    ] = kinematicInformation;
+
+    const uniqueName = partName ? this.findUniqueName(partName, 'PART') : null;
+    if (uniqueName) {
+      for (let index = 0; index < kinematicItemList.length; index++) {
+        const element = kinematicItemList[index];
+        const thisUniqueName = element
+          ? element.filePartName
+            ? this.findUniqueName(element.filePartName, 'PART')
+            : null
+          : null;
+        if (thisUniqueName === uniqueName) {
+          return index;
+        }
+      }
+    }
+    return -1;
+  };
   getPrevPropsItem = (prevProps, kinematicItem) => {
     for (let index = 0; index < prevProps.kinematicItemList.length; index++) {
       const element = prevProps.kinematicItemList[index];
@@ -5817,7 +5927,7 @@ class GLTFRenderer extends Component {
   };
   findUniqueName = (fromName, fromIndex) => {
     const lastI0 = fromName ? fromName.lastIndexOf('I0') : -1;
-    if (lastI0 == -1) {
+    if (lastI0 === -1) {
       console.log('FromName does not contain I0', fromName);
       return null;
     }
@@ -5863,6 +5973,24 @@ class GLTFRenderer extends Component {
     ); */
     return null;
   };
+  findNodeIndexFrom = (kinematicItem) => {
+    const uniqueName = kinematicItem.filePartName
+      ? this.findUniqueName(kinematicItem.filePartName, 'PART')
+      : null;
+    if (uniqueName) {
+      for (let index = 0; index < this.partsMeshes.length; index++) {
+        const element = this.partsMeshes[index];
+        if (element && element.name) {
+          let thisName = this.findUniqueName(element.name, 'PART');
+          if (thisName === uniqueName) {
+            return index;
+          }
+        } else {
+        }
+      }
+    }
+    return -1;
+  };
   drawAxisLineToKinematic = (propsElement) => {
     if (
       propsElement &&
@@ -5894,14 +6022,14 @@ class GLTFRenderer extends Component {
     const myStateTree = state_gltfobj.tree;
     //console.log('State tree', myStateTree, this.props.gltfobj);
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
+      if (myStateTree[i][gltf_Dict['name']] === mynode.name) {
         return myStateTree[i];
       }
     }
     return null;
   };
 
-  animateKinematicChain = (
+  animateKinematicChain_withoutIndex = (
     //differenceElement,
     propsElement,
     //currentNode,
@@ -5988,7 +6116,7 @@ class GLTFRenderer extends Component {
                   //   position[2]
                   // );
                   // centre = localPosition;
-                  //if (prevProps == null) {
+                  //if (prevProps === null) {
                   this.assignPositionToNode(
                     node,
                     localPosition,
@@ -6204,6 +6332,51 @@ class GLTFRenderer extends Component {
     }
   };
 
+  animateKinematicChain = (
+    sequence,
+    parsedIndexInfo,
+    localQuaternion,
+    localPosition,
+    shiftingPosition
+  ) => {
+    for (
+      let index = sequence + 1;
+      index < this.props.kinematicItemList.length;
+      index++
+    ) {
+      let [
+        sequenced,
+        sequenceItem,
+        propsElementIndex,
+        currentNodeIndex,
+        isActuatorNode,
+        isLinearNode,
+        isEndEffectorNode,
+        currentAxisNode,
+        currentPositionNode
+      ] = parsedIndexInfo[index];
+
+      const node =
+        currentNodeIndex === -1 ? null : this.partsMeshes[currentNodeIndex];
+
+      if (node) {
+        this.assignPositionToNode(
+          node,
+          localPosition,
+          localQuaternion,
+          shiftingPosition
+        );
+      } else {
+        console.log(
+          'No node found for',
+          index,
+          parsedIndexInfo[index],
+          this.partsMeshes
+        );
+      }
+    }
+  };
+
   findNextChain = (propsElement) => {
     if (
       propsElement.actuator_motion_control &&
@@ -6218,7 +6391,7 @@ class GLTFRenderer extends Component {
         if (
           element &&
           element.actuator_motion_control &&
-          element.actuator_motion_control.axis_number ==
+          element.actuator_motion_control.axis_number ===
             propsElement.actuator_motion_control.axis_number + 1
         ) {
           return element;
@@ -6252,6 +6425,77 @@ class GLTFRenderer extends Component {
   };
   cloneList = (nodesArray) => {
     return arrayCopy(nodesArray);
+  };
+  cloneChainForward = (nodesArray) => {
+    let clonedChain = [];
+    if (nodesArray) {
+      for (let index = 0; index < nodesArray.length; index++) {
+        const propsElement = nodesArray[index];
+        clonedChain.push(propsElement.actuator_motion_control.chain_number);
+      }
+    }
+    return clonedChain;
+  };
+  cloneChainBackward = (nodesArray, kinematicArray) => {
+    let clonedChain = this.cloneList(kinematicArray);
+    if (nodesArray) {
+      for (let index = 0; index < nodesArray.length; index++) {
+        clonedChain[index].actuator_motion_control.chain_number =
+          nodesArray[index];
+      }
+    }
+    return clonedChain;
+  };
+  cloneChainInfoForward = (nodesArray, toDisplay) => {
+    let localKinematicValues = [];
+    if (nodesArray) {
+      for (let index = 0; index < nodesArray.length; index++) {
+        const propsElement = nodesArray[index];
+        localKinematicValues.push({
+          A: propsElement.A,
+          L: propsElement.L.clone(),
+          Q: propsElement.Q.clone(),
+          S: propsElement.S.clone(),
+          T: propsElement.T.clone(),
+          K: propsElement.K
+        });
+        if (toDisplay) {
+          console.log(
+            'Inner Loop values',
+            propsElement.A,
+            propsElement.L,
+            propsElement.Q,
+            propsElement.S,
+            propsElement.T,
+            propsElement.K
+          );
+        }
+      }
+    }
+    return localKinematicValues;
+  };
+  cloneChainInfoBackward = (nodesArray, kinematicArray, parsedIndexInfo) => {
+    let clonedChain = this.cloneList(kinematicArray);
+    if (nodesArray) {
+      for (let index = 0; index < nodesArray.length - 1; index++) {
+        let [
+          sequence,
+          sequenceItem,
+          propsElementIndex,
+          currentNodeIndex,
+          isActuatorNode,
+          isLinearNode,
+          isEndEffectorNode,
+          currentAxisNode,
+          currentPositionNode
+        ] = parsedIndexInfo[index];
+        let propsElement =
+          clonedChain[propsElementIndex === -1 ? index : propsElementIndex];
+        propsElement.actuator_motion_control.chain_number =
+          nodesArray[index + 1].A;
+      }
+    }
+    return clonedChain;
   };
   getPerpendicularDirection = (axis, point) => {
     const dotLength = point.x * axis.x + point.y * axis.y + point.z * axis.z;
@@ -6350,7 +6594,7 @@ class GLTFRenderer extends Component {
             differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
             differenceBetweenTargetAndEndEffector.z;
-        if (lengthBetweenTargetAndEndEffector == 0) {
+        if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
         let originalEndEffectorPosition =
@@ -6385,12 +6629,10 @@ class GLTFRenderer extends Component {
         // let globalIndexArray = this.cloneList(
         //   this.props.xyzEndEffectorPosition.IA
         // );
-
-        for (
-          let iteration = 0;
-          iteration < (this.props.kinematiciteration || 20) * 2 + 1;
-          iteration++
-        ) {
+        const howManyIterations = this.props.kinematicParameters
+          ? this.props.kinematicParameters.iterations || 41
+          : 41;
+        for (let iteration = 0; iteration < howManyIterations; iteration++) {
           direction *= directionMultiplier;
           let couldFindTheta = false;
           for (
@@ -6399,7 +6641,7 @@ class GLTFRenderer extends Component {
             directionIndex++
           ) {
             const positionalIndex =
-              direction == 1
+              direction === 1
                 ? directionIndex
                 : calculatedKinematicItemList.length - directionIndex - 2;
 
@@ -6408,7 +6650,14 @@ class GLTFRenderer extends Component {
             );
             let leastTheta = 6.28;
             let mostTheta = -6.28;
-            for (let methodIndex = 0; methodIndex < 5; methodIndex++) {
+            const howManyMethods = this.props.kinematicParameters
+              ? this.props.kinematicParameters.methods || 5
+              : 5;
+            for (
+              let methodIndex = 0;
+              methodIndex < howManyMethods;
+              methodIndex++
+            ) {
               let localQuaternion = new Quaternion(0, 0, 0, 1);
               let localPosition = new Vector3(0, 0, 0);
               //let localPreviousPosition = new Vector3(0, 0, 0);
@@ -6513,7 +6762,7 @@ class GLTFRenderer extends Component {
                     index,
                     isLinear
                   );
-                  if (positionalIndex == index) {
+                  if (positionalIndex === index) {
                     positionalIndexFound = true;
                     let differenceBetween = 0;
                     if (isLinear) {
@@ -6523,9 +6772,9 @@ class GLTFRenderer extends Component {
                         currentTargetPosition,
                         differencePosition;
                       if (
-                        methodIndex == 0 ||
-                        methodIndex == 3 ||
-                        methodIndex == 4
+                        methodIndex === 0 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
                       ) {
                         currentOriginalEndEffectorPosition =
                           calculatedMountPosition.clone();
@@ -6533,7 +6782,7 @@ class GLTFRenderer extends Component {
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       }
-                      if (methodIndex == 1 || methodIndex == 2) {
+                      if (methodIndex === 1 || methodIndex === 2) {
                         currentOriginalEndEffectorPosition =
                           originalEndEffectorPosition.clone();
                         currentOriginalEndEffectorPosition.sub(localPosition);
@@ -6559,23 +6808,23 @@ class GLTFRenderer extends Component {
                         currentEndEffectorposition
                       );
 
-                      if (methodIndex == 3) {
+                      if (methodIndex === 3) {
                         differenceBetween = leastTheta / 2;
                       }
-                      if (methodIndex == 4) {
+                      if (methodIndex === 4) {
                         differenceBetween = mostTheta / 2;
                       }
                       if (
-                        methodIndex == 0 ||
-                        methodIndex == 1 ||
-                        methodIndex == 2
+                        methodIndex === 0 ||
+                        methodIndex === 1 ||
+                        methodIndex === 2
                       ) {
-                        differenceBetween = math.sqrt(
+                        differenceBetween = Math.sqrt(
                           differencePosition.x * differencePosition.x +
                             differencePosition.y * differencePosition.y +
                             differencePosition.z * differencePosition.z
                         );
-                        if (methodIndex == 0) {
+                        if (methodIndex === 0) {
                           leastTheta = differenceBetween;
                           mostTheta = differenceBetween;
                         }
@@ -6587,17 +6836,17 @@ class GLTFRenderer extends Component {
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       if (
-                        methodIndex == 0 ||
-                        methodIndex == 2 ||
-                        methodIndex == 3 ||
-                        methodIndex == 4
+                        methodIndex === 0 ||
+                        methodIndex === 2 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
                       ) {
                         currentOriginalEndEffectorPosition =
                           calculatedMountPosition.clone();
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       }
-                      if (methodIndex == 1) {
+                      if (methodIndex === 1) {
                         currentBeforeLocalQuaternion = new Quaternion();
 
                         currentBeforeLocalQuaternion
@@ -6656,7 +6905,7 @@ class GLTFRenderer extends Component {
                       //       myIndex
                       //     );
                       //   }
-                      //   if (myIndex == index + 2) {
+                      //   if (myIndex === index + 2) {
                       //     const globalPosition = globalPositionArray[refIndex];
                       //     currentOriginalTargetPosition.sub(globalPosition);
                       //     currentOriginalTargetPosition.applyQuaternion(
@@ -6726,25 +6975,25 @@ class GLTFRenderer extends Component {
                       //   currentEndEffectorposition,
                       //   currentTargetPosition
                       // );
-                      if (methodIndex == 2) {
+                      if (methodIndex === 2) {
                         differenceBetween = this.getAngleBetweenVectorsFromAxis(
                           currentPositionAxis,
                           currentEndEffectorposition,
                           currentTargetPosition
                         );
                       }
-                      if (methodIndex == 0 || methodIndex == 1) {
+                      if (methodIndex === 0 || methodIndex === 1) {
                         differenceBetween = this.angleToMoveToTarget(
                           currentPositionAxis,
                           currentEndEffectorposition,
                           currentTargetPosition
                         );
                       }
-                      if (methodIndex == 3) {
+                      if (methodIndex === 3) {
                         differenceBetween = leastTheta / 2;
                         console.log('Least method theta', leastTheta);
                       }
-                      if (methodIndex == 4) {
+                      if (methodIndex === 4) {
                         differenceBetween = mostTheta / 2;
                         console.log('Most method theta', mostTheta);
                       }
@@ -6849,7 +7098,7 @@ class GLTFRenderer extends Component {
                         propsElement.actuator_motion_control.chain_number
                       );*/
                     }
-                    if (differenceBetween != 0) {
+                    if (differenceBetween !== 0) {
                       propsElement.actuator_motion_control.chain_number +=
                         differenceBetween;
                       console.log(
@@ -6857,7 +7106,8 @@ class GLTFRenderer extends Component {
                         differenceBetween,
                         propsElement.actuator_motion_control.chain_number,
                         propsElement.actuator_motion_control.minimum_limit,
-                        propsElement.actuator_motion_control.maximum_limit
+                        propsElement.actuator_motion_control.maximum_limit,
+                        propsElement
                       );
                       if (
                         propsElement.actuator_motion_control.chain_number >
@@ -6911,12 +7161,12 @@ class GLTFRenderer extends Component {
                   let currentAxisQuaternion = new Quaternion();
 
                   if (isLinear) {
-                    const currentLength = math.sqrt(
+                    const currentLength = Math.sqrt(
                       currentPositionAxis.x * currentPositionAxis.x +
                         currentPositionAxis.y * currentPositionAxis.y +
                         currentPositionAxis.z * currentPositionAxis.z
                     );
-                    if (currentLength != 0) {
+                    if (currentLength !== 0) {
                       localCurrentTranslation.add(
                         new Vector3(
                           (currentPositionAxis.x *
@@ -7029,7 +7279,7 @@ class GLTFRenderer extends Component {
                         changeMade = true;
                         if (
                           differenceCalculatedBetween <=
-                          (this.props.kinematicPrecision || 0.00000001)
+                          (this.state.kinematicPrecision || 0.00000001)
                         ) {
                           foundThePosition = true;
                           console.log(
@@ -7170,7 +7420,7 @@ class GLTFRenderer extends Component {
       }
     }
   };
-  calculateInverseKinematicMovement = (prevProps, parsedInfo) => {
+  calculateInverseKinematicMovement_withoutIndex = (prevProps, parsedInfo) => {
     if (
       JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
         JSON.stringify(this.props.xyzControlPosition || []) &&
@@ -7208,7 +7458,7 @@ class GLTFRenderer extends Component {
             differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
             differenceBetweenTargetAndEndEffector.z;
-        if (lengthBetweenTargetAndEndEffector == 0) {
+        if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
         let originalEndEffectorPosition =
@@ -7231,11 +7481,10 @@ class GLTFRenderer extends Component {
         let changeMade = false;
         let directionIndex = 0;
 
-        for (
-          let iteration = 0;
-          iteration < (this.props.kinematiciteration || 20) * 2 + 1;
-          iteration++
-        ) {
+        const howManyIterations = this.props.kinematicParameters
+          ? this.props.kinematicParameters.iterations || 41
+          : 41;
+        for (let iteration = 0; iteration < howManyIterations; iteration++) {
           direction *= directionMultiplier;
           let couldFindTheta = false;
           for (
@@ -7244,7 +7493,7 @@ class GLTFRenderer extends Component {
             directionIndex++
           ) {
             const positionalIndex =
-              direction == 1
+              direction === 1
                 ? directionIndex
                 : calculatedKinematicItemList.length - directionIndex - 2;
 
@@ -7253,7 +7502,14 @@ class GLTFRenderer extends Component {
             );
             let leastTheta = 6.28;
             let mostTheta = -6.28;
-            for (let methodIndex = 0; methodIndex < 5; methodIndex++) {
+            const howManyMethods = this.props.kinematicParameters
+              ? this.props.kinematicParameters.methods || 5
+              : 5;
+            for (
+              let methodIndex = 0;
+              methodIndex < howManyMethods;
+              methodIndex++
+            ) {
               let localQuaternion = new Quaternion(0, 0, 0, 1);
               let localPosition = new Vector3(0, 0, 0);
               //let localPreviousPosition = new Vector3(0, 0, 0);
@@ -7334,7 +7590,7 @@ class GLTFRenderer extends Component {
                     index,
                     isLinear
                   );
-                  if (positionalIndex == index) {
+                  if (positionalIndex === index) {
                     positionalIndexFound = true;
                     let differenceBetween = 0;
                     if (isLinear) {
@@ -7344,9 +7600,9 @@ class GLTFRenderer extends Component {
                         currentTargetPosition,
                         differencePosition;
                       if (
-                        methodIndex == 0 ||
-                        methodIndex == 3 ||
-                        methodIndex == 4
+                        methodIndex === 0 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
                       ) {
                         currentOriginalEndEffectorPosition =
                           calculatedMountPosition.clone();
@@ -7354,7 +7610,7 @@ class GLTFRenderer extends Component {
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       }
-                      if (methodIndex == 1 || methodIndex == 2) {
+                      if (methodIndex === 1 || methodIndex === 2) {
                         currentOriginalEndEffectorPosition =
                           originalEndEffectorPosition.clone();
                         currentOriginalEndEffectorPosition.sub(currentPosition);
@@ -7383,27 +7639,41 @@ class GLTFRenderer extends Component {
                         currentTargetPosition,
                         currentEndEffectorposition
                       );
+                      if (methodIndex === 0 || methodIndex === 1) {
+                        differenceBetween =
+                          differencePosition.x * currentPositionAxis.x +
+                          differencePosition.y * currentPositionAxis.y +
+                          differencePosition.z * currentPositionAxis.z;
 
-                      if (methodIndex == 3) {
-                        differenceBetween = leastTheta / 2;
-                      }
-                      if (methodIndex == 4) {
-                        differenceBetween = mostTheta / 2;
-                      }
-                      if (
-                        methodIndex == 0 ||
-                        methodIndex == 1 ||
-                        methodIndex == 2
-                      ) {
-                        differenceBetween = math.sqrt(
-                          differencePosition.x * differencePosition.x +
-                            differencePosition.y * differencePosition.y +
-                            differencePosition.z * differencePosition.z
-                        );
-                        if (methodIndex == 0) {
+                        if (methodIndex === 0) {
                           leastTheta = differenceBetween;
                           mostTheta = differenceBetween;
                         }
+                      }
+                      if (methodIndex === 2) {
+                        differenceBetween =
+                          differencePosition.x * currentPositionAxis.x +
+                          differencePosition.y * currentPositionAxis.y +
+                          differencePosition.z * currentPositionAxis.z;
+                        if (differenceBetween > 0) {
+                          differenceBetween = Math.sqrt(
+                            differencePosition.x * differencePosition.x +
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
+                          );
+                        } else {
+                          differenceBetween = -Math.sqrt(
+                            differencePosition.x * differencePosition.x +
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
+                          );
+                        }
+                      }
+                      if (methodIndex === 3) {
+                        differenceBetween = leastTheta / 2;
+                      }
+                      if (methodIndex === 4) {
+                        differenceBetween = mostTheta / 2;
                       }
                     } else {
                       let currentBeforeLocalQuaternion,
@@ -7412,17 +7682,17 @@ class GLTFRenderer extends Component {
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       if (
-                        methodIndex == 0 ||
-                        methodIndex == 2 ||
-                        methodIndex == 3 ||
-                        methodIndex == 4
+                        methodIndex === 0 ||
+                        methodIndex === 2 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
                       ) {
                         currentOriginalEndEffectorPosition =
                           calculatedMountPosition.clone();
                         currentOriginalTargetPosition =
                           targetEndEffectorPosition.clone();
                       }
-                      if (methodIndex == 1) {
+                      if (methodIndex === 1) {
                         currentBeforeLocalQuaternion = new Quaternion();
 
                         currentBeforeLocalQuaternion
@@ -7464,30 +7734,30 @@ class GLTFRenderer extends Component {
 
                       currentTargetPosition.sub(currentShiftedPosition);
 
-                      if (methodIndex == 2) {
-                        differenceBetween = this.getAngleBetweenVectorsFromAxis(
-                          currentPositionAxis,
-                          currentEndEffectorposition,
-                          currentTargetPosition
-                        );
-                      }
-                      if (methodIndex == 0 || methodIndex == 1) {
+                      if (methodIndex === 0 || methodIndex === 1) {
                         differenceBetween = this.angleToMoveToTarget(
                           currentPositionAxis,
                           currentEndEffectorposition,
                           currentTargetPosition
                         );
                       }
-                      if (methodIndex == 3) {
+                      if (methodIndex === 2) {
+                        differenceBetween = this.getAngleBetweenVectorsFromAxis(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex === 3) {
                         differenceBetween = leastTheta / 2;
                         console.log('Least method theta', leastTheta);
                       }
-                      if (methodIndex == 4) {
+                      if (methodIndex === 4) {
                         differenceBetween = mostTheta / 2;
                         console.log('Most method theta', mostTheta);
                       }
                     }
-                    if (differenceBetween != 0) {
+                    if (differenceBetween !== 0) {
                       propsElement.actuator_motion_control.chain_number +=
                         differenceBetween;
                       console.log(
@@ -7549,12 +7819,12 @@ class GLTFRenderer extends Component {
                   let currentAxisQuaternion = new Quaternion();
 
                   if (isLinear) {
-                    const currentLength = math.sqrt(
+                    const currentLength = Math.sqrt(
                       currentPositionAxis.x * currentPositionAxis.x +
                         currentPositionAxis.y * currentPositionAxis.y +
                         currentPositionAxis.z * currentPositionAxis.z
                     );
-                    if (currentLength != 0) {
+                    if (currentLength !== 0) {
                       localCurrentTranslation.add(
                         new Vector3(
                           (currentPositionAxis.x *
@@ -7657,7 +7927,7 @@ class GLTFRenderer extends Component {
                         changeMade = true;
                         if (
                           differenceCalculatedBetween <=
-                          (this.props.kinematicPrecision || 0.00000001)
+                          (this.state.kinematicPrecision || 0.00000001)
                         ) {
                           foundThePosition = true;
                           console.log(
@@ -7789,6 +8059,1396 @@ class GLTFRenderer extends Component {
       }
     }
   };
+  displayForDebug = (calculatedKinematicItemList, flag, parsedIndexInfo) => {
+    const maxLengthItem = calculatedKinematicItemList.length;
+    const chainOrList = flag === 'My Values';
+    for (
+      let displayIndex = 0;
+      displayIndex < this.props.kinematicItemList.length;
+      displayIndex++
+    ) {
+      let propsElement = this.props.kinematicItemList[displayIndex];
+      if (chainOrList && parsedIndexInfo) {
+        let [
+          sequence,
+          sequenceItem,
+          propsElementIndex,
+          currentNodeIndex,
+          isActuatorNode,
+          isLinearNode,
+          isEndEffectorNode,
+          currentAxisNode,
+          currentPositionNode
+        ] = parsedIndexInfo[displayIndex];
+        propsElement =
+          this.props.kinematicItemList[
+            propsElementIndex === -1 ? index : propsElementIndex
+          ];
+      }
+      const calcElement =
+        calculatedKinematicItemList[
+          (parsedIndexInfo ? displayIndex + 1 : displayIndex) < maxLengthItem
+            ? parsedIndexInfo
+              ? displayIndex + 1
+              : displayIndex
+            : maxLengthItem
+        ];
+      console.log(
+        flag,
+        displayIndex,
+        propsElement.actuator_motion_control.chain_number,
+        calcElement
+          ? chainOrList
+            ? parsedIndexInfo
+              ? calcElement.A
+              : calcElement
+            : calcElement.actuator_motion_control.chain_number
+          : ''
+      );
+    }
+  };
+  calculateInverseKinematicMovement_unOptimized = (
+    prevProps,
+    parsedIndexInfo
+  ) => {
+    if (
+      JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
+        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
+    ) {
+      if (
+        this.props.showKinematicSliderMove &&
+        this.props.kinematicItemList &&
+        this.partsMeshes &&
+        this.partsMeshes.length > 0 &&
+        this.props.kinematicItemList.length > 0 &&
+        this.props.xyzEndEffectorPosition
+      ) {
+        let calculatedKinematicItemChain = this.cloneChainForward(
+          this.props.kinematicItemList
+        );
+        let currentMountPosition = new Vector3(
+          this.props.xyzEndEffectorPosition.X,
+          this.props.xyzEndEffectorPosition.Y,
+          this.props.xyzEndEffectorPosition.Z
+        );
+        let targetEndEffectorPosition = new Vector3(
+          this.props.xyzControlPosition.X,
+          this.props.xyzControlPosition.Y,
+          this.props.xyzControlPosition.Z
+        );
+        const differenceBetweenTargetAndEndEffector = new Vector3().subVectors(
+          targetEndEffectorPosition,
+          currentMountPosition
+        );
+        let lengthBetweenTargetAndEndEffector =
+          differenceBetweenTargetAndEndEffector.x *
+            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.y *
+            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.z *
+            differenceBetweenTargetAndEndEffector.z;
+        if (lengthBetweenTargetAndEndEffector === 0) {
+          return;
+        }
+        let originalEndEffectorPosition =
+          this.props.xyzEndEffectorPosition.M.clone();
+        let originalLocalPosition = this.props.xyzEndEffectorPosition.L.clone();
+        let originalLocalShiftedPosition =
+          this.props.xyzEndEffectorPosition.S.clone();
+        let originallocalTranslation =
+          this.props.xyzEndEffectorPosition.T.clone();
+        let originalLocalQuaternion =
+          this.props.xyzEndEffectorPosition.Q.clone().invert();
+        let originalTargetPosition = targetEndEffectorPosition.clone();
+        originalTargetPosition.sub(originallocalTranslation);
+        originalTargetPosition.sub(originalLocalShiftedPosition);
+        originalTargetPosition.applyQuaternion(originalLocalQuaternion);
+        originalTargetPosition.add(originalLocalPosition);
+
+        let calculatedMountPosition = currentMountPosition.clone();
+
+        let direction = -1;
+        let directionMultiplier = -1;
+        let foundThePosition = false;
+        let changeMade = false;
+        let directionIndex = 0;
+
+        const howManyIterations = this.props.kinematicParameters
+          ? this.props.kinematicParameters.iterations || 41
+          : 41;
+        for (let iteration = 0; iteration < howManyIterations; iteration++) {
+          direction *= directionMultiplier;
+          let couldFindTheta = false;
+          for (
+            ;
+            directionIndex < calculatedKinematicItemChain.length - 1;
+            directionIndex++
+          ) {
+            const positionalIndex =
+              direction === 1
+                ? directionIndex
+                : calculatedKinematicItemChain.length - directionIndex - 2;
+
+            let previousCalculatedKinematicItemChain = this.cloneList(
+              calculatedKinematicItemChain
+            );
+            let leastTheta = 6.28;
+            let mostTheta = -6.28;
+            const howManyMethods = this.props.kinematicParameters
+              ? this.props.kinematicParameters.methods || 5
+              : 5;
+            for (
+              let methodIndex = 0;
+              methodIndex < howManyMethods;
+              methodIndex++
+            ) {
+              let localQuaternion = new Quaternion(0, 0, 0, 1);
+              let localPosition = new Vector3(0, 0, 0);
+              //let localPreviousPosition = new Vector3(0, 0, 0);
+              let localTranslation = new Vector3(0, 0, 0);
+              let localShiftedPosition = new Vector3(0, 0, 0);
+              let globalShiftedPosition = new Vector3(0, 0, 0);
+              let changeMadeInInnerLoop = false;
+              let positionalIndexFound = false;
+              for (
+                let index = 0;
+                index < calculatedKinematicItemChain.length;
+                index++
+              ) {
+                let [
+                  sequence,
+                  sequenceItem,
+                  propsElementIndex,
+                  currentNodeIndex,
+                  isActuatorNode,
+                  isLinearNode,
+                  isEndEffectorNode,
+                  currentAxisNode,
+                  currentPositionNode
+                ] = parsedIndexInfo[index];
+                let propsElement =
+                  this.props.kinematicItemList[
+                    propsElementIndex === -1 ? index : propsElementIndex
+                  ];
+                let currentChainValue =
+                  calculatedKinematicItemChain[
+                    propsElementIndex === -1 ? index : propsElementIndex
+                  ];
+
+                if (isActuatorNode) {
+                  const currentAxis = currentAxisNode;
+                  const currentPosition = currentPositionNode;
+
+                  let localCurrentQuaternion = localQuaternion.clone();
+                  let localCurrentTranslation = localTranslation.clone();
+                  let currentShiftedPosition = currentPosition.clone();
+                  currentShiftedPosition.sub(localPosition);
+                  currentShiftedPosition.applyQuaternion(
+                    localCurrentQuaternion
+                  );
+                  currentShiftedPosition.add(localShiftedPosition);
+                  let currentPositionAxis = currentAxis.clone();
+                  currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                  currentPositionAxis.normalize();
+
+                  const isLinear = isLinearNode;
+                  if (positionalIndex === index) {
+                    positionalIndexFound = true;
+                    let differenceBetween = 0;
+                    if (isLinear) {
+                      let currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition,
+                        currentEndEffectorposition,
+                        currentTargetPosition,
+                        differencePosition;
+                      if (
+                        methodIndex === 0 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex === 1 || methodIndex === 2) {
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(currentPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalEndEffectorPosition.add(
+                          currentShiftedPosition
+                        );
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(currentPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          localCurrentQuaternion
+                        );
+                        currentOriginalTargetPosition.add(
+                          currentShiftedPosition
+                        );
+                      }
+
+                      currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      differencePosition = new Vector3().subVectors(
+                        currentTargetPosition,
+                        currentEndEffectorposition
+                      );
+                      if (methodIndex === 0 || methodIndex === 1) {
+                        differenceBetween =
+                          differencePosition.x * currentPositionAxis.x +
+                          differencePosition.y * currentPositionAxis.y +
+                          differencePosition.z * currentPositionAxis.z;
+
+                        if (methodIndex === 0) {
+                          leastTheta = differenceBetween;
+                          mostTheta = differenceBetween;
+                        }
+                      }
+                      if (methodIndex === 2) {
+                        differenceBetween =
+                          differencePosition.x * currentPositionAxis.x +
+                          differencePosition.y * currentPositionAxis.y +
+                          differencePosition.z * currentPositionAxis.z;
+                        if (differenceBetween > 0) {
+                          differenceBetween = Math.sqrt(
+                            differencePosition.x * differencePosition.x +
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
+                          );
+                        } else {
+                          differenceBetween = -Math.sqrt(
+                            differencePosition.x * differencePosition.x +
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
+                          );
+                        }
+                      }
+                      if (methodIndex === 3) {
+                        differenceBetween = leastTheta / 2;
+                      }
+                      if (methodIndex === 4) {
+                        differenceBetween = mostTheta / 2;
+                      }
+                    } else {
+                      let currentBeforeLocalQuaternion,
+                        currentBeforeLocalQuaternionApplied,
+                        currentOriginalEndEffectorPosition,
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      if (
+                        methodIndex === 0 ||
+                        methodIndex === 2 ||
+                        methodIndex === 3 ||
+                        methodIndex === 4
+                      ) {
+                        currentOriginalEndEffectorPosition =
+                          calculatedMountPosition.clone();
+                        currentOriginalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                      }
+                      if (methodIndex === 1) {
+                        currentBeforeLocalQuaternion = new Quaternion();
+
+                        currentBeforeLocalQuaternion
+                          .setFromAxisAngle(
+                            currentPositionAxis,
+                            currentChainValue
+                          )
+                          .normalize();
+                        currentBeforeLocalQuaternionApplied =
+                          localCurrentQuaternion.clone();
+                        currentBeforeLocalQuaternionApplied
+                          .premultiply(currentBeforeLocalQuaternion)
+                          .normalize();
+                        currentOriginalEndEffectorPosition =
+                          originalEndEffectorPosition.clone();
+                        currentOriginalEndEffectorPosition.sub(currentPosition);
+                        currentOriginalEndEffectorPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalEndEffectorPosition.add(
+                          currentShiftedPosition
+                        );
+                        currentOriginalTargetPosition =
+                          originalTargetPosition.clone();
+                        currentOriginalTargetPosition.sub(currentPosition);
+                        currentOriginalTargetPosition.applyQuaternion(
+                          currentBeforeLocalQuaternionApplied
+                        );
+                        currentOriginalTargetPosition.add(
+                          currentShiftedPosition
+                        );
+                      }
+
+                      let currentEndEffectorposition =
+                        currentOriginalEndEffectorPosition.clone();
+                      let currentTargetPosition =
+                        currentOriginalTargetPosition.clone();
+                      currentEndEffectorposition.sub(currentShiftedPosition);
+
+                      currentTargetPosition.sub(currentShiftedPosition);
+
+                      if (methodIndex === 0 || methodIndex === 1) {
+                        differenceBetween = this.angleToMoveToTarget(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex === 2) {
+                        differenceBetween = this.getAngleBetweenVectorsFromAxis(
+                          currentPositionAxis,
+                          currentEndEffectorposition,
+                          currentTargetPosition
+                        );
+                      }
+                      if (methodIndex === 3) {
+                        differenceBetween = leastTheta / 2;
+                        //console.log('Least method theta', leastTheta);
+                      }
+                      if (methodIndex === 4) {
+                        differenceBetween = mostTheta / 2;
+                        //console.log('Most method theta', mostTheta);
+                      }
+                    }
+                    if (differenceBetween !== 0) {
+                      currentChainValue += differenceBetween;
+                      console.log(
+                        'Applying difference',
+                        differenceBetween,
+                        currentChainValue,
+                        propsElement.actuator_motion_control.minimum_limit,
+                        propsElement.actuator_motion_control.maximum_limit
+                      );
+                      if (
+                        currentChainValue >
+                        propsElement.actuator_motion_control.maximum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.maximum_limit -
+                          currentChainValue +
+                          differenceBetween;
+                        currentChainValue =
+                          propsElement.actuator_motion_control.maximum_limit;
+                        console.log(
+                          'Applied maximum Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          currentChainValue,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (
+                        currentChainValue <
+                        propsElement.actuator_motion_control.minimum_limit
+                      ) {
+                        let previousDifferenceBetween = differenceBetween;
+                        differenceBetween =
+                          propsElement.actuator_motion_control.minimum_limit -
+                          currentChainValue +
+                          differenceBetween;
+                        currentChainValue =
+                          propsElement.actuator_motion_control.minimum_limit;
+                        console.log(
+                          'Applied Minimum Limit difference',
+                          differenceBetween,
+                          previousDifferenceBetween,
+                          currentChainValue,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                      }
+                      if (leastTheta > differenceBetween) {
+                        leastTheta = differenceBetween;
+                      }
+                      if (mostTheta < differenceBetween) {
+                        mostTheta = differenceBetween;
+                      }
+                      calculatedKinematicItemChain[
+                        propsElementIndex === -1 ? index : propsElementIndex
+                      ] = currentChainValue;
+                    }
+                  }
+
+                  let currentAxisQuaternion = new Quaternion();
+
+                  if (isLinear) {
+                    const currentLength = Math.sqrt(
+                      currentPositionAxis.x * currentPositionAxis.x +
+                        currentPositionAxis.y * currentPositionAxis.y +
+                        currentPositionAxis.z * currentPositionAxis.z
+                    );
+                    if (currentLength !== 0) {
+                      localCurrentTranslation.add(
+                        new Vector3(
+                          (currentPositionAxis.x * currentChainValue) /
+                            currentLength,
+                          (currentPositionAxis.y * currentChainValue) /
+                            currentLength,
+                          (currentPositionAxis.z * currentChainValue) /
+                            currentLength
+                        )
+                      );
+                    }
+                  } else {
+                    currentAxisQuaternion
+                      .setFromAxisAngle(currentPositionAxis, currentChainValue)
+                      .normalize();
+                    localCurrentQuaternion
+                      .premultiply(currentAxisQuaternion)
+                      .normalize();
+                    // console.log(
+                    //   'Quaternions',
+                    //   currentPositionAxis,
+                    //   propsElement.actuator_motion_control.chain_number,
+                    //   localCurrentQuaternion
+                    // );
+                  }
+
+                  let shiftedPosition = currentPosition.clone();
+                  shiftedPosition.applyQuaternion(localQuaternion);
+                  shiftedPosition.add(globalShiftedPosition);
+                  let shiftingPosition = currentPosition.clone();
+                  shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                  shiftedPosition.sub(shiftingPosition);
+                  shiftedPosition.sub(localTranslation);
+                  shiftedPosition.add(localCurrentTranslation);
+
+                  localPosition = currentPosition.clone();
+                  localQuaternion = localCurrentQuaternion.clone();
+                  localShiftedPosition = currentShiftedPosition.clone();
+                  localTranslation = localCurrentTranslation.clone();
+                  globalShiftedPosition = shiftedPosition.clone();
+                } else {
+                  // console.log(
+                  //   'Not an actuator',
+                  //   propsElement,
+                  //   index,
+                  //   localPosition,
+                  //   localQuaternion,
+                  //   calculatedMountPosition
+                  // );
+                }
+                if (isEndEffectorNode) {
+                  if (this.props.itemProperties) {
+                    const itemProperties = this.props.itemProperties;
+                    //console.log('Got itemproperties as', itemProperties);
+                    if (
+                      itemProperties.actuator_motion_control &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation &&
+                      itemProperties.actuator_motion_control
+                        .cylindrical_axis_of_rotation.mountobb
+                    ) {
+                      const mountSurface =
+                        itemProperties.actuator_motion_control
+                          .cylindrical_axis_of_rotation.mountobb;
+                      let mountPosition = new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      );
+                      mountPosition.sub(localPosition);
+                      mountPosition.applyQuaternion(localQuaternion);
+                      mountPosition.add(localShiftedPosition);
+                      mountPosition.add(localTranslation);
+                      let currentTargetPosition =
+                        targetEndEffectorPosition.clone();
+                      let differenceCalcuatedPosition =
+                        new Vector3().subVectors(
+                          currentTargetPosition,
+                          mountPosition
+                        );
+                      let differenceCalculatedBetween =
+                        differenceCalcuatedPosition.x *
+                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.y *
+                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.z *
+                          differenceCalcuatedPosition.z;
+                      if (
+                        differenceCalculatedBetween <
+                        lengthBetweenTargetAndEndEffector
+                      ) {
+                        changeMadeInInnerLoop = true;
+                        couldFindTheta = true;
+                        changeMade = true;
+                        if (
+                          differenceCalculatedBetween <=
+                          (this.state.kinematicPrecision || 0.00000001)
+                        ) {
+                          foundThePosition = true;
+                          console.log(
+                            'Reached after ',
+                            iteration + 1,
+                            'iterations',
+                            'error rate',
+                            differenceCalculatedBetween,
+                            lengthBetweenTargetAndEndEffector,
+                            calculatedMountPosition,
+                            targetEndEffectorPosition,
+                            mountPosition,
+                            localPosition,
+                            localQuaternion
+                          );
+                        } else {
+                          console.log(
+                            'Difference Length',
+                            differenceCalculatedBetween,
+                            lengthBetweenTargetAndEndEffector,
+                            calculatedMountPosition,
+                            targetEndEffectorPosition,
+                            mountPosition,
+                            localPosition,
+                            localQuaternion,
+                            'iteration no',
+                            iteration + 1
+                          );
+                        }
+                        lengthBetweenTargetAndEndEffector =
+                          differenceCalculatedBetween;
+                        calculatedMountPosition = mountPosition.clone();
+                        originalTargetPosition =
+                          targetEndEffectorPosition.clone();
+                        originalTargetPosition.sub(localTranslation);
+                        originalTargetPosition.sub(localShiftedPosition);
+                        originalTargetPosition.applyQuaternion(
+                          localQuaternion.clone().invert()
+                        );
+                        originalTargetPosition.add(localPosition);
+                        console.log(
+                          'Got original target pos',
+                          originalTargetPosition,
+                          new Vector3(
+                            mountSurface.cx,
+                            mountSurface.cy,
+                            mountSurface.cz
+                          )
+                        );
+                      } else {
+                        console.log(
+                          'Difference Length Exceeds',
+                          differenceCalculatedBetween,
+                          lengthBetweenTargetAndEndEffector,
+                          calculatedMountPosition,
+                          targetEndEffectorPosition,
+                          mountPosition,
+                          localPosition,
+                          localQuaternion,
+                          'iteration',
+                          iteration + 1
+                        );
+                        // for (
+                        //   let chainPrintIndex = 0;
+                        //   chainPrintIndex < calculatedKinematicItemList.length;
+                        //   chainPrintIndex++
+                        // ) {
+                        //   console.log(
+                        //     calculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control,
+                        //     previousCalculatedKinematicItemList[chainPrintIndex]
+                        //       .actuator_motion_control
+                        //   );
+                        // }
+                        calculatedKinematicItemChain = this.cloneList(
+                          previousCalculatedKinematicItemChain
+                        );
+                      }
+                    }
+                  }
+                }
+                if (foundThePosition) {
+                  break;
+                }
+              }
+              if (foundThePosition) {
+                break;
+              }
+              if (changeMadeInInnerLoop) {
+                break;
+              }
+              if (!positionalIndexFound) {
+                console.log('end effector or not an actuator');
+                break;
+              }
+            }
+
+            if (foundThePosition) {
+              break;
+            }
+          }
+          if (foundThePosition) {
+            break;
+          }
+          directionIndex = 1;
+          if (!couldFindTheta) {
+            console.log(
+              'Not reachable beyond this',
+              iteration + 1,
+              'iterations',
+              lengthBetweenTargetAndEndEffector,
+              'error rate'
+            );
+            break;
+          }
+        }
+        if (this.props.setKinematicItemList && changeMade) {
+          this.displayForDebug(calculatedKinematicItemChain, 'My Values');
+          console.log(
+            'Current and Target',
+            currentMountPosition,
+            targetEndEffectorPosition
+          );
+          this.props.setKinematicItemList(
+            this.cloneChainBackward(
+              calculatedKinematicItemChain,
+              this.props.kinematicItemList
+            )
+          );
+        }
+
+        //To do set kinematic item list with newly found values...
+      }
+    }
+  };
+  calculateInverseKinematicMovement = (prevProps, parsedIndexInfo) => {
+    if (
+      JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
+        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
+    ) {
+      if (
+        this.props.showKinematicSliderMove &&
+        this.props.kinematicItemList &&
+        this.partsMeshes &&
+        this.partsMeshes.length > 0 &&
+        this.props.kinematicItemList.length > 0 &&
+        this.props.xyzEndEffectorPosition
+      ) {
+        let currentMountPosition = new Vector3(
+          this.props.xyzEndEffectorPosition.X,
+          this.props.xyzEndEffectorPosition.Y,
+          this.props.xyzEndEffectorPosition.Z
+        );
+        let targetEndEffectorPosition = new Vector3(
+          this.props.xyzControlPosition.X,
+          this.props.xyzControlPosition.Y,
+          this.props.xyzControlPosition.Z
+        );
+        const differenceBetweenTargetAndEndEffector = new Vector3().subVectors(
+          targetEndEffectorPosition,
+          currentMountPosition
+        );
+        let lengthBetweenTargetAndEndEffector =
+          differenceBetweenTargetAndEndEffector.x *
+            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.y *
+            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.z *
+            differenceBetweenTargetAndEndEffector.z;
+        if (lengthBetweenTargetAndEndEffector === 0) {
+          return;
+        }
+        let calculatedKinematicItemChain = this.cloneChainInfoForward(
+          this.props.xyzEndEffectorPosition.K
+        );
+        const beginOfActuator = this.props.xyzEndEffectorPosition.B;
+        const endOfActuator = this.props.xyzEndEffectorPosition.E;
+        let originalEndEffectorPosition =
+          this.props.xyzEndEffectorPosition.M.clone();
+        let originalLocalPosition = this.props.xyzEndEffectorPosition.L.clone();
+        let originalLocalShiftedPosition =
+          this.props.xyzEndEffectorPosition.S.clone();
+        let originallocalTranslation =
+          this.props.xyzEndEffectorPosition.T.clone();
+        let originalLocalQuaternion =
+          this.props.xyzEndEffectorPosition.Q.clone().invert();
+        let originalTargetPosition = targetEndEffectorPosition.clone();
+        originalTargetPosition.sub(originallocalTranslation);
+        originalTargetPosition.sub(originalLocalShiftedPosition);
+        originalTargetPosition.applyQuaternion(originalLocalQuaternion);
+        originalTargetPosition.add(originalLocalPosition);
+
+        let calculatedMountPosition = currentMountPosition.clone();
+
+        let direction = false;
+        //let directionMultiplier = -1;
+        let foundThePosition = false;
+        let changeMade = false;
+        let directionIndex = 0;
+        // console.log(
+        //   'GOt inititally',
+        //   currentMountPosition,
+        //   originalEndEffectorPosition,
+        //   originalTargetPosition,
+        //   targetEndEffectorPosition
+        // );
+        const howManyIterations = this.props.kinematicParameters
+          ? this.props.kinematicParameters.iterations +
+              ((this.props.kinematicParameters.iterations + 1) % 2) || 41
+          : 41;
+        for (let iteration = 0; iteration < howManyIterations; iteration++) {
+          direction = !direction;
+          let couldFindTheta = false;
+          //let lastPositionalIndex = 0;
+          //let startPositionalIndex = 0;
+          directionIndex = beginOfActuator;
+          for (; directionIndex < endOfActuator; directionIndex++) {
+            const positionalIndex =
+              direction === true
+                ? directionIndex
+                : endOfActuator - directionIndex + beginOfActuator - 1;
+            const isActuatorOrEndEffector =
+              calculatedKinematicItemChain[positionalIndex + 1].K;
+            if (isActuatorOrEndEffector) {
+              let previousCalculatedKinematicItemChain =
+                this.cloneChainInfoForward(calculatedKinematicItemChain);
+              let leastTheta = 6.28;
+              let mostTheta = -6.28;
+              const howManyMethods = this.props.kinematicParameters
+                ? this.props.kinematicParameters.methods || 5
+                : 5;
+              for (
+                let methodIndex = 0;
+                methodIndex < howManyMethods;
+                methodIndex++
+              ) {
+                let localQuaternion =
+                  calculatedKinematicItemChain[positionalIndex].Q;
+                let localPosition =
+                  calculatedKinematicItemChain[positionalIndex].L;
+                let localTranslation =
+                  calculatedKinematicItemChain[positionalIndex].T;
+                let localShiftedPosition =
+                  calculatedKinematicItemChain[positionalIndex].S;
+                //let globalShiftedPosition = new Vector3(0, 0, 0);
+                let changeMadeInInnerLoop = false;
+                let positionalIndexFound = false;
+                for (
+                  let index = positionalIndex;
+                  index < calculatedKinematicItemChain.length - 1;
+                  index++
+                ) {
+                  // console.log(
+                  //   'Parsed Index info',
+                  //   index,
+                  //   positionalIndex,
+                  //   beginOfActuator,
+                  //   endOfActuator,
+                  //   directionIndex
+                  // );
+                  let [
+                    sequence,
+                    sequenceItem,
+                    propsElementIndex,
+                    currentNodeIndex,
+                    isActuatorNode,
+                    isLinearNode,
+                    isEndEffectorNode,
+                    currentAxisNode,
+                    currentPositionNode
+                  ] = parsedIndexInfo[index];
+
+                  let currentChainValue =
+                    calculatedKinematicItemChain[index + 1];
+
+                  if (isActuatorNode) {
+                    let propsElement =
+                      this.props.kinematicItemList[
+                        propsElementIndex === -1 ? index : propsElementIndex
+                      ];
+                    const currentAxis = currentAxisNode;
+                    const currentPosition = currentPositionNode;
+                    // localQuaternion = calculatedKinematicItemChain[index].Q;
+                    // localPosition = calculatedKinematicItemChain[index].L;
+                    // localTranslation = calculatedKinematicItemChain[index].T;
+                    // localShiftedPosition = calculatedKinematicItemChain[index].S;
+                    let localCurrentQuaternion = localQuaternion.clone();
+                    let localCurrentTranslation = localTranslation.clone();
+                    let currentShiftedPosition = currentPosition.clone();
+                    currentShiftedPosition.sub(localPosition);
+                    currentShiftedPosition.applyQuaternion(
+                      localCurrentQuaternion
+                    );
+                    currentShiftedPosition.add(localShiftedPosition);
+                    let currentPositionAxis = currentAxis.clone();
+                    currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                    currentPositionAxis.normalize();
+
+                    const isLinear = isLinearNode;
+                    if (positionalIndex === index) {
+                      positionalIndexFound = true;
+                      let differenceBetween = 0;
+                      if (isLinear) {
+                        let currentOriginalEndEffectorPosition,
+                          currentOriginalTargetPosition,
+                          currentEndEffectorposition,
+                          currentTargetPosition,
+                          differencePosition;
+                        if (
+                          methodIndex === 0 ||
+                          methodIndex === 3 ||
+                          methodIndex === 4
+                        ) {
+                          currentOriginalEndEffectorPosition =
+                            calculatedMountPosition.clone();
+
+                          currentOriginalTargetPosition =
+                            targetEndEffectorPosition.clone();
+                        }
+                        if (methodIndex === 1 || methodIndex === 2) {
+                          currentOriginalEndEffectorPosition =
+                            originalEndEffectorPosition.clone();
+                          currentOriginalEndEffectorPosition.sub(
+                            currentPosition
+                          );
+                          currentOriginalEndEffectorPosition.applyQuaternion(
+                            localCurrentQuaternion
+                          );
+                          currentOriginalEndEffectorPosition.add(
+                            currentShiftedPosition
+                          );
+                          currentOriginalTargetPosition =
+                            originalTargetPosition.clone();
+                          currentOriginalTargetPosition.sub(currentPosition);
+                          currentOriginalTargetPosition.applyQuaternion(
+                            localCurrentQuaternion
+                          );
+                          currentOriginalTargetPosition.add(
+                            currentShiftedPosition
+                          );
+                        }
+                        // console.log(
+                        //   'Method Index',
+                        //   methodIndex,
+                        //   currentOriginalEndEffectorPosition,
+                        //   this.props.kinematicParameters,
+                        //   this.props.kinematicParameters
+                        //     ? this.props.kinematicParameters.methods || 5
+                        //     : 5
+                        // );
+                        currentEndEffectorposition =
+                          currentOriginalEndEffectorPosition.clone();
+                        currentTargetPosition =
+                          currentOriginalTargetPosition.clone();
+                        differencePosition = new Vector3().subVectors(
+                          currentTargetPosition,
+                          currentEndEffectorposition
+                        );
+                        if (methodIndex === 0 || methodIndex === 1) {
+                          differenceBetween =
+                            differencePosition.x * currentPositionAxis.x +
+                            differencePosition.y * currentPositionAxis.y +
+                            differencePosition.z * currentPositionAxis.z;
+
+                          if (methodIndex === 0) {
+                            leastTheta = differenceBetween;
+                            mostTheta = differenceBetween;
+                          }
+                        }
+                        if (methodIndex === 2) {
+                          differenceBetween =
+                            differencePosition.x * currentPositionAxis.x +
+                            differencePosition.y * currentPositionAxis.y +
+                            differencePosition.z * currentPositionAxis.z;
+                          if (differenceBetween > 0) {
+                            differenceBetween = Math.sqrt(
+                              differencePosition.x * differencePosition.x +
+                                differencePosition.y * differencePosition.y +
+                                differencePosition.z * differencePosition.z
+                            );
+                          } else {
+                            differenceBetween = -Math.sqrt(
+                              differencePosition.x * differencePosition.x +
+                                differencePosition.y * differencePosition.y +
+                                differencePosition.z * differencePosition.z
+                            );
+                          }
+                        }
+                        if (methodIndex === 3) {
+                          differenceBetween = leastTheta / 2;
+                        }
+                        if (methodIndex === 4) {
+                          differenceBetween = mostTheta / 2;
+                        }
+                      } else {
+                        let currentBeforeLocalQuaternion,
+                          currentBeforeLocalQuaternionApplied,
+                          currentOriginalEndEffectorPosition,
+                          currentOriginalTargetPosition =
+                            targetEndEffectorPosition.clone();
+                        if (
+                          methodIndex === 0 ||
+                          methodIndex === 2 ||
+                          methodIndex === 3 ||
+                          methodIndex === 4
+                        ) {
+                          currentOriginalEndEffectorPosition =
+                            calculatedMountPosition.clone();
+                          currentOriginalTargetPosition =
+                            targetEndEffectorPosition.clone();
+                        }
+                        if (methodIndex === 1) {
+                          currentBeforeLocalQuaternion = new Quaternion();
+
+                          currentBeforeLocalQuaternion
+                            .setFromAxisAngle(
+                              currentPositionAxis,
+                              currentChainValue.A
+                            )
+                            .normalize();
+                          currentBeforeLocalQuaternionApplied =
+                            localCurrentQuaternion.clone();
+                          currentBeforeLocalQuaternionApplied
+                            .premultiply(currentBeforeLocalQuaternion)
+                            .normalize();
+                          currentOriginalEndEffectorPosition =
+                            originalEndEffectorPosition.clone();
+                          currentOriginalEndEffectorPosition.sub(
+                            currentPosition
+                          );
+                          currentOriginalEndEffectorPosition.applyQuaternion(
+                            currentBeforeLocalQuaternionApplied
+                          );
+                          currentOriginalEndEffectorPosition.add(
+                            currentShiftedPosition
+                          );
+                          currentOriginalTargetPosition =
+                            originalTargetPosition.clone();
+                          currentOriginalTargetPosition.sub(currentPosition);
+                          currentOriginalTargetPosition.applyQuaternion(
+                            currentBeforeLocalQuaternionApplied
+                          );
+                          currentOriginalTargetPosition.add(
+                            currentShiftedPosition
+                          );
+                        }
+
+                        let currentEndEffectorposition =
+                          currentOriginalEndEffectorPosition.clone();
+                        let currentTargetPosition =
+                          currentOriginalTargetPosition.clone();
+                        currentEndEffectorposition.sub(currentShiftedPosition);
+
+                        currentTargetPosition.sub(currentShiftedPosition);
+
+                        if (methodIndex === 0 || methodIndex === 1) {
+                          differenceBetween = this.angleToMoveToTarget(
+                            currentPositionAxis,
+                            currentEndEffectorposition,
+                            currentTargetPosition
+                          );
+                        }
+                        if (methodIndex === 2) {
+                          differenceBetween =
+                            this.getAngleBetweenVectorsFromAxis(
+                              currentPositionAxis,
+                              currentEndEffectorposition,
+                              currentTargetPosition
+                            );
+                        }
+                        if (methodIndex === 3) {
+                          differenceBetween = leastTheta / 2;
+                          //console.log('Least method theta', leastTheta);
+                        }
+                        if (methodIndex === 4) {
+                          differenceBetween = mostTheta / 2;
+                          //console.log('Most method theta', mostTheta);
+                        }
+                      }
+                      if (differenceBetween !== 0) {
+                        currentChainValue.A += differenceBetween;
+                        console.log(
+                          'Applying difference',
+                          differenceBetween,
+                          currentChainValue.A,
+                          propsElement.actuator_motion_control.minimum_limit,
+                          propsElement.actuator_motion_control.maximum_limit
+                        );
+                        if (
+                          currentChainValue.A >
+                          propsElement.actuator_motion_control.maximum_limit
+                        ) {
+                          let previousDifferenceBetween = differenceBetween;
+                          differenceBetween =
+                            propsElement.actuator_motion_control.maximum_limit -
+                            currentChainValue.A +
+                            differenceBetween;
+                          currentChainValue.A =
+                            propsElement.actuator_motion_control.maximum_limit;
+                          console.log(
+                            'Applied maximum Limit difference',
+                            differenceBetween,
+                            previousDifferenceBetween,
+                            currentChainValue.A,
+                            propsElement.actuator_motion_control.minimum_limit,
+                            propsElement.actuator_motion_control.maximum_limit
+                          );
+                        }
+                        if (
+                          currentChainValue.A <
+                          propsElement.actuator_motion_control.minimum_limit
+                        ) {
+                          let previousDifferenceBetween = differenceBetween;
+                          differenceBetween =
+                            propsElement.actuator_motion_control.minimum_limit -
+                            currentChainValue.A +
+                            differenceBetween;
+                          currentChainValue.A =
+                            propsElement.actuator_motion_control.minimum_limit;
+                          console.log(
+                            'Applied Minimum Limit difference',
+                            differenceBetween,
+                            previousDifferenceBetween,
+                            currentChainValue.A,
+                            propsElement.actuator_motion_control.minimum_limit,
+                            propsElement.actuator_motion_control.maximum_limit
+                          );
+                        }
+                        if (leastTheta > differenceBetween) {
+                          leastTheta = differenceBetween;
+                        }
+                        if (mostTheta < differenceBetween) {
+                          mostTheta = differenceBetween;
+                        }
+                      } else {
+                        console.log(
+                          'Applying 0 diffference',
+                          positionalIndex,
+                          index,
+                          propsElement.actuator_motion_control
+                        );
+                      }
+                    } else {
+                      // console.log(
+                      //   'Positional Index does not match',
+                      //   positionalIndex,
+                      //   index,
+                      //   isActuatorNode,
+                      //   isLinearNode
+                      // );
+                    }
+
+                    if (isLinear) {
+                      // const currentLength = Math.sqrt(
+                      //   currentPositionAxis.x * currentPositionAxis.x +
+                      //     currentPositionAxis.y * currentPositionAxis.y +
+                      //     currentPositionAxis.z * currentPositionAxis.z
+                      // );
+                      // console.log(
+                      //   'Before Adding values to the translation',
+                      //   localCurrentTranslation,
+                      //   localTranslation,
+                      //   currentLength,
+                      //   currentChainValue.A
+                      // );
+                      // if (currentLength !== 0) {
+                      localCurrentTranslation.add(
+                        new Vector3(
+                          currentPositionAxis.x * currentChainValue.A,
+                          currentPositionAxis.y * currentChainValue.A,
+                          currentPositionAxis.z * currentChainValue.A
+                        )
+                      );
+                      // }
+                      // console.log(
+                      //   'Adding values to the translation',
+                      //   localCurrentTranslation,
+                      //   localTranslation,
+                      //   currentChainValue.A
+                      // );
+                    } else {
+                      let currentAxisQuaternion = new Quaternion();
+                      currentAxisQuaternion
+                        .setFromAxisAngle(
+                          currentPositionAxis,
+                          currentChainValue.A
+                        )
+                        .normalize();
+                      localCurrentQuaternion
+                        .premultiply(currentAxisQuaternion)
+                        .normalize();
+                    }
+
+                    // let shiftedPosition = currentPosition.clone();
+                    // shiftedPosition.applyQuaternion(localQuaternion);
+                    // shiftedPosition.add(globalShiftedPosition);
+                    // let shiftingPosition = currentPosition.clone();
+                    // shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                    // shiftedPosition.sub(shiftingPosition);
+                    // shiftedPosition.sub(localTranslation);
+                    // shiftedPosition.add(localCurrentTranslation);
+                    // console.log(
+                    //   'Chain Values before',
+                    //   currentChainValue.A,
+                    //   currentChainValue.L,
+                    //   currentChainValue.Q,
+                    //   currentChainValue.S,
+                    //   currentChainValue.T,
+                    //   calculatedKinematicItemChain[index + 1].A,
+                    //   calculatedKinematicItemChain[index + 1].L,
+                    //   calculatedKinematicItemChain[index + 1].Q,
+                    //   calculatedKinematicItemChain[index + 1].S,
+                    //   calculatedKinematicItemChain[index + 1].T,
+                    //   index
+                    // );
+                    localPosition = currentPosition.clone();
+                    localQuaternion = localCurrentQuaternion.clone();
+                    localShiftedPosition = currentShiftedPosition.clone();
+                    localTranslation = localCurrentTranslation.clone();
+                    currentChainValue.L = currentPosition.clone();
+                    currentChainValue.Q = localCurrentQuaternion.clone();
+                    currentChainValue.S = currentShiftedPosition.clone();
+                    currentChainValue.T = localCurrentTranslation.clone();
+                    // console.log(
+                    //   'Chain Values after',
+                    //   currentChainValue.A,
+                    //   currentChainValue.L,
+                    //   currentChainValue.Q,
+                    //   currentChainValue.S,
+                    //   currentChainValue.T,
+                    //   calculatedKinematicItemChain[index + 1].A,
+                    //   calculatedKinematicItemChain[index + 1].L,
+                    //   calculatedKinematicItemChain[index + 1].Q,
+                    //   calculatedKinematicItemChain[index + 1].S,
+                    //   calculatedKinematicItemChain[index + 1].T,
+                    //   index
+                    // );
+                    //globalShiftedPosition = shiftedPosition.clone();
+                  } else {
+                    currentChainValue.L = localPosition.clone();
+                    currentChainValue.Q = localQuaternion.clone();
+                    currentChainValue.S = localShiftedPosition.clone();
+                    currentChainValue.T = localTranslation.clone();
+                    // console.log(
+                    //   'Not an actuator',
+                    //   propsElement,
+                    //   index,
+                    //   localPosition,
+                    //   localQuaternion,
+                    //   calculatedMountPosition
+                    // );
+                  }
+                  if (isEndEffectorNode) {
+                    // localQuaternion = calculatedKinematicItemChain[index].Q;
+                    // localPosition = calculatedKinematicItemChain[index].L;
+                    // localTranslation = calculatedKinematicItemChain[index].T;
+                    // localShiftedPosition = calculatedKinematicItemChain[index].S;
+                    // console.log(
+                    //   'Adding values at endeffector to the translation',
+                    //   localTranslation,
+                    //   calculatedKinematicItemChain[index + 1].T
+                    // );
+
+                    if (this.props.itemProperties) {
+                      const itemProperties = this.props.itemProperties;
+                      //console.log('Got itemproperties as', itemProperties);
+                      if (
+                        itemProperties.actuator_motion_control &&
+                        itemProperties.actuator_motion_control
+                          .cylindrical_axis_of_rotation &&
+                        itemProperties.actuator_motion_control
+                          .cylindrical_axis_of_rotation.mountobb
+                      ) {
+                        const mountSurface =
+                          itemProperties.actuator_motion_control
+                            .cylindrical_axis_of_rotation.mountobb;
+                        let mountPosition = new Vector3(
+                          mountSurface.cx,
+                          mountSurface.cy,
+                          mountSurface.cz
+                        );
+                        mountPosition.sub(localPosition);
+                        mountPosition.applyQuaternion(localQuaternion);
+                        mountPosition.add(localShiftedPosition);
+                        mountPosition.add(localTranslation);
+                        let currentTargetPosition =
+                          targetEndEffectorPosition.clone();
+                        let differenceCalcuatedPosition =
+                          new Vector3().subVectors(
+                            currentTargetPosition,
+                            mountPosition
+                          );
+                        let differenceCalculatedBetween =
+                          differenceCalcuatedPosition.x *
+                            differenceCalcuatedPosition.x +
+                          differenceCalcuatedPosition.y *
+                            differenceCalcuatedPosition.y +
+                          differenceCalcuatedPosition.z *
+                            differenceCalcuatedPosition.z;
+                        if (
+                          differenceCalculatedBetween <
+                          lengthBetweenTargetAndEndEffector
+                        ) {
+                          changeMadeInInnerLoop = true;
+                          couldFindTheta = true;
+                          changeMade = true;
+                          if (
+                            differenceCalculatedBetween <=
+                            (this.state.kinematicPrecision || 0.00000001)
+                          ) {
+                            foundThePosition = true;
+                            console.log(
+                              'Reached after ',
+                              iteration + 1,
+                              'iterations',
+                              'error rate',
+                              differenceCalculatedBetween,
+                              lengthBetweenTargetAndEndEffector,
+                              calculatedMountPosition,
+                              targetEndEffectorPosition,
+                              mountPosition,
+                              localPosition,
+                              localQuaternion,
+                              index,
+                              positionalIndex,
+                              directionIndex
+                            );
+                          } else {
+                            console.log(
+                              'Difference Length',
+                              differenceCalculatedBetween,
+                              lengthBetweenTargetAndEndEffector,
+                              calculatedMountPosition,
+                              targetEndEffectorPosition,
+                              mountPosition,
+                              localPosition,
+                              localQuaternion,
+                              'iteration no',
+                              iteration + 1,
+                              index,
+                              positionalIndex,
+                              directionIndex
+                            );
+                          }
+                          lengthBetweenTargetAndEndEffector =
+                            differenceCalculatedBetween;
+                          calculatedMountPosition = mountPosition.clone();
+                          originalTargetPosition =
+                            targetEndEffectorPosition.clone();
+                          originalTargetPosition.sub(localTranslation);
+                          originalTargetPosition.sub(localShiftedPosition);
+                          originalTargetPosition.applyQuaternion(
+                            localQuaternion.clone().invert()
+                          );
+                          originalTargetPosition.add(localPosition);
+                          console.log(
+                            'Got original target pos',
+                            originalTargetPosition,
+                            new Vector3(
+                              mountSurface.cx,
+                              mountSurface.cy,
+                              mountSurface.cz
+                            )
+                          );
+                        } else {
+                          console.log(
+                            'Difference Length Exceeds',
+                            differenceCalculatedBetween,
+                            lengthBetweenTargetAndEndEffector,
+                            calculatedMountPosition,
+                            targetEndEffectorPosition,
+                            mountPosition,
+                            localPosition,
+                            localQuaternion,
+                            'iteration',
+                            iteration + 1,
+                            index,
+                            positionalIndex,
+                            directionIndex
+                          );
+                          // for (
+                          //   let chainPrintIndex = 0;
+                          //   chainPrintIndex < calculatedKinematicItemList.length;
+                          //   chainPrintIndex++
+                          // ) {
+                          //   console.log(
+                          //     calculatedKinematicItemList[chainPrintIndex]
+                          //       .actuator_motion_control,
+                          //     previousCalculatedKinematicItemList[chainPrintIndex]
+                          //       .actuator_motion_control
+                          //   );
+                          // }
+                          calculatedKinematicItemChain =
+                            this.cloneChainInfoForward(
+                              previousCalculatedKinematicItemChain
+                            );
+                        }
+                      }
+                    }
+                  }
+                  if (foundThePosition) {
+                    break;
+                  }
+                }
+                if (foundThePosition) {
+                  break;
+                }
+                if (changeMadeInInnerLoop) {
+                  break;
+                }
+                if (!positionalIndexFound) {
+                  console.log('end effector or not an actuator');
+                  break;
+                }
+              }
+              //lastPositionalIndex = positionalIndex + 1;
+              if (foundThePosition) {
+                break;
+              }
+            }
+            //startPositionalIndex = positionalIndex;
+            //lastPositionalIndex = startPositionalIndex;
+          }
+          if (foundThePosition) {
+            break;
+          }
+
+          if (!couldFindTheta) {
+            console.log(
+              'Not reachable beyond this',
+              iteration + 1,
+              'iterations',
+              lengthBetweenTargetAndEndEffector,
+              'error rate'
+            );
+            break;
+          }
+          directionIndex = beginOfActuator + 1;
+        }
+        if (this.props.setKinematicItemList && changeMade) {
+          this.displayForDebug(
+            calculatedKinematicItemChain,
+            'My Values',
+            parsedIndexInfo
+          );
+          console.log(
+            'Current and Target',
+            currentMountPosition,
+            targetEndEffectorPosition
+          );
+          this.props.setKinematicItemList(
+            this.cloneChainInfoBackward(
+              calculatedKinematicItemChain,
+              this.props.kinematicItemList,
+              parsedIndexInfo
+            )
+          );
+        }
+      }
+    }
+  };
   performKinematicMovement_old = (prevProps, parsedInfo) => {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
@@ -7812,7 +9472,7 @@ class GLTFRenderer extends Component {
           const sameGLTF = prevProps
             ? prevProps.activeGLTFFile === this.props.activeGLTFFile
             : false;
-          if (prevProps == null) {
+          if (prevProps === null) {
             this.removeDrawnAxisLines();
             this.axisArray = [];
             this.removeSphere();
@@ -7870,7 +9530,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control.child_part_type ===
                 'ACTUATOR'
             ) {
-              if (prevProps == null) {
+              if (prevProps === null) {
                 const axisLine = this.drawAxisLineToKinematic(propsElement);
                 if (currentNode) {
                   currentNode.axisLine = axisLine
@@ -7938,8 +9598,8 @@ class GLTFRenderer extends Component {
               }
               if (
                 differenceElement ||
-                propsElement.actuator_motion_control.chain_number !=
-                  0 /* || prevProps == null */
+                propsElement.actuator_motion_control.chain_number !==
+                  0 /* || prevProps === null */
               ) {
                 let currentAxis = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
@@ -7993,12 +9653,12 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control.is_linear_or_rotational;
                 let currentAxisQuaternion = new Quaternion();
                 if (isLinear) {
-                  const currentLength = math.sqrt(
+                  const currentLength = Math.sqrt(
                     currentPositionAxis.x * currentPositionAxis.x +
                       currentPositionAxis.y * currentPositionAxis.y +
                       currentPositionAxis.z * currentPositionAxis.z
                   );
-                  if (currentLength != 0) {
+                  if (currentLength !== 0) {
                     localCurrentTranslation.add(
                       new Vector3(
                         (currentPositionAxis.x *
@@ -8335,7 +9995,7 @@ class GLTFRenderer extends Component {
                       IA: indexArray */
                     });
                   }
-                  if (prevProps == null) {
+                  if (prevProps === null) {
                     this.createSphere(mountPosition);
                   } else {
                     this.setSpherePosition(mountPosition);
@@ -8354,7 +10014,75 @@ class GLTFRenderer extends Component {
       }
     }
   };
-  ApplyForwardKinematicMovement = (prevProps, parsedInfo) => {
+  getIndexedItemsFromParsedInfo = (parsedInfo) => {
+    let IndexedKinematicItems = [];
+    for (let index = 0; index < this.props.kinematicItemList.length; index++) {
+      const sequencedElementIndex = this.getSequencedItemIndex(
+        parsedInfo,
+        index + 1,
+        1
+      );
+      const [sequence, sequencedElement] = sequencedElementIndex;
+      const propsElementIndex =
+        sequence === -1 || sequencedElement === null
+          ? index
+          : this.getKinematicIndex(
+              this.props.kinematicItemList,
+              sequencedElement
+            );
+      const propsElement =
+        propsElementIndex === -1
+          ? this.props.kinematicItemList[index]
+          : this.props.kinematicItemList[propsElementIndex];
+      const currentNodeIndex = this.findNodeIndexFrom(propsElement);
+      const currentNode =
+        currentNodeIndex === -1 ? null : this.partsMeshes[currentNodeIndex];
+      const isActuator =
+        currentNode &&
+        propsElement &&
+        propsElement.actuator_motion_control &&
+        propsElement.actuator_motion_control.child_part_type === 'ACTUATOR';
+      const currentAxis = isActuator
+        ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+          ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+              .axis
+            ? new Vector3(
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+              )
+            : new Vector3()
+          : new Vector3()
+        : new Vector3();
+      const currentPosition = isActuator
+        ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+          ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+              .position
+            ? new Vector3(
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+              )
+            : new Vector3()
+          : new Vector3()
+        : new Vector3();
+      IndexedKinematicItems.push([
+        sequence,
+        sequencedElement,
+        propsElementIndex,
+        currentNodeIndex,
+        isActuator && !propsElement.actuator_motion_control.is_end_effector,
+        isActuator &&
+          propsElement.actuator_motion_control.is_linear_or_rotational,
+        isActuator && propsElement.actuator_motion_control.is_end_effector,
+        currentAxis,
+        currentPosition
+      ]);
+    }
+    //console.log('Indexed Items', IndexedKinematicItems);
+    return IndexedKinematicItems;
+  };
+  ApplyForwardKinematicMovement_WithoutIndex = (prevProps, parsedInfo) => {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
         JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
@@ -8370,7 +10098,7 @@ class GLTFRenderer extends Component {
           const sameGLTF = prevProps
             ? prevProps.activeGLTFFile === this.props.activeGLTFFile
             : false;
-          if (prevProps == null) {
+          if (prevProps === null) {
             this.removeDrawnAxisLines();
             this.axisArray = [];
             this.removeSphere();
@@ -8409,7 +10137,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control.child_part_type ===
                 'ACTUATOR'
             ) {
-              if (prevProps == null) {
+              if (prevProps === null) {
                 const axisLine = this.drawAxisLineToKinematic(propsElement);
                 if (currentNode) {
                   currentNode.axisLine = axisLine
@@ -8450,8 +10178,8 @@ class GLTFRenderer extends Component {
               }
               if (
                 differenceElement ||
-                propsElement.actuator_motion_control.chain_number !=
-                  0 /* || prevProps == null */
+                propsElement.actuator_motion_control.chain_number !==
+                  0 /* || prevProps === null */
               ) {
                 let currentAxis = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
@@ -8494,26 +10222,27 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control.is_linear_or_rotational;
                 let currentAxisQuaternion = new Quaternion();
                 if (isLinear) {
-                  const currentLength = math.sqrt(
-                    currentPositionAxis.x * currentPositionAxis.x +
-                      currentPositionAxis.y * currentPositionAxis.y +
-                      currentPositionAxis.z * currentPositionAxis.z
+                  // Since it is normalized, it will be always single unit.
+                  // const currentLength = math.sqrt(
+                  //   currentPositionAxis.x * currentPositionAxis.x +
+                  //     currentPositionAxis.y * currentPositionAxis.y +
+                  //     currentPositionAxis.z * currentPositionAxis.z
+                  // );
+                  // if (currentLength !== 0) {
+                  localCurrentTranslation.add(
+                    new Vector3(
+                      currentPositionAxis.x *
+                        propsElement.actuator_motion_control.chain_number /* /
+                          currentLength */,
+                      currentPositionAxis.y *
+                        propsElement.actuator_motion_control.chain_number /* /
+                          currentLength */,
+                      currentPositionAxis.z *
+                        propsElement.actuator_motion_control.chain_number /* /
+                          currentLength */
+                    )
                   );
-                  if (currentLength != 0) {
-                    localCurrentTranslation.add(
-                      new Vector3(
-                        (currentPositionAxis.x *
-                          propsElement.actuator_motion_control.chain_number) /
-                          currentLength,
-                        (currentPositionAxis.y *
-                          propsElement.actuator_motion_control.chain_number) /
-                          currentLength,
-                        (currentPositionAxis.z *
-                          propsElement.actuator_motion_control.chain_number) /
-                          currentLength
-                      )
-                    );
-                  }
+                  // }
                 } else {
                   currentAxisQuaternion
                     .setFromAxisAngle(
@@ -8624,7 +10353,7 @@ class GLTFRenderer extends Component {
                       IA: indexArray */
                     });
                   }
-                  if (prevProps == null) {
+                  if (prevProps === null) {
                     this.createSphere(mountPosition);
                     this.createDragger();
                   } else {
@@ -8645,6 +10374,308 @@ class GLTFRenderer extends Component {
     }
   };
 
+  ApplyForwardKinematicMovement = (prevProps, parsedIndexInfo) => {
+    if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
+      // console.log(
+      //   'Reached here to apply forward kinematics',
+      //   prevProps ? prevProps.kinematicItemList || [] : [],
+      //   this.props.kinematicItemList,
+      //   parsedIndexInfo
+      // );
+      // this.displayForDebug(
+      //   prevProps ? prevProps.kinematicItemList || [] : [],
+      //   'Recieved Values'
+      // );
+      if (
+        JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
+          JSON.stringify(this.props.kinematicItemList || []) &&
+        JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
+      ) {
+        if (
+          this.partsMeshes &&
+          this.partsMeshes.length > 0 &&
+          this.props.kinematicItemList &&
+          this.props.kinematicItemList.length > 0
+        ) {
+          const sameGLTF = prevProps
+            ? prevProps.activeGLTFFile === this.props.activeGLTFFile
+            : false;
+          if (prevProps === null) {
+            this.removeDrawnAxisLines();
+            this.axisArray = [];
+            this.removeSphere();
+            this.removeDragger();
+          }
+          let localQuaternion = new Quaternion(0, 0, 0, 1);
+          let localPosition = new Vector3(0, 0, 0);
+          let localTranslation = new Vector3(0, 0, 0);
+          let localShiftedPosition = new Vector3(0, 0, 0);
+          let globalShiftedPosition = new Vector3(0, 0, 0);
+          let localKinematicValues = [];
+          localKinematicValues.push({
+            A: 0,
+            L: localPosition,
+            Q: localQuaternion,
+            S: localShiftedPosition,
+            T: localTranslation,
+            K: false
+          });
+          let beginOfActuator = -1;
+          let endOfActuator = 0;
+          for (
+            let index = 0;
+            index < this.props.kinematicItemList.length;
+            index++
+          ) {
+            let [
+              sequence,
+              sequenceItem,
+              propsElementIndex,
+              currentNodeIndex,
+              isActuatorNode,
+              isLinearNode,
+              isEndEffectorNode,
+              currentAxisNode,
+              currentPositionNode
+            ] = parsedIndexInfo[index];
+            let propsElement =
+              this.props.kinematicItemList[
+                propsElementIndex === -1 ? index : propsElementIndex
+              ];
+            let currentNode =
+              this.partsMeshes[
+                currentNodeIndex === -1 ? index : currentNodeIndex
+              ];
+            if (isActuatorNode) {
+              if (beginOfActuator == -1) {
+                beginOfActuator = index;
+              }
+              if (prevProps === null) {
+                const axisLine = this.drawAxisLineToKinematic(propsElement);
+                if (currentNode) {
+                  currentNode.axisLine = axisLine
+                    ? axisLine.children
+                      ? axisLine.children.length > 0
+                        ? axisLine.children[0]
+                        : null
+                      : null
+                    : null;
+                  //this.AssignPositionToSingleNode(currentNode.axisLine, 0);
+                } else {
+                  console.log('Current node is null for', propsElement);
+                }
+              }
+
+              // const prevPropsElement = sameGLTF
+              //   ? prevProps.kinematicItemList
+              //     ? prevProps.kinematicItemList[index].filePartName ===
+              //       propsElement.filePartName
+              //       ? prevProps.kinematicItemList[index]
+              //       : this.getPrevPropsItem(prevProps, propsElement)
+              //     : null
+              //   : null;
+              // let differenceElement =
+              //   prevPropsElement && propsElement
+              //     ? prevPropsElement.actuator_motion_control &&
+              //       propsElement.actuator_motion_control
+              //       ? propsElement.actuator_motion_control.chain_number -
+              //         prevPropsElement.actuator_motion_control.chain_number
+              //       : 0
+              //     : 0;
+              // if (!sameGLTF || !prevPropsElement) {
+              //   differenceElement = propsElement
+              //     ? propsElement.actuator_motion_control
+              //       ? propsElement.actuator_motion_control.chain_number
+              //       : 0
+              //     : 0;
+              // }
+              if (
+                //differenceElement ||
+                propsElement.actuator_motion_control.chain_number !==
+                0 /* || prevProps === null */
+              ) {
+                const currentAxis = currentAxisNode;
+                const currentPosition = currentPositionNode;
+
+                let localCurrentQuaternion = localQuaternion.clone();
+                let localCurrentTranslation = localTranslation.clone();
+                let currentShiftedPosition = currentPosition.clone();
+                currentShiftedPosition.sub(localPosition);
+                currentShiftedPosition.applyQuaternion(localCurrentQuaternion);
+                currentShiftedPosition.add(localShiftedPosition);
+                let currentPositionAxis = currentAxis.clone();
+                currentPositionAxis.applyQuaternion(localCurrentQuaternion);
+                currentPositionAxis.normalize();
+
+                const isLinear = isLinearNode;
+                let currentAxisQuaternion = new Quaternion();
+                if (isLinear) {
+                  localCurrentTranslation.add(
+                    new Vector3(
+                      currentPositionAxis.x *
+                        propsElement.actuator_motion_control.chain_number,
+                      currentPositionAxis.y *
+                        propsElement.actuator_motion_control.chain_number,
+                      currentPositionAxis.z *
+                        propsElement.actuator_motion_control.chain_number
+                    )
+                  );
+                  // }
+                } else {
+                  currentAxisQuaternion
+                    .setFromAxisAngle(
+                      currentPositionAxis,
+                      propsElement.actuator_motion_control.chain_number
+                    )
+                    .normalize();
+                  localCurrentQuaternion
+                    .premultiply(currentAxisQuaternion)
+                    .normalize();
+                  // console.log(
+                  //   'Quaternions',
+                  //   currentPositionAxis,
+                  //   propsElement.actuator_motion_control.chain_number,
+                  //   localCurrentQuaternion
+                  // );
+                }
+
+                let shiftedPosition = currentPosition.clone();
+                shiftedPosition.applyQuaternion(localQuaternion);
+                shiftedPosition.add(globalShiftedPosition);
+                let shiftingPosition = currentPosition.clone();
+                shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                shiftedPosition.sub(shiftingPosition);
+                shiftedPosition.sub(localTranslation);
+                shiftedPosition.add(localCurrentTranslation);
+
+                localPosition = currentPosition.clone();
+                localQuaternion = localCurrentQuaternion.clone();
+                localShiftedPosition = currentShiftedPosition.clone();
+                localTranslation = localCurrentTranslation.clone();
+                globalShiftedPosition = shiftedPosition.clone();
+
+                this.animateKinematicChain(
+                  index,
+                  parsedIndexInfo,
+                  localQuaternion,
+                  localPosition,
+                  globalShiftedPosition
+                );
+              } else {
+                console.log(index, propsElement, 'No difference found');
+              }
+            }
+            localKinematicValues.push({
+              A: propsElement.actuator_motion_control.chain_number,
+              L: localPosition,
+              Q: localQuaternion,
+              S: localShiftedPosition,
+              T: localTranslation,
+              K: isActuatorNode || isEndEffectorNode
+            });
+            // if (prevProps === null) {
+            //   console.log(
+            //     'What I Got',
+            //     localKinematicValues,
+            //     isActuatorNode,
+            //     isEndEffectorNode
+            //   );
+            // }
+            if (isEndEffectorNode) {
+              // if (prevProps === null) {
+              //   console.log(
+              //     'What I Got for endeffector',
+              //     localKinematicValues,
+              //     isActuatorNode,
+              //     isEndEffectorNode,
+              //     this.props.itemProperties
+              //   );
+              // }
+              endOfActuator = index;
+              if (this.props.itemProperties) {
+                const itemProperties = this.props.itemProperties;
+                //console.log('Got itemproperties as', itemProperties);
+                if (
+                  itemProperties.actuator_motion_control &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation.mountobb
+                ) {
+                  const mountSurface =
+                    itemProperties.actuator_motion_control
+                      .cylindrical_axis_of_rotation.mountobb;
+                  let mountPosition = new Vector3(
+                    mountSurface.cx,
+                    mountSurface.cy,
+                    mountSurface.cz
+                  );
+                  mountPosition.sub(localPosition);
+                  mountPosition.applyQuaternion(localQuaternion);
+                  mountPosition.add(localShiftedPosition);
+                  mountPosition.add(localTranslation);
+                  // console.log(
+                  //   this.props.xyzEndEffectorPosition,
+                  //   this.props.xyzControlPosition,
+                  //   mountPosition,
+                  //   localPosition,
+                  //   localQuaternion
+                  // );
+                  if (this.props.setXYZEndEffectorPosition) {
+                    this.props.setXYZEndEffectorPosition({
+                      X: mountPosition.x,
+                      Y: mountPosition.y,
+                      Z: mountPosition.z,
+                      Q: localQuaternion,
+                      L: localPosition,
+                      S: localShiftedPosition,
+                      T: localTranslation,
+                      M: new Vector3(
+                        mountSurface.cx,
+                        mountSurface.cy,
+                        mountSurface.cz
+                      ),
+                      K: localKinematicValues,
+                      B: beginOfActuator,
+                      E: endOfActuator
+                    });
+                  }
+
+                  if (prevProps === null) {
+                    // console.log(
+                    //   'Apply Initial Setting Sphere Position',
+                    //   mountPosition
+                    // );
+                    this.createSphere(mountPosition);
+                    this.createDragger();
+                  } else {
+                    //console.log('Apply Setting Sphere Position', mountPosition);
+                    this.setSpherePosition(mountPosition);
+                    //console.log('Done Setting Sphere Position', mountPosition);
+                  }
+                }
+              }
+            } else {
+              // if (prevProps === null) {
+              //   console.log(
+              //     'What I Got for not endeffector',
+              //     localKinematicValues,
+              //     isActuatorNode,
+              //     isEndEffectorNode
+              //   );
+              // }
+            }
+          }
+        }
+      } else {
+        console.log(
+          'Previous and Current are same',
+          prevProps.kinematicItemList,
+          this.props.kinematicItemList
+        );
+      }
+    }
+  };
   AssignPositionToSingleNode = (element, byFactor) => {
     if (element.geometry) {
       element.geometry.computeBoundingBox();
@@ -8812,17 +10843,21 @@ class GLTFRenderer extends Component {
     material.wireframe = myWiremesh;
     material.castShadow = myCastShadow;
     material.depthTest = true;
-    material.transparent = myTransparancy != 0.0;
+    material.transparent = myTransparancy !== 0.0;
     material.opaque = 1.0 - myTransparancy;
     material.opacity = 1.0 - myTransparancy;
     material.depthWrite =
-      myOpaque == 'True'
+      myOpaque === 'True'
         ? true
-        : myOpaque == 'False'
+        : myOpaque === 'False'
         ? false
         : !material.transparent;
     material.side =
-      mySide == 'Front' ? FrontSide : mySide == 'Back' ? BackSide : DoubleSide;
+      mySide === 'Front'
+        ? FrontSide
+        : mySide === 'Back'
+        ? BackSide
+        : DoubleSide;
 
     //console.log(material);
   }
@@ -8870,19 +10905,19 @@ class GLTFRenderer extends Component {
     const myelement = item[gltf_Dict['element']];
     let prefix = '';
     if (myelement) {
-      if (myelement == 'F') {
+      if (myelement === 'F') {
         prefix = 'FACE';
-      } else if (myelement == 'E') {
+      } else if (myelement === 'E') {
         prefix = 'EDGE';
-      } else if (myelement == 'V') {
+      } else if (myelement === 'V') {
         prefix = 'VERTEX';
-      } else if (myelement == 'P') {
+      } else if (myelement === 'P') {
         prefix = 'PART';
       } else if (
-        myelement == 'f' ||
-        myelement == 'e' ||
-        myelement == 'v' ||
-        myelement == ' '
+        myelement === 'f' ||
+        myelement === 'e' ||
+        myelement === 'v' ||
+        myelement === ' '
       ) {
         prefix = 'ASSEMBLY';
       } else {
@@ -8890,9 +10925,9 @@ class GLTFRenderer extends Component {
       }
     } else if (myName) {
       prefix = myName.slice(0, 4);
-      if (prefix != 'FACE' && prefix != 'EDGE' && prefix != 'PART') {
+      if (prefix !== 'FACE' && prefix !== 'EDGE' && prefix !== 'PART') {
         prefix = myName.slice(0, 6);
-        if (prefix != 'VERTEX') {
+        if (prefix !== 'VERTEX') {
           prefix = 'ASSEMBLY';
         }
       }
@@ -8903,14 +10938,14 @@ class GLTFRenderer extends Component {
   getSubDepthPart = (item) => {
     const prefix = this.getPrefixItem(item);
 
-    if (prefix != 'ASSEMBLY') {
+    if (prefix !== 'ASSEMBLY') {
       return item;
     }
     const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
     const myStateTree = state_gltfobj.tree;
     const myID = item[gltf_Dict['id']];
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['parentId']] == myID) {
+      if (myStateTree[i][gltf_Dict['parentId']] === myID) {
         const retItem = this.getSubDepthPart(myStateTree[i]);
         if (retItem) {
           return retItem;
@@ -8932,11 +10967,11 @@ class GLTFRenderer extends Component {
     const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
     const myStateTree = state_gltfobj.tree;
     if (
-      this.selectedoption != SELECTASSEMBLY ||
-      this.props.splitmethod != SELECTDISECTPARTS
+      this.selectedoption !== SELECTASSEMBLY ||
+      this.props.splitmethod !== SELECTDISECTPARTS
     ) {
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['name']] == myName) {
+        if (myStateTree[i][gltf_Dict['name']] === myName) {
           //console.log(myStateTree[i]);
           return this.getNameWithFeatures(myStateTree[i]);
         }
@@ -8950,19 +10985,19 @@ class GLTFRenderer extends Component {
     // var myParentID = -1;
     // var myParentTree = null;
     // for (var i = 0; i < myStateTree.length; i++) {
-    //   if (myStateTree[i][gltf_Dict['name']] == name) {
+    //   if (myStateTree[i][gltf_Dict['name']] === name) {
     //     myParentID = myStateTree[i][gltf_Dict['parentId']];
     //     myParentTree = myStateTree[i];
     //     break;
     //   }
     // }
-    // if (myParentID == 1) {
+    // if (myParentID === 1) {
     //   //console.log(myParentTree);
     //   return this.getNameWithFeatures(myParentTree);
     // }
-    // if (myParentID != -1) {
+    // if (myParentID !== -1) {
     //   for (var i = 0; i < myStateTree.length; i++) {
-    //     if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+    //     if (myStateTree[i][gltf_Dict['id']] === myParentID) {
     //       //console.log(myStateTree[i]);
     //       return this.getNameWithFeatures(myStateTree[i]);
     //     }
@@ -8970,7 +11005,7 @@ class GLTFRenderer extends Component {
     // }
 
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == myName) {
+      if (myStateTree[i][gltf_Dict['name']] === myName) {
         //console.log(myStateTree[i]);
         return this.getNameWithFeatures(myStateTree[i]);
       }
@@ -8980,8 +11015,8 @@ class GLTFRenderer extends Component {
 
   getNameID = (name) => {
     if (
-      this.selectedoption != SELECTASSEMBLY ||
-      this.props.splitmethod != SELECTDISECTPARTS
+      this.selectedoption !== SELECTASSEMBLY ||
+      this.props.splitmethod !== SELECTDISECTPARTS
     ) {
       return name;
     }
@@ -8991,21 +11026,21 @@ class GLTFRenderer extends Component {
     const myStateTree = state_gltfobj.tree;
     var myParentID = -1;
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == name) {
+      if (myStateTree[i][gltf_Dict['name']] === name) {
         myParentID = myStateTree[i][gltf_Dict['parentId']];
         break;
       }
     }
     var myParentName = '';
-    if (myParentID != -1) {
+    if (myParentID !== -1) {
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+        if (myStateTree[i][gltf_Dict['id']] === myParentID) {
           myParentName = myStateTree[i][gltf_Dict['name']];
           break;
         }
       }
     }
-    if (myParentName != '') {
+    if (myParentName !== '') {
       return myParentName;
     }
     return name;
@@ -9014,7 +11049,7 @@ class GLTFRenderer extends Component {
   /* arrayRemove = (arr, value) => {
 
         return arr.filter(function (ele) {
-            return ele.name != value;
+            return ele.name !== value;
         });
     };
 
@@ -9039,7 +11074,7 @@ class GLTFRenderer extends Component {
       myAllChilds.node.forEach((elementdata) => {
         var alreadyPresent = false;
         for (var i = 0; i < this.state_selectedObjects.length; i++) {
-          if (elementdata.name == this.state_selectedObjects[i].name) {
+          if (elementdata.name === this.state_selectedObjects[i].name) {
             alreadyPresent = true;
             break;
           }
@@ -9058,7 +11093,7 @@ class GLTFRenderer extends Component {
             //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);  
             console.log("Getting",progressFile);
             const progressRes = await getAFileFromStore(progressFile, 'progress'); 
-            if(!progressRes.data || progressRes.data.begin!=progressRes.data.end) {
+            if(!progressRes.data || progressRes.data.begin!==progressRes.data.end) {
                 console.log(progressRes.data);
                 alert("Edges are still under construction. Please try after sometime");
             } else {
@@ -9116,12 +11151,13 @@ class GLTFRenderer extends Component {
 
       let fetchStatus = () => getAFileFromStore(progressFile, 'progress');
       let validateStatus = (result) => {
-        //console.log(result.data,result.data.percent,result.data.percent!=100);
+        //console.log(result.data,result.data.percent,result.data.percent!==100);
         return (
           !result ||
           !result.data ||
-          result.data.begin != result.data.end ||
-          JSON.stringify(result.data) == JSON.stringify({})
+          !result.data.begin ||
+          result.data.begin !== result.data.end ||
+          JSON.stringify(result.data) === JSON.stringify({})
         );
       };
       let percentFunction = (result) =>
@@ -9165,7 +11201,7 @@ class GLTFRenderer extends Component {
       if (
         progressRes &&
         progressRes.data &&
-        progressRes.data.begin == progressRes.data.end
+        progressRes.data.begin === progressRes.data.end
       ) {
         this.this_progress_data = progressRes.data;
         //this.onCloseProgress("Loading Edges"+progressFile,"success","Loaded succesfully");
@@ -9174,7 +11210,7 @@ class GLTFRenderer extends Component {
       }
     }
     const data = this.this_progress_data;
-    if (!data || data.begin != data.end) {
+    if (!data || data.begin !== data.end) {
       //console.log(data);
       alert('Edges are still under construction. Please try after sometime');
     } else {
@@ -9216,7 +11252,7 @@ class GLTFRenderer extends Component {
             //console.log(this.scene, this.partsMeshes, this.raycastObjects);
             //this.render();
           });
-          if (gdttableEdges.selectedObjects.length == 0) {
+          if (gdttableEdges.selectedObjects.length === 0) {
             await this.changeStateOfSelection(null, event, false);
           }
         } else {
@@ -9271,7 +11307,7 @@ class GLTFRenderer extends Component {
               element.selectedshell = true;
               this.doOneSelection(element, event, false);
             });
-            if (gdttableEdges.edges.length == 0) {
+            if (gdttableEdges.edges.length === 0) {
               this.changeStateOfSelection(null, event, false);
             }
           } else {
@@ -9310,10 +11346,10 @@ class GLTFRenderer extends Component {
         : data.files
         ? data.files[myParentID]
         : 1;
-      if (allEdges == 0 && data.children) {
+      if (allEdges === 0 && data.children) {
         myParentDic = data.children;
       }
-      if (allEdges == 0 && data.files) {
+      if (allEdges === 0 && data.files) {
         myParentDic = data.files;
       }
       console.log('ParentDict', myParentDic, Object.entries(myParentDic), data);
@@ -9341,17 +11377,17 @@ class GLTFRenderer extends Component {
             } else {
               howManyFiles = 0;
             }
-            if (element == 'f' && mynode) {
+            if (element === 'f' && mynode) {
               mynode.facesLoaded = true;
-            } else if (element == 'e' && mynode) {
+            } else if (element === 'e' && mynode) {
               mynode.edgesLoaded = true;
-            } else if (element == 'v' && mynode) {
+            } else if (element === 'v' && mynode) {
               mynode.verticesLoaded = true;
             }
             element = '-' + element;
           }
 
-          /* if(howManyFiles==0) {
+          /* if(howManyFiles===0) {
                         howManyFiles=1;
                     } */
           let fileStore =
@@ -9365,7 +11401,7 @@ class GLTFRenderer extends Component {
           }
           for (let index = 0; index < howManyFiles; index++) {
             if (index > 0) {
-              if (indexFiles == 0) {
+              if (indexFiles === 0) {
                 //await waitFunction(1000);
               }
               fileStore =
@@ -9478,10 +11514,10 @@ class GLTFRenderer extends Component {
 
                     const curveCode = thisentity[gltf_Dict['code']];
                     if (
-                      curveCode == 'C' ||
-                      curveCode == 'E' ||
-                      curveCode == 'H' ||
-                      curveCode == 'P'
+                      curveCode === 'C' ||
+                      curveCode === 'E' ||
+                      curveCode === 'H' ||
+                      curveCode === 'P'
                     ) {
                       const myBase64Floats = this.getFloatArray(
                         thisentity[gltf_Dict['basic']]
@@ -9506,7 +11542,7 @@ class GLTFRenderer extends Component {
                       const major = myBase64Floats[11];
 
                       const minor =
-                        curveCode == 'C' || curveCode == 'P'
+                        curveCode === 'C' || curveCode === 'P'
                           ? major
                           : myBase64Floats[12];
 
@@ -9533,22 +11569,22 @@ class GLTFRenderer extends Component {
                         tindex += step
                       ) {
                         let A1 =
-                          curveCode == 'P'
+                          curveCode === 'P'
                             ? 0
                             : major *
-                              (curveCode == 'H'
+                              (curveCode === 'H'
                                 ? Math.cosh(tindex)
                                 : Math.cos(tindex));
                         let A2 =
-                          curveCode == 'P'
+                          curveCode === 'P'
                             ? 0
                             : minor *
-                              (curveCode == 'H'
+                              (curveCode === 'H'
                                 ? Math.sinh(tindex)
                                 : Math.sin(tindex));
-                        if (curveCode == 'P') {
+                        if (curveCode === 'P') {
                           const focal = major;
-                          if (focal == 0) {
+                          if (focal === 0) {
                             A1 = tindex;
                             A2 = 0;
                           } else {
@@ -9565,7 +11601,7 @@ class GLTFRenderer extends Component {
                         points.push(thisPoint);
                       }
                     } else {
-                      if (curveCode == 'B' || curveCode == 'I') {
+                      if (curveCode === 'B' || curveCode === 'I') {
                         const myBase64Floats = this.getFloatArray(
                           thisentity[gltf_Dict['basic']]
                         );
@@ -9614,7 +11650,7 @@ class GLTFRenderer extends Component {
                                 rational * 2.0
                             );
                             buffer_index += 1;
-                            if (curveCode == 'I') {
+                            if (curveCode === 'I') {
                               start_index = Math.round(
                                 myBase64Floats[buffer_index]
                               );
@@ -9637,7 +11673,7 @@ class GLTFRenderer extends Component {
                             len_pole = Math.round(myBase64Floats[buffer_index]);
                             buffer_index += 1;
 
-                            if (curveCode == 'I') {
+                            if (curveCode === 'I') {
                               len_knot = Math.round(
                                 myBase64Floats[buffer_index]
                               );
@@ -9686,7 +11722,7 @@ class GLTFRenderer extends Component {
                           }
                           let knots = [];
                           let multiplicities = [];
-                          if (curveCode == 'I') {
+                          if (curveCode === 'I') {
                             for (
                               let knot_index = 0;
                               knot_index < len_knot &&
@@ -9724,7 +11760,7 @@ class GLTFRenderer extends Component {
                           // );
                           let knotswithmultiples = [];
                           let lastKnot = 0;
-                          if (curveCode == 'I') {
+                          if (curveCode === 'I') {
                             for (
                               var knot_index = 0;
                               knot_index < knots.length;
@@ -9766,7 +11802,7 @@ class GLTFRenderer extends Component {
                             len_pole
                           ); */
                           let nurbsCurve = null;
-                          if (curveCode == 'I') {
+                          if (curveCode === 'I') {
                             if (start_index < 0) {
                               start_index = 0;
                             }
@@ -9839,7 +11875,7 @@ class GLTFRenderer extends Component {
 
                   //let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );
                   //geometry.name=element[gltf_Dict["name"]];
-                  if (indexFiles == 1) {
+                  if (indexFiles === 1) {
                     /*
                     let material = new LineBasicMaterial({
                       color: this.props.edgecolor
@@ -10010,7 +12046,7 @@ class GLTFRenderer extends Component {
             element.selectedshell = true;
             await this.doOneSelection(element, event, false);
           });
-          if (gdttableEdges.edges.length == 0) {
+          if (gdttableEdges.edges.length === 0) {
             await this.changeStateOfSelection(null, event, false);
           }
         } else {
@@ -10047,7 +12083,7 @@ class GLTFRenderer extends Component {
       getAFileFromStore(progressFile, 'progress')
         .then((res) => res.data)
         .then((data) => {
-          if (!data || data.begin != data.end) {
+          if (!data || data.begin !== data.end) {
             //console.log(data);
             alert(
               'Edges are still under construction. Please try after sometime'
@@ -10071,10 +12107,10 @@ class GLTFRenderer extends Component {
               : data.files
               ? data.files[myParentID]
               : 1;
-            if (allEdges == 0 && data.children) {
+            if (allEdges === 0 && data.children) {
               myParentDic = data.children;
             }
-            if (allEdges == 0 && data.files) {
+            if (allEdges === 0 && data.files) {
               myParentDic = data.files;
             }
             //console.log("ParentDict",myParentDic);
@@ -10103,17 +12139,17 @@ class GLTFRenderer extends Component {
                   } else {
                     howManyFiles = 0;
                   }
-                  if (element == 'f' && mynode) {
+                  if (element === 'f' && mynode) {
                     mynode.facesLoaded = true;
-                  } else if (element == 'e' && mynode) {
+                  } else if (element === 'e' && mynode) {
                     mynode.edgesLoaded = true;
-                  } else if (element == 'v' && mynode) {
+                  } else if (element === 'v' && mynode) {
                     mynode.verticesLoaded = true;
                   }
                   element = '-' + element;
                 }
 
-                /* if(howManyFiles==0) {
+                /* if(howManyFiles===0) {
                                 howManyFiles=1;
                             } */
                 let fileStore =
@@ -10170,7 +12206,7 @@ class GLTFRenderer extends Component {
                                                 console.log("Setting inside the load all edges",element,event);
                                                 this.doOneSelection(element,event,false);
                                             });
-                                            if(gdttableEdges.edges.length==0){
+                                            if(gdttableEdges.edges.length===0){
                                                 this.changeStateOfSelection(null, event,false);
                                             }
                                         } */
@@ -10209,10 +12245,10 @@ class GLTFRenderer extends Component {
           : data.files
           ? data.files[myParentID]
           : 1;
-        if (allEdges == 0 && data.children) {
+        if (allEdges === 0 && data.children) {
           myParentDic = data.children;
         }
-        if (allEdges == 0 && data.files) {
+        if (allEdges === 0 && data.files) {
           myParentDic = data.files;
         }
         //console.log("ParentDict",myParentDic);
@@ -10241,17 +12277,17 @@ class GLTFRenderer extends Component {
               } else {
                 howManyFiles = 0;
               }
-              if (element == 'f' && mynode) {
+              if (element === 'f' && mynode) {
                 mynode.facesLoaded = true;
-              } else if (element == 'e' && mynode) {
+              } else if (element === 'e' && mynode) {
                 mynode.edgesLoaded = true;
-              } else if (element == 'v' && mynode) {
+              } else if (element === 'v' && mynode) {
                 mynode.verticesLoaded = true;
               }
               element = '-' + element;
             }
 
-            /* if(howManyFiles==0) {
+            /* if(howManyFiles===0) {
                             howManyFiles=1;
                         } */
             let fileStore =
@@ -10308,7 +12344,7 @@ class GLTFRenderer extends Component {
                                             console.log("Setting inside the load all edges",element,event);
                                             this.doOneSelection(element,event,false);
                                         });
-                                        if(gdttableEdges.edges.length==0){
+                                        if(gdttableEdges.edges.length===0){
                                             this.changeStateOfSelection(null, event,false);
                                         }
                                     } */
@@ -10330,7 +12366,7 @@ class GLTFRenderer extends Component {
         getAFileFromStore(progressFile,"progress")
         .then(res => res.data)
         .then((data) => {
-            if(!data || data.begin!=data.end) {
+            if(!data || data.begin!==data.end) {
                 console.log(data);
                 alert("Edges are still under construction. Please try after sometime");
             } else {
@@ -10344,25 +12380,25 @@ class GLTFRenderer extends Component {
   };
 
   getOptionValueFromString = (value) => {
-    if (value == 'Assemblies') return SELECTASSEMBLY;
-    if (value == 'Parts') return SELECTSOLID;
-    if (value == 'Edges') return SELECTEDGE;
-    if (value == 'Specify Assembly Mates and GD&T') return SELECTFEATURE;
-    if (value == 'Faces') return SELECTFACE;
-    if (value == 'Corners') return SELECTCORNER;
-    if (value == 'Circular') return SELECTCIRCULAR;
-    if (value == 'Linear') return SELECTLINEAR;
+    if (value === 'Assemblies') return SELECTASSEMBLY;
+    if (value === 'Parts') return SELECTSOLID;
+    if (value === 'Edges') return SELECTEDGE;
+    if (value === 'Specify Assembly Mates and GD&T') return SELECTFEATURE;
+    if (value === 'Faces') return SELECTFACE;
+    if (value === 'Corners') return SELECTCORNER;
+    if (value === 'Circular') return SELECTCIRCULAR;
+    if (value === 'Linear') return SELECTLINEAR;
     return SELECTFEATURE;
   };
   getValueOptionFromString = (value) => {
-    if (value == SELECTASSEMBLY) return 'Assemblies';
-    if (value == SELECTSOLID) return 'Parts';
-    if (value == SELECTEDGE) return 'Edges';
-    if (value == SELECTFEATURE) return 'Specify Assembly Mates and GD&T';
-    if (value == SELECTFACE) return 'Faces';
-    if (value == SELECTCORNER) return 'Corners';
-    if (value == SELECTCIRCULAR) return 'Circular';
-    if (value == SELECTLINEAR) return 'Linear';
+    if (value === SELECTASSEMBLY) return 'Assemblies';
+    if (value === SELECTSOLID) return 'Parts';
+    if (value === SELECTEDGE) return 'Edges';
+    if (value === SELECTFEATURE) return 'Specify Assembly Mates and GD&T';
+    if (value === SELECTFACE) return 'Faces';
+    if (value === SELECTCORNER) return 'Corners';
+    if (value === SELECTCIRCULAR) return 'Circular';
+    if (value === SELECTLINEAR) return 'Linear';
     return 'Specify Assembly Mates and GD&T';
   };
   changeValues = (values, param, group, keyfolder, keyname) => {
@@ -10373,13 +12409,13 @@ class GLTFRenderer extends Component {
         toSet = false;
         switch (group) {
           case 0:
-            if (values.view != this.state.view) {
+            if (values.view !== this.state.view) {
               this.setStateWithoutError({ view: values.view });
               this.addCameraAndControls(values.view);
             }
             break;
           case 1:
-            if (values.side != this.state.side) {
+            if (values.side !== this.state.side) {
               this.setStateWithoutError({ side: values.side });
               toSet = true;
             }
@@ -10396,11 +12432,11 @@ class GLTFRenderer extends Component {
             }
             break;
           case 2:
-            if (values.opaque != this.state.opaque) {
+            if (values.opaque !== this.state.opaque) {
               this.setStateWithoutError({ opaque: values.opaque });
               toSet = true;
             }
-            if (values.transparency != this.state.transparency) {
+            if (values.transparency !== this.state.transparency) {
               this.setStateWithoutError({ transparency: values.transparency });
               toSet = true;
             }
@@ -10418,19 +12454,19 @@ class GLTFRenderer extends Component {
             break;
           case 3:
             //console.log(values, this.state);
-            if (values.wiremesh != this.state.wiremesh) {
+            if (values.wiremesh !== this.state.wiremesh) {
               this.setStateWithoutError({ wiremesh: values.wiremesh });
               toSet = true;
             }
-            if (values.castshadow != this.state.castshadow) {
+            if (values.castshadow !== this.state.castshadow) {
               this.setStateWithoutError({ castshadow: values.castshadow });
               toSet = true;
             }
-            if (values.skeleton != this.state.skeleton) {
+            if (values.skeleton !== this.state.skeleton) {
               this.setStateWithoutError({ skeleton: values.skeleton });
               toSet = true;
             }
-            if (values.grid != this.state.grid) {
+            if (values.grid !== this.state.grid) {
               this.setStateWithoutError({ grid: values.grid });
               toSet = true;
             }
@@ -10447,7 +12483,7 @@ class GLTFRenderer extends Component {
             }
             break;
           case 4:
-            if (values.showedges != this.state.showedges) {
+            if (values.showedges !== this.state.showedges) {
               //console.log('changing', values.showedges, this.state.showedges);
               this.setStateWithoutError({ showedges: values.showedges });
               this.changeEdgeVisibility(values.showedges);
@@ -10458,7 +12494,7 @@ class GLTFRenderer extends Component {
                 this.state.showedges
               );
             }
-            if (values.linewidth != this.state.edgelinewidth) {
+            if (values.linewidth !== this.state.edgelinewidth) {
               //console.log('changing', values.showedges, this.state.showedges);
               this.setStateWithoutError({ edgelinewidth: values.linewidth });
               this.changeEdgeLineWidth(values.linewidth);
@@ -10469,7 +12505,7 @@ class GLTFRenderer extends Component {
                 this.state.edgelinewidth
               );
             }
-            if (values.showchosenaxis != this.state.showchosenaxis) {
+            if (values.showchosenaxis !== this.state.showchosenaxis) {
               this.setStateWithoutError({
                 showchosenaxis: values.showchosenaxis
               });
@@ -10477,11 +12513,13 @@ class GLTFRenderer extends Component {
             }
             break;
           case 5:
-            if (values.autoRotate != this.controls.autoRotate) {
+            if (values.autoRotate !== this.controls.autoRotate) {
               //console.log(values.autoRotate);
               this.controls.autoRotate = values.autoRotate;
             }
-            if (values.screenSpacePanning != this.controls.screenSpacePanning) {
+            if (
+              values.screenSpacePanning !== this.controls.screenSpacePanning
+            ) {
               this.controls.screenSpacePanning = values.screenSpacePanning;
             }
             break;
@@ -10492,7 +12530,7 @@ class GLTFRenderer extends Component {
       case 1:
         switch (group) {
           case 0:
-            if (values.zoomSpeed != this.state.zoomSpeed) {
+            if (values.zoomSpeed !== this.state.zoomSpeed) {
               this.setStateWithoutError({ zoomSpeed: values.zoomSpeed });
               if (this.controls) {
                 this.controls.zoomSpeed = values.zoomSpeed;
@@ -10502,13 +12540,13 @@ class GLTFRenderer extends Component {
                 );
               }
             }
-            if (values.panSpeed != this.state.panSpeed) {
+            if (values.panSpeed !== this.state.panSpeed) {
               this.setStateWithoutError({ panSpeed: values.panSpeed });
               if (this.controls) {
                 this.controls.panSpeed = values.panSpeed;
               }
             }
-            if (values.rotateSpeed != this.state.rotateSpeed) {
+            if (values.rotateSpeed !== this.state.rotateSpeed) {
               this.setStateWithoutError({ rotateSpeed: values.rotateSpeed });
               if (this.controls) {
                 this.controls.rotateSpeed = values.rotateSpeed;
@@ -10516,16 +12554,16 @@ class GLTFRenderer extends Component {
             }
             break;
           case 1:
-            if (values.zoomToCursor != this.state.zoomToCursor) {
+            if (values.zoomToCursor !== this.state.zoomToCursor) {
               this.setStateWithoutError({ zoomToCursor: values.zoomToCursor });
               if (this.controls) {
                 this.controls.noZoom = values.zoomToCursor;
               }
             }
-            if (values.maxZoomIn != this.state.maxZoomIn) {
+            if (values.maxZoomIn !== this.state.maxZoomIn) {
               this.setStateWithoutError({ maxZoomIn: values.maxZoomIn });
             }
-            if (values.maxZoomOut != this.state.maxZoomOut) {
+            if (values.maxZoomOut !== this.state.maxZoomOut) {
               this.setStateWithoutError({ maxZoomOut: values.maxZoomOut });
             }
             break;
@@ -10537,7 +12575,7 @@ class GLTFRenderer extends Component {
         toSet = false;
         switch (group) {
           case 0:
-            if (values.textureEncoding != this.state.textureEncoding) {
+            if (values.textureEncoding !== this.state.textureEncoding) {
               this.setStateWithoutError({
                 textureEncoding: values.textureEncoding
               });
@@ -10545,13 +12583,13 @@ class GLTFRenderer extends Component {
             }
             break;
           case 1:
-            if (values.outputEncoding != this.state.outputEncoding) {
+            if (values.outputEncoding !== this.state.outputEncoding) {
               this.setStateWithoutError({
                 outputEncoding: values.outputEncoding
               });
               if (this.renderer) {
                 this.renderer.outputEncoding =
-                  values.outputEncoding == 'sRGB'
+                  values.outputEncoding === 'sRGB'
                     ? sRGBEncoding
                     : LinearEncoding;
               }
@@ -10559,11 +12597,11 @@ class GLTFRenderer extends Component {
             }
             break;
           case 2:
-            if (values.exposure != this.state.exposure) {
+            if (values.exposure !== this.state.exposure) {
               this.setStateWithoutError({ exposure: values.exposure });
               toSet = true;
             }
-            if (values.addLights != this.state.addLights) {
+            if (values.addLights !== this.state.addLights) {
               this.setStateWithoutError({ addLights: values.addLights });
               toSet = true;
             }
@@ -10582,13 +12620,13 @@ class GLTFRenderer extends Component {
             }
             break;
           case 3:
-            if (values.ambientIntensity != this.state.ambientIntensity) {
+            if (values.ambientIntensity !== this.state.ambientIntensity) {
               this.setStateWithoutError({
                 ambientIntensity: values.ambientIntensity
               });
               toSet = true;
             }
-            if (values.ambientColor != this.state.ambientColor) {
+            if (values.ambientColor !== this.state.ambientColor) {
               this.setStateWithoutError({ ambientColor: values.ambientColor });
               toSet = true;
             }
@@ -10606,13 +12644,13 @@ class GLTFRenderer extends Component {
             }
             break;
           case 4:
-            if (values.directIntensity != this.state.directIntensity) {
+            if (values.directIntensity !== this.state.directIntensity) {
               this.setStateWithoutError({
                 directIntensity: values.directIntensity
               });
               toSet = true;
             }
-            if (values.directColor != this.state.directColor) {
+            if (values.directColor !== this.state.directColor) {
               this.setStateWithoutError({ directColor: values.directColor });
               toSet = true;
             }
@@ -10637,8 +12675,8 @@ class GLTFRenderer extends Component {
         const mySelectedoption = this.getOptionValueFromString(
           values.selectedOption
         );
-        if (mySelectedoption != this.selectedoption) {
-          if (values.ctrlKey != this.props.ctrlKey) {
+        if (mySelectedoption !== this.selectedoption) {
+          if (values.ctrlKey !== this.props.ctrlKey) {
             try {
               if (this.props.setCtrlKey) {
                 this.props.setCtrlKey(values.ctrlKey);
@@ -10648,8 +12686,8 @@ class GLTFRenderer extends Component {
             }
           }
           if (
-            this.selectedoption == SELECTMEASURE ||
-            mySelectedoption == SELECTMEASURE
+            this.selectedoption === SELECTMEASURE ||
+            mySelectedoption === SELECTMEASURE
           ) {
             try {
               if (this.props.resetSelections) {
@@ -10660,8 +12698,8 @@ class GLTFRenderer extends Component {
             }
           }
           if (
-            mySelectedoption == SELECTASSEMBLY ||
-            mySelectedoption == SELECTSOLID
+            mySelectedoption === SELECTASSEMBLY ||
+            mySelectedoption === SELECTSOLID
           ) {
             try {
               if (this.props.selectAllSelectedSolids) {
@@ -10683,17 +12721,17 @@ class GLTFRenderer extends Component {
         }
         break;
       case 4:
-        if (values.animationSpeed != this.state.animationSpeed) {
+        if (values.animationSpeed !== this.state.animationSpeed) {
           this.setStateWithoutError({ animationSpeed: values.animationSpeed });
           this.updateAimationSpeed(values.animationSpeed);
         }
 
-        if (values.pauseAnimation != this.state.pauseAnimation) {
+        if (values.pauseAnimation !== this.state.pauseAnimation) {
           this.setStateWithoutError({ pauseAnimation: values.pauseAnimation });
           this.updatePauseAnimation(values.pauseAnimation);
         }
 
-        if (values.animationTime != this.state.animationTime) {
+        if (values.animationTime !== this.state.animationTime) {
           this.setStateWithoutError({ animationTime: values.animationTime });
           this.updateAnimationTime(values.animationTime);
         }
@@ -10736,8 +12774,8 @@ class GLTFRenderer extends Component {
     return myMenus.map(
       (data, index) =>
         (index < 3 ||
-          (this.props.fileGDT && index == 3) ||
-          (this.props.fileAnimation && index == 4)) &&
+          (this.props.fileGDT && index === 3) ||
+          (this.props.fileAnimation && index === 4)) &&
         this.displayButton(index, myIndex, data)
     );
   };
@@ -10753,7 +12791,7 @@ class GLTFRenderer extends Component {
   };
 
   changeSelectedOption = async (option) => {
-    if (this.selectedoption == SELECTMEASURE || option == SELECTMEASURE) {
+    if (this.selectedoption === SELECTMEASURE || option === SELECTMEASURE) {
       if (this.secondshell) {
         this.setOriginalColor(this.secondshell);
         //this.secondshell.material.color.setHex(this.secondshell.currentHex);
@@ -10775,16 +12813,16 @@ class GLTFRenderer extends Component {
       //this.setState({selectedObjects:[]});
     }
     if (
-      (option == SELECTSOLID && this.selectedoption != SELECTASSEMBLY) ||
-      option == SELECTASSEMBLY
+      (option === SELECTSOLID && this.selectedoption !== SELECTASSEMBLY) ||
+      option === SELECTASSEMBLY
     ) {
       //console.log("Got Here", this.props.selectedoption);
       await this.selectAllSelectedSolids();
     }
-    if (this.selectedoption != option) {
+    if (this.selectedoption !== option) {
       if (
-        option == SELECTLOADEDGES ||
-        (option == SELECTEDGE && this.props.ctrlKey)
+        option === SELECTLOADEDGES ||
+        (option === SELECTEDGE && this.props.ctrlKey)
       ) {
         this.loadAllEdges(0);
       }
@@ -10796,7 +12834,7 @@ class GLTFRenderer extends Component {
   /* arrayFindIndex = (arr, value) => {
 
         return arr.findIndex(function (ele) {            
-          return ele == value;
+          return ele === value;
         });
     }
     
@@ -10804,7 +12842,7 @@ class GLTFRenderer extends Component {
     
         return arr.filter(function (ele) {
          
-          return ele != value;
+          return ele !== value;
         });
     }
      */
@@ -10824,7 +12862,7 @@ class GLTFRenderer extends Component {
       console.log('Error while closing bar', error);
     }
 
-    if (openFiles.length == 0) {
+    if (openFiles.length === 0) {
       try {
         this.openSnackBar(alert, aFile + ' ' + message);
       } catch (error) {
@@ -10953,7 +12991,7 @@ class GLTFRenderer extends Component {
   };
 
   displayButton(index, myIndex, data) {
-    const selected = index == myIndex && this.openEl[index];
+    const selected = index === myIndex && this.openEl[index];
     return (
       <Button
         sx={{
@@ -11013,19 +13051,19 @@ class GLTFRenderer extends Component {
           : 0
         : 0
       : 0;
-    const edgeChange = this.gltfobjLen != 0 && edgeLength == 0;
-    // if (fromwhere == 1) {
+    const edgeChange = this.gltfobjLen !== 0 && edgeLength === 0;
+    // if (fromwhere === 1) {
     //   console.log(this.activeFile, this.props.activefile, this.initDone);
     // }
 
     if (
-      this.activeFile != this.props.activefile ||
-      this.materialtype != this.props.materialtype ||
-      this.selectedoption != this.props.selectedoption ||
-      this.activeDataTable != this.props.activeDataTable ||
+      this.activeFile !== this.props.activefile ||
+      this.materialtype !== this.props.materialtype ||
+      this.selectedoption !== this.props.selectedoption ||
+      this.activeDataTable !== this.props.activeDataTable ||
       edgeChange
     ) {
-      //  if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
+      //  if (this.selectedoption === SELECTMEASURE || this.props.selectedoption === SELECTMEASURE) {
       //           if (this.secondshell) {
       //               this.secondshell.material.color.setHex(this.secondshell.currentHex);
       //               this.secondshell.selectedshell = false;
@@ -11043,13 +13081,13 @@ class GLTFRenderer extends Component {
       //           this.state_selectedObjects = [];
       //           //this.setState({selectedObjects:[]});
       //       }
-      //       if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
-      //           || (this.props.selectedoption == SELECTASSEMBLY)) {
+      //       if (((this.props.selectedoption === SELECTSOLID) && (this.selectedoption !== SELECTASSEMBLY))
+      //           || (this.props.selectedoption === SELECTASSEMBLY)) {
       //           //console.log("Got Here", this.props.selectedoption);
       //           this.selectAllSelectedSolids();
       //       }
-      //       if(this.selectedoption !=this.props.selectedoption) {
-      //           if(this.props.selectedoption==SELECTLOADEDGES || (this.props.selectedoption==SELECTEDGE && this.props.ctrlKey)) {
+      //       if(this.selectedoption !==this.props.selectedoption) {
+      //           if(this.props.selectedoption===SELECTLOADEDGES || (this.props.selectedoption===SELECTEDGE && this.props.ctrlKey)) {
       //               this.loadAllEdges(0);                    
       //           }
       //           this.changeVisibility();
@@ -11057,9 +13095,9 @@ class GLTFRenderer extends Component {
       //       } 
       this.changeSelectedOption(this.props.selectedoption);
       if (
-        this.activeFile != this.props.activefile ||
-        this.materialtype != this.props.materialtype ||
-        this.activeDataTable != this.props.activeDataTable ||
+        this.activeFile !== this.props.activefile ||
+        this.materialtype !== this.props.materialtype ||
+        this.activeDataTable !== this.props.activeDataTable ||
         edgeChange
       ) {
         //console.log("Rerendering here!",this.activeFile,this.props.activefile,this.materialtype,
@@ -11070,7 +13108,7 @@ class GLTFRenderer extends Component {
           //   this.this_state_gltf || this.state.gltfobj || this.props.gltfobj,
           //   this.renderDone
           // );
-          if (this.activeFile != this.props.activefile) {
+          if (this.activeFile !== this.props.activefile) {
             console.log(
               'I am resetting the activefile',
               this.activeFile,

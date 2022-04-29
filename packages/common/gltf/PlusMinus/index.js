@@ -446,7 +446,7 @@ export class NumericInput extends React.Component {
   }
 }
 export const NumberInput = (props) => {
-  const { value, min, max, onChange } = props;
+  const { value, min, max, step, onChange } = props;
   const [currentValue, setValue] = useState(value);
   useEffect(() => {
     setValue(value);
@@ -476,7 +476,7 @@ export const NumberInput = (props) => {
         fullWidth
         type="number"
         size="small"
-        inputProps={{ min, max }}
+        inputProps={{ min, max, step }}
         value={currentValue}
         onChange={valueChange}
         variant="outlined"
@@ -605,7 +605,9 @@ export const PlusMinus = (props) => {
       </Tooltip>
       <NumberInput
         floatingLabelText={'Please input ' + label}
-        value={(counter || 0).toString()}
+        value={Number(counter || 0)
+          .toFixed(3)
+          .toString()}
         onChange={(event, data) => {
           console.log('Changing data', event, data);
           assignValue(data);
@@ -623,6 +625,67 @@ export const PlusMinus = (props) => {
         value={counter}
         handleInputChange={(data) => SetNum(data)}
       /> */}
+    </ButtonGroup>
+  );
+};
+
+export const ParameterInput = (props) => {
+  const {
+    label,
+    value,
+    tooltip = '',
+    onChange = () => {},
+    min = 0,
+    max = 100,
+    step = 0.001,
+    digits = 3
+  } = props;
+
+  const [counter, setCounter] = useState(parseFloat(value || 0));
+  useEffect(() => {
+    assignValue(value);
+  }, [value]);
+
+  const assignValue = (value) => {
+    const data = parseFloat(value || 0);
+    console.log('Assigning Value', data);
+
+    if (counter != data) {
+      setCounter(data);
+      console.log('Setting counter and calling onchange', data);
+      onChange(null, data);
+    }
+  };
+  return (
+    <ButtonGroup size="small" aria-label="small outlined button group">
+      {/* <Button disabled>{label}</Button> */}
+      <Box
+        sx={{
+          p: 1,
+          direction: 'column',
+          border: '1px dotted',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {label}
+      </Box>
+
+      <Tooltip title={tooltip}>
+        <NumberInput
+          floatingLabelText={'Please input ' + label}
+          value={Number(counter || 0)
+            .toFixed(digits)
+            .toString()}
+          onChange={(event, data) => {
+            console.log('Changing data', event, data);
+            assignValue(data);
+          }}
+          min={min}
+          max={max}
+          step={step}
+        />
+      </Tooltip>
     </ButtonGroup>
   );
 };

@@ -62,17 +62,17 @@ export const fetchGLTFAndTree = async (props) => {
       (myTabedIndex === 'iupc' &&
         !showKinematicMove &&
         !showKinematicSliderMove) ||
-      myTabedIndex == 'pdcu'
+      myTabedIndex === 'pdcu'
         ? 'gdtac'
         : myTabedIndex;
     let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
-    if (myTabIndex == 'pdcu') {
+    if (myTabIndex === 'pdcu') {
       whichOneToLoad += fileStore;
-    } else if (myTabIndex == 'mpps') {
+    } else if (myTabIndex === 'mpps') {
       whichOneToLoad += fileMPPS;
-    } else if (myTabIndex == 'stack') {
+    } else if (myTabIndex === 'stack') {
       whichOneToLoad += fileStack;
-    } else if (myTabIndex == 'iupc') {
+    } else if (myTabIndex === 'iupc') {
       whichOneToLoad += showKinematicSliderMove
         ? fileSliderKinematic
         : fileKinematic;
@@ -83,7 +83,7 @@ export const fetchGLTFAndTree = async (props) => {
     setProgressBarLoad(true);
     let statusRes = await getAFileFromStore(whichOneToLoad, 'status');
     let percent = 0;
-    if (fileUUId && okToParse == PROCESSINGSTATUS.INPROGRESS) {
+    if (fileUUId && okToParse === PROCESSINGSTATUS.INPROGRESS) {
       // statusRes = await getAFileFromStore(whichOneToLoad, 'status');
       percent = 0;
       if (
@@ -94,11 +94,11 @@ export const fetchGLTFAndTree = async (props) => {
         percent = statusRes.data.percent;
       }
       setPercentage(percent);
-      if (percent != 100) {
+      if (percent !== 100) {
         const datafile = whichOneToLoad;
         let fetchStatus = () => getAFileFromStore(datafile, 'status');
         let validateStatus = (result) => {
-          return result.data.percent != 100;
+          return result.data.percent !== 100;
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;
@@ -138,7 +138,7 @@ export const fetchGLTFAndTree = async (props) => {
     let stackRes = { data: null };
     let orderRes = { data: null };
     let gdtRes = { data: null };
-    if (myTabIndex == 'stack') {
+    if (myTabIndex === 'stack') {
       stackRes = await getAFileFromURLStore(
         whichOneToLoad,
         'stack',
@@ -146,7 +146,7 @@ export const fetchGLTFAndTree = async (props) => {
         percent
       );
     }
-    if (myTabIndex == 'mpps') {
+    if (myTabIndex === 'mpps') {
       orderRes = await getAFileFromURLStore(
         whichOneToLoad,
         'order',
@@ -154,7 +154,7 @@ export const fetchGLTFAndTree = async (props) => {
         percent
       );
     }
-    if (myTabIndex == 'gdtac') {
+    if (myTabIndex === 'gdtac') {
       gdtRes = await getAFileFromURLStore(
         whichOneToLoad,
         'gdt',
@@ -177,7 +177,7 @@ export const fetchGLTFAndTree = async (props) => {
     });
     setIsLoading(false);
     setProgressBarLoad(false);
-    if (myTabIndex == 'gdtac') {
+    if (myTabIndex === 'gdtac') {
       const multiAssembly = statusRes
         ? statusRes.data
           ? statusRes.data.assemblies > 1
@@ -261,7 +261,7 @@ export const handleOtherTabCase = async (props) => {
     STATEPROPS.maximumfaces,
     //item.stepTreeLength > STATEPROPS.maximumparts,
     true,
-    myTabedIndex == 'pdcu',
+    myTabedIndex === 'pdcu',
     false,
     createAutoAssemblyOrder,
     createAutoStackability,
@@ -288,7 +288,7 @@ export const handleOtherTabCase = async (props) => {
     percent = datastatus.percent;
   }
   setPercentage(percent);
-  if ((!datastore || percent != 100) && item.fileUUId) {
+  if ((!datastore || percent !== 100) && item.fileUUId) {
     if (!datastore) {
       setIsLoading(false);
       setIsFileLoading(false);
@@ -296,7 +296,7 @@ export const handleOtherTabCase = async (props) => {
       const datafile = item.fileUUId + '/' + datastore;
       let fetchStatus = () => getAFileFromStore(datafile, 'status');
       let validateStatus = (result) => {
-        return result.data.percent != 100;
+        return result.data.percent !== 100;
       };
       let percentFunction = (result) =>
         result.data.percent ? result.data.percent : percentage;
@@ -520,7 +520,7 @@ export const setStack = async (props) => {
       });
       console.log('Setting active gltf file to', item.fileStack);
       setActiveGLTFile(item.fileStack);
-      if (itemProperties.fileStack != item.fileStack) {
+      if (itemProperties.fileStack !== item.fileStack) {
         setItemProperties((prevData) => ({
           ...prevData,
           fileStack: item.fileStack
@@ -600,7 +600,7 @@ export const setOrder = async (props) => {
       percent = datastatus.percent;
     }
     setPercentage(percent);
-    if ((!datastore || percent != 100) && item.fileUUId) {
+    if ((!datastore || percent !== 100) && item.fileUUId) {
       if (!datastore) {
         setIsLoading(false);
         setIsFileLoading(false);
@@ -608,7 +608,7 @@ export const setOrder = async (props) => {
         const datafile = item.fileUUId + '/' + datastore;
         let fetchStatus = () => getAFileFromStore(datafile, 'status');
         let validateStatus = (result) => {
-          return result.data.percent != 100;
+          return result.data.percent !== 100;
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;
@@ -728,7 +728,7 @@ export const handleProductDesignTab = async (props) => {
     STATEPROPS.maximumfaces,
     //item.stepTreeLength > STATEPROPS.maximumparts,
     true,
-    myTabedIndex == 'pdcu',
+    myTabedIndex === 'pdcu',
     false,
     createAutoAssemblyOrder,
     createAutoStackability,
@@ -1115,7 +1115,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       !isEmptyObjectDictionary(statusRes.data)
     ) {
       percent = statusRes.data.percent;
-      if (percent == 100) {
+      if (percent === 100) {
         return PROCESSINGSTATUS.PROCESSED;
       }
     } else {

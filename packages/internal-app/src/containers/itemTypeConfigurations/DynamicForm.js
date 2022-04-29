@@ -33,14 +33,14 @@ export default function DynamicCriteria({
     );
     let tempFields = [...stateFormFields];
     let someThingChanged =
-      JSON.stringify(tempFields[findIndex].value || {}) !=
+      JSON.stringify(tempFields[findIndex].value || {}) !==
       JSON.stringify(value || {});
     if (someThingChanged) {
       tempFields[findIndex].value = value;
     }
     for (let index = 0; index < tempFields.length; index++) {
       let fieldItem = tempFields[index];
-      if (index == findIndex) {
+      if (index === findIndex) {
         if (!fieldItem.activeCell) {
           fieldItem.activeCell = true;
           someThingChanged = true;
@@ -53,7 +53,7 @@ export default function DynamicCriteria({
       }
     }
     // tempFields.map((fieldItem, index) => {
-    //   fieldItem.activeCell = index == findIndex;
+    //   fieldItem.activeCell = index === findIndex;
     // });
     //console.log('Changig fields', tempFields);
     if (someThingChanged) {
@@ -64,12 +64,12 @@ export default function DynamicCriteria({
   const handleOnClick = (name) => {
     let tempFields = [...stateFormFields];
     // tempFields.map((fieldItem) => {
-    //   fieldItem.activeCell = fieldItem.fieldName == name;
+    //   fieldItem.activeCell = fieldItem.fieldName === name;
     // });
     let someThingChanged = false;
     for (let index = 0; index < tempFields.length; index++) {
       let fieldItem = tempFields[index];
-      if (fieldItem.fieldName == name) {
+      if (fieldItem.fieldName === name) {
         if (!fieldItem.activeCell) {
           fieldItem.activeCell = true;
           someThingChanged = true;

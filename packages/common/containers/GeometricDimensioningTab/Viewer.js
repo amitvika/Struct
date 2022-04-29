@@ -60,6 +60,13 @@ export default function Viewer({
   setXYZEndEffectorPosition = () => {},
   xyzControlPosition = { X: 0, Y: 0, Z: 0 },
   setXYZControlPosition = () => {},
+  kinematicParameters = {
+    step: 1,
+    error: 8,
+    iterations: 41,
+    methods: 2
+  },
+  setKinematicParameters = null,
   itemProperties = null
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
@@ -194,6 +201,8 @@ export default function Viewer({
           setXYZEndEffectorPosition={setXYZEndEffectorPosition}
           xyzControlPosition={xyzControlPosition}
           setXYZControlPosition={setXYZControlPosition}
+          kinematicParameters={kinematicParameters}
+          setKinematicParameters={setKinematicParameters}
           itemProperties={itemProperties}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */

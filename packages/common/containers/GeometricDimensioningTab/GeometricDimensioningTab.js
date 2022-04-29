@@ -77,6 +77,13 @@ export default function GeometricDimensioningTab(props) {
     setXYZEndEffectorPosition = () => {},
     xyzControlPosition = { X: 0, Y: 0, Z: 0 },
     setXYZControlPosition = () => {},
+    kinematicParameters = {
+      step: 1,
+      error: 8,
+      iterations: 41,
+      methods: 2
+    },
+    setKinematicParameters = null,
     itemProperties = null
   } = props;
   const classes = USESTYLES();
@@ -2320,6 +2327,8 @@ export default function GeometricDimensioningTab(props) {
           setXYZEndEffectorPosition={setXYZEndEffectorPosition}
           xyzControlPosition={xyzControlPosition}
           setXYZControlPosition={setXYZControlPosition}
+          kinematicParameters={kinematicParameters}
+          setKinematicParameters={setKinematicParameters}
           itemProperties={itemProperties}
         />
       </Paper>

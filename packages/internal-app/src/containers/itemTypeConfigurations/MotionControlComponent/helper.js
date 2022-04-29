@@ -7,8 +7,8 @@ export const getTableData = ({ gltfjson, filePartName }) => {
     for (let index = 1; index < gltfjsonParam.tree.length; index++) {
       const element = gltfjsonParam.tree[index];
       if (
-        filePartName == element[gltf_Dict['display']] ||
-        filePartName == element[gltf_Dict['name']]
+        filePartName === element[gltf_Dict['display']] ||
+        filePartName === element[gltf_Dict['name']]
       ) {
         currentData.push({
           id: index,
@@ -27,11 +27,11 @@ export const getTableData = ({ gltfjson, filePartName }) => {
           // quantity: null,
           ...element,
           selected:
-            filePartName == element[gltf_Dict['display']] ||
-            filePartName == element[gltf_Dict['name']],
+            filePartName === element[gltf_Dict['display']] ||
+            filePartName === element[gltf_Dict['name']],
           selectedshell:
-            filePartName == element[gltf_Dict['display']] ||
-            filePartName == element[gltf_Dict['name']]
+            filePartName === element[gltf_Dict['display']] ||
+            filePartName === element[gltf_Dict['name']]
         });
       }
     }

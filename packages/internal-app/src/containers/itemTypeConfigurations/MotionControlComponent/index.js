@@ -110,22 +110,22 @@ export default function MotionControlComponent({
                   : actuator_motion_control.child_chain_number
                 : actuator_motion_control.child_chain_number;
             if (
-              actuator_motion_control.child_part_type == 'ACTUATOR' &&
-              actuator_motion_control.rotational_angle_limit == 0 &&
-              actuator_motion_control.is_linear_or_rotational == false
+              actuator_motion_control.child_part_type === 'ACTUATOR' &&
+              actuator_motion_control.rotational_angle_limit === 0 &&
+              actuator_motion_control.is_linear_or_rotational === false
             ) {
               item.actuator_motion_control.rotational_angle_limit = Math.PI / 3;
             }
             item.actuator_motion_control.machine_actuator_limit =
               actuator_motion_control.machine_actuator_limit
                 ? actuator_motion_control.machine_actuator_limit
-                : actuator_motion_control.child_part_type == 'ACTUATOR'
+                : actuator_motion_control.child_part_type === 'ACTUATOR'
                 ? actuator_motion_control.is_linear_or_rotational
                   ? actuator_motion_control.linear_distance_limit
                   : actuator_motion_control.rotational_angle_limit
                 : null;
             item.actuator_motion_control.maximum_limit =
-              actuator_motion_control.child_part_type == 'ACTUATOR'
+              actuator_motion_control.child_part_type === 'ACTUATOR'
                 ? getLimit(item.actuator_motion_control)
                 : 0;
             item.actuator_motion_control.minimum_limit =
@@ -151,13 +151,17 @@ export default function MotionControlComponent({
   React.useEffect(() => {
     setItemList(kinematicItemList);
     setSelectedOption(SELECTASSEMBLY);
-    console.log('Reaching here to change items', kinematicItemList, itemList);
+    console.log(
+      'Reaching here to change items of itemlist',
+      kinematicItemList,
+      itemList
+    );
   }, [kinematicItemList]);
 
   React.useEffect(() => {
     //console.log('I have got changed selection', selected3JSData);
     let selectedAnItem = false;
-    if (selected3JSData && selected3JSData.length == 2) {
+    if (selected3JSData && selected3JSData.length === 2) {
       let parentNode = selected3JSData[1];
       if (!parentNode) {
         parentNode = selected3JSData[0][0];
@@ -171,12 +175,12 @@ export default function MotionControlComponent({
             parentNode,
             parentNode[gltf_Dict['display']],
             parentNode[gltf_Dict['name']],
-            element.filePartName == parentNode[gltf_Dict['display']] ||
-              element.filePartName == parentNode[gltf_Dict['name']]
+            element.filePartName === parentNode[gltf_Dict['display']] ||
+              element.filePartName === parentNode[gltf_Dict['name']]
           );
           if (
-            element.filePartName == parentNode[gltf_Dict['display']] ||
-            element.filePartName == parentNode[gltf_Dict['name']]
+            element.filePartName === parentNode[gltf_Dict['display']] ||
+            element.filePartName === parentNode[gltf_Dict['name']]
           ) {
             //console.log('Got to select', element);
             setSelectedValue(element.id);
@@ -184,7 +188,7 @@ export default function MotionControlComponent({
           }
         }
       }
-      if (selectedAnItem == false) {
+      if (selectedAnItem === false) {
         console.log(
           'I could not get an item to select from',
           itemList,
@@ -228,7 +232,7 @@ export default function MotionControlComponent({
   };
   const itemName = (item) => {
     return item.name
-      ? item.name + '0' == item.fileStore
+      ? item.name + '0' === item.fileStore
         ? item.filePartName
           ? item.filePartName
           : item.name
@@ -358,7 +362,7 @@ export default function MotionControlComponent({
               const actuator_motion_control =
                 item.actuator_motion_control || {};
               const actuatorDistanceAngleLimit =
-                actuator_motion_control.child_part_type == 'ACTUATOR'
+                actuator_motion_control.child_part_type === 'ACTUATOR'
                   ? getLimit(item.actuator_motion_control)
                   : 0;
               //console.log('Assinging table row', selectedValue, item.id);
@@ -366,21 +370,21 @@ export default function MotionControlComponent({
                 <TableRow
                   style={{
                     background:
-                      selectedValue == item.id
+                      selectedValue === item.id
                         ? DEFAULTROWSELECTCOLOR()
                         : 'white'
                   }}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },
                     bgcolor:
-                      selectedValue == item.id
+                      selectedValue === item.id
                         ? DEFAULTROWSELECTCOLOR()
                         : 'white'
                   }}
                   onClick={() => {
                     if (
                       showKinematicMove ||
-                      selectedValue == item.id ||
+                      selectedValue === item.id ||
                       showKinematicSliderMove
                     ) {
                       return;
@@ -457,7 +461,7 @@ export default function MotionControlComponent({
                     )}
                   </BootstrapTableCell>
                   <BootstrapTableCell padding="checkbox" size="small">
-                    {actuator_motion_control.child_part_type == 'ACTUATOR'
+                    {actuator_motion_control.child_part_type === 'ACTUATOR'
                       ? actuator_motion_control.is_linear_or_rotational
                         ? Number(
                             actuator_motion_control.linear_distance_limit
@@ -501,7 +505,7 @@ export default function MotionControlComponent({
                   </BootstrapTableCell>
                   {showKinematicSliderMove && (
                     <BootstrapTableCell padding="checkbox" size="small">
-                      {actuator_motion_control.child_part_type == 'ACTUATOR' &&
+                      {actuator_motion_control.child_part_type === 'ACTUATOR' &&
                       !actuator_motion_control.is_end_effector ? (
                         <Slider
                           aria-label="Angle"
@@ -519,7 +523,7 @@ export default function MotionControlComponent({
                               ? actuator_motion_control.chain_number
                               : 0
                           }
-                          valueLabelDisplay="auto"
+                          valueLabelDisplay="on"
                           valueLabelFormat={(x) => Number(x).toFixed(2)}
                           onChange={(event, newValue) => {
                             event.stopPropagation();

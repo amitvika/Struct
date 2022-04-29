@@ -97,7 +97,11 @@ const ItemDetail = ({ itemValue }) => {
     Y: 0,
     Z: 0
   });
-
+  const [kinematicParameters, setKinematicParameters] = useState({
+    step: 1,
+    error: 8,
+    iterations: 41
+  });
   /* useEffect(() => {
     if (itemValue) {
       setItemProperties(itemValue);
@@ -205,7 +209,7 @@ const ItemDetail = ({ itemValue }) => {
     setGLTFAndTree({ item, myTabedIndex, whatEffect });
   };
   const existingAxis = (axis) => {
-    return axis && (axis[0] != 0 || axis[1] != 0 || axis[2] != 0);
+    return axis && (axis[0] !== 0 || axis[1] !== 0 || axis[2] !== 0);
   };
   const setGLTFAndTree = async ({ item, myTabedIndex, whatEffect }) => {
     try {
@@ -218,7 +222,7 @@ const ItemDetail = ({ itemValue }) => {
           ? 'gdtac'
           : myTabedIndex;
       let axisArray = [];
-      if (myTabedIndex == 'iupc') {
+      if (myTabedIndex === 'iupc') {
         setDrawAxisLines(axisArray);
       }
       const gltfParam = {
@@ -316,7 +320,7 @@ const ItemDetail = ({ itemValue }) => {
           }
         }
 
-        if (activeGLTFFile != myFileKinamatic || !myFileKinamatic) {
+        if (activeGLTFFile !== myFileKinamatic || !myFileKinamatic) {
           console.log('Setting active gltf file to', myFileKinamatic);
           setActiveGLTFile(myFileKinamatic);
         } else {
@@ -347,7 +351,7 @@ const ItemDetail = ({ itemValue }) => {
           ) {
             for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
               let elementAxis = axisRes.data.AllAxis[index];
-              if (Array.isArray(elementAxis) == false) {
+              if (Array.isArray(elementAxis) === false) {
                 elementAxis = [elementAxis];
               }
               for (
@@ -361,7 +365,7 @@ const ItemDetail = ({ itemValue }) => {
                 /* if (
                 existingAxis(element.directing) &&
                 element.rotation &&
-                element.rotation[3] != 0
+                element.rotation[3] !== 0
               ) {
                 axisArray.push({
                   axis: element.directing,
@@ -369,7 +373,7 @@ const ItemDetail = ({ itemValue }) => {
                   name: element.display
                 });
               } else {
-                if (element.rotation && element.rotation[3] != 0) {
+                if (element.rotation && element.rotation[3] !== 0) {
                   axisArray.push({
                     axis: [
                       element.rotation[0],
@@ -384,7 +388,7 @@ const ItemDetail = ({ itemValue }) => {
                 if (
                   existingAxis(element.direction) &&
                   element.rotation &&
-                  element.rotation[3] != 0
+                  element.rotation[3] !== 0
                 ) {
                   axisArray.push({
                     axis: element.direction,
@@ -392,7 +396,7 @@ const ItemDetail = ({ itemValue }) => {
                     name: element.display
                   });
                 } else {
-                  if (element.rotated && element.rotation[3] != 0) {
+                  if (element.rotated && element.rotation[3] !== 0) {
                     axisArray.push({
                       axis: [
                         element.rotated[0],
@@ -563,7 +567,7 @@ const ItemDetail = ({ itemValue }) => {
       });
       console.log('Setting active gltf file to', item.fileMPPS);
       setActiveGLTFile(item.fileMPPS);
-      if (itemProperties.fileMPPS != item.fileMPPS) {
+      if (itemProperties.fileMPPS !== item.fileMPPS) {
         setItemProperties((prevData) => ({
           ...prevData,
           fileMPPS: item.fileMPPS
@@ -610,8 +614,10 @@ const ItemDetail = ({ itemValue }) => {
     ) {
       updateItemProperties.actuator_motion_control = {
         ...itemProperties.actuator_motion_control,
-        ...(change.actuator_motion_control
+        ...(change
           ? change.actuator_motion_control
+            ? change.actuator_motion_control
+            : {}
           : {})
       };
     }
@@ -652,7 +658,7 @@ const ItemDetail = ({ itemValue }) => {
     if (!get(itemProperties, 'id') && !id) {
       return null;
     }
-    if (tabIndex != 'gdtac' && tabIndex != 'iupc' && tabIndex != 'mpps') {
+    if (tabIndex !== 'gdtac' && tabIndex !== 'iupc' && tabIndex !== 'mpps') {
       additionalSaveFunction(null);
     }
     switch (tabIndex) {
@@ -797,6 +803,8 @@ const ItemDetail = ({ itemValue }) => {
             setXYZEndEffectorPosition={setXYZEndEffectorPosition}
             xyzControlPosition={xyzControlPosition}
             setXYZControlPosition={setXYZControlPosition}
+            kinematicParameters={kinematicParameters}
+            setKinematicParameters={setKinematicParameters}
             {...{ handleSave }}
           />
         );
@@ -975,7 +983,7 @@ const ItemDetail = ({ itemValue }) => {
   };
   const itemName = (item) => {
     return item.name
-      ? item.name + '0' == item.fileStore
+      ? item.name + '0' === item.fileStore
         ? item.filePartName
         : item.name
       : item.filePartName

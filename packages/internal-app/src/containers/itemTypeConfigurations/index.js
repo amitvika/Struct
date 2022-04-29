@@ -11,7 +11,7 @@ import {
   SELECTANITEM,
   gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
-import { PlusMinus } from '@monostruct/common/gltf/PlusMinus';
+import { PlusMinus, ParameterInput } from '@monostruct/common/gltf/PlusMinus';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import DynamicHierarchyForm from './DynamicHierarchyForm';
@@ -59,7 +59,9 @@ export default function ItemTypeConfigurations(props) {
     xyzEndEffectorPosition,
     setXYZEndEffectorPosition,
     xyzControlPosition,
-    setXYZControlPosition
+    setXYZControlPosition,
+    kinematicParameters,
+    setKinematicParameters
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -409,6 +411,41 @@ export default function ItemTypeConfigurations(props) {
     }
     console.log('Changing', xyz, data);
   };
+  const OnChangeOfParameter = (xyz, data) => {
+    if (xyz === 'Step') {
+      setKinematicParameters({
+        step: data,
+        error: kinematicParameters.error,
+        iterations: kinematicParameters.iterations,
+        methods: kinematicParameters.methods
+      });
+    }
+    if (xyz === 'Error') {
+      setKinematicParameters({
+        step: kinematicParameters.step,
+        error: data,
+        iterations: kinematicParameters.iterations,
+        methods: kinematicParameters.methods
+      });
+    }
+    if (xyz === 'Iteration') {
+      setKinematicParameters({
+        step: kinematicParameters.step,
+        error: kinematicParameters.error,
+        iterations: data,
+        methods: kinematicParameters.methods
+      });
+    }
+    if (xyz === 'Method') {
+      setKinematicParameters({
+        step: kinematicParameters.step,
+        error: kinematicParameters.error,
+        iterations: kinematicParameters.iterations,
+        methods: data
+      });
+    }
+    console.log('Changing', xyz, data);
+  };
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
@@ -435,7 +472,7 @@ export default function ItemTypeConfigurations(props) {
           ></Button>
         )}
         <Typography variant="h6" noWrap>
-          {'Show Kinematic Slider Animation:'}
+          {'Show Kinematic Interactive Movement:'}
         </Typography>
         {!showKinematicMove && (
           <Switch
@@ -448,7 +485,7 @@ export default function ItemTypeConfigurations(props) {
           <>
             <PlusMinus
               label={'X'}
-              step={1}
+              step={kinematicParameters.step}
               value={xyzEndEffectorPosition.X}
               onChange={(event, data) => {
                 OnChangeOfPosition('X', data);
@@ -457,7 +494,7 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <PlusMinus
               label={'Y'}
-              step={1}
+              step={kinematicParameters.step}
               value={xyzEndEffectorPosition.Y}
               onChange={(event, data) => {
                 OnChangeOfPosition('Y', data);
@@ -466,10 +503,58 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <PlusMinus
               label={'Z'}
-              step={1}
+              step={kinematicParameters.step}
               value={xyzEndEffectorPosition.Z}
               onChange={(event, data) => {
                 OnChangeOfPosition('Z', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <ParameterInput
+              label={'Step'}
+              value={kinematicParameters.step}
+              min={0.001}
+              max={1000}
+              step={0.0001}
+              digits={3}
+              onChange={(event, data) => {
+                OnChangeOfParameter('Step', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <ParameterInput
+              label={'Precision'}
+              value={kinematicParameters.error}
+              min={1}
+              max={100}
+              step={1}
+              digits={0}
+              onChange={(event, data) => {
+                OnChangeOfParameter('Error', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <ParameterInput
+              label={'Iteration'}
+              value={kinematicParameters.iterations}
+              min={1}
+              max={1000}
+              step={1}
+              digits={0}
+              onChange={(event, data) => {
+                OnChangeOfParameter('Iteration', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <ParameterInput
+              label={'Method'}
+              value={kinematicParameters.methods || 2}
+              min={1}
+              max={5}
+              step={1}
+              digits={0}
+              onChange={(event, data) => {
+                OnChangeOfParameter('Method', data);
               }}
             />
           </>
@@ -521,6 +606,8 @@ export default function ItemTypeConfigurations(props) {
         setXYZEndEffectorPosition={setXYZEndEffectorPosition}
         xyzControlPosition={xyzControlPosition}
         setXYZControlPosition={setXYZControlPosition}
+        kinematicParameters={kinematicParameters}
+        setKinematicParameters={setKinematicParameters}
         itemProperties={itemProperties}
         //{...{ whatchange }}
       />
