@@ -5997,7 +5997,7 @@ class GLTFRenderer extends Component {
       propsElement.actuator_motion_control &&
       propsElement.actuator_motion_control.cylindrical_axis_of_rotation
     ) {
-      let axis =
+      const axis =
         propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis;
       if (axis) {
         const position =
@@ -6006,12 +6006,7 @@ class GLTFRenderer extends Component {
             ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
                 .position
             : [0, 0, 0];
-        return this.drawAxisLine(
-          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
-            .axis,
-          position,
-          propsElement.name
-        );
+        return this.drawAxisLine(axis, position, propsElement.name);
       }
     }
     return null;
@@ -10447,7 +10442,7 @@ class GLTFRenderer extends Component {
                 currentNodeIndex === -1 ? index : currentNodeIndex
               ];
             if (isActuatorNode) {
-              if (beginOfActuator == -1) {
+              if (beginOfActuator === -1) {
                 beginOfActuator = index;
               }
               if (prevProps === null) {
