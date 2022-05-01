@@ -512,7 +512,7 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <ParameterInput
               label={'Step'}
-              value={kinematicParameters.step}
+              value={kinematicParameters.step || 0.001}
               min={0.001}
               max={1000}
               step={0.0001}
@@ -524,8 +524,8 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <ParameterInput
               label={'Precision'}
-              value={kinematicParameters.error}
-              min={1}
+              value={kinematicParameters.error || 8}
+              min={-2}
               max={100}
               step={1}
               digits={0}
@@ -536,7 +536,7 @@ export default function ItemTypeConfigurations(props) {
             &nbsp;&nbsp;
             <ParameterInput
               label={'Iteration'}
-              value={kinematicParameters.iterations}
+              value={kinematicParameters.iterations || 1}
               min={1}
               max={1000}
               step={1}
@@ -550,7 +550,7 @@ export default function ItemTypeConfigurations(props) {
               label={'Method'}
               value={kinematicParameters.methods || 2}
               min={1}
-              max={5}
+              max={6}
               step={1}
               digits={0}
               onChange={(event, data) => {

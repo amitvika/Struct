@@ -8893,8 +8893,8 @@ class GLTFRenderer extends Component {
                           differencePosition;
                         if (
                           methodIndex === 0 ||
-                          methodIndex === 3 ||
-                          methodIndex === 4
+                          methodIndex === 4 ||
+                          methodIndex === 5
                         ) {
                           currentOriginalEndEffectorPosition =
                             calculatedMountPosition.clone();
@@ -8902,7 +8902,7 @@ class GLTFRenderer extends Component {
                           currentOriginalTargetPosition =
                             targetEndEffectorPosition.clone();
                         }
-                        if (methodIndex === 1 || methodIndex === 2) {
+                        if (methodIndex === 1 || methodIndex === 3) {
                           currentOriginalEndEffectorPosition =
                             originalEndEffectorPosition.clone();
                           currentOriginalEndEffectorPosition.sub(
@@ -8923,6 +8923,12 @@ class GLTFRenderer extends Component {
                           currentOriginalTargetPosition.add(
                             currentShiftedPosition
                           );
+                        }
+                        if (methodIndex === 2) {
+                          currentOriginalEndEffectorPosition =
+                            originalEndEffectorPosition.clone();
+                          currentOriginalTargetPosition =
+                            originalTargetPosition.clone();
                         }
                         // console.log(
                         //   'Method Index',
@@ -8954,6 +8960,12 @@ class GLTFRenderer extends Component {
                         }
                         if (methodIndex === 2) {
                           differenceBetween =
+                            differencePosition.x * currentAxis.x +
+                            differencePosition.y * currentAxis.y +
+                            differencePosition.z * currentAxis.z;
+                        }
+                        if (methodIndex === 3) {
+                          differenceBetween =
                             differencePosition.x * currentPositionAxis.x +
                             differencePosition.y * currentPositionAxis.y +
                             differencePosition.z * currentPositionAxis.z;
@@ -8971,10 +8983,10 @@ class GLTFRenderer extends Component {
                             );
                           }
                         }
-                        if (methodIndex === 3) {
+                        if (methodIndex === 4) {
                           differenceBetween = leastTheta / 2;
                         }
-                        if (methodIndex === 4) {
+                        if (methodIndex === 5) {
                           differenceBetween = mostTheta / 2;
                         }
                       } else {
@@ -8985,9 +8997,9 @@ class GLTFRenderer extends Component {
                             targetEndEffectorPosition.clone();
                         if (
                           methodIndex === 0 ||
-                          methodIndex === 2 ||
                           methodIndex === 3 ||
-                          methodIndex === 4
+                          methodIndex === 4 ||
+                          methodIndex === 5
                         ) {
                           currentOriginalEndEffectorPosition =
                             calculatedMountPosition.clone();
@@ -9029,14 +9041,34 @@ class GLTFRenderer extends Component {
                             currentShiftedPosition
                           );
                         }
+                        if (methodIndex === 2) {
+                          currentOriginalEndEffectorPosition =
+                            originalEndEffectorPosition.clone();
+                          currentOriginalTargetPosition =
+                            originalTargetPosition.clone();
+                        }
 
                         let currentEndEffectorposition =
                           currentOriginalEndEffectorPosition.clone();
                         let currentTargetPosition =
                           currentOriginalTargetPosition.clone();
-                        currentEndEffectorposition.sub(currentShiftedPosition);
 
-                        currentTargetPosition.sub(currentShiftedPosition);
+                        if (
+                          methodIndex === 0 ||
+                          methodIndex === 1 ||
+                          methodIndex === 3 ||
+                          methodIndex === 4 ||
+                          methodIndex === 5
+                        ) {
+                          currentEndEffectorposition.sub(
+                            currentShiftedPosition
+                          );
+                          currentTargetPosition.sub(currentShiftedPosition);
+                        }
+                        if (methodIndex === 2) {
+                          currentEndEffectorposition.sub(currentPosition);
+                          currentTargetPosition.sub(currentPosition);
+                        }
 
                         if (methodIndex === 0 || methodIndex === 1) {
                           differenceBetween = this.angleToMoveToTarget(
@@ -9046,6 +9078,13 @@ class GLTFRenderer extends Component {
                           );
                         }
                         if (methodIndex === 2) {
+                          differenceBetween = this.angleToMoveToTarget(
+                            currentAxis,
+                            currentEndEffectorposition,
+                            currentTargetPosition
+                          );
+                        }
+                        if (methodIndex === 3) {
                           differenceBetween =
                             this.getAngleBetweenVectorsFromAxis(
                               currentPositionAxis,
@@ -9053,11 +9092,11 @@ class GLTFRenderer extends Component {
                               currentTargetPosition
                             );
                         }
-                        if (methodIndex === 3) {
+                        if (methodIndex === 4) {
                           differenceBetween = leastTheta / 2;
                           //console.log('Least method theta', leastTheta);
                         }
-                        if (methodIndex === 4) {
+                        if (methodIndex === 5) {
                           differenceBetween = mostTheta / 2;
                           //console.log('Most method theta', mostTheta);
                         }
