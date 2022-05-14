@@ -66,6 +66,10 @@ export const fetchGLTFAndTree = async (props) => {
         ? 'gdtac'
         : myTabedIndex;
     let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
+    let whichOneToGDT =
+      myTabIndex === 'iupc' && showKinematicSliderMove
+        ? whichOneToLoad + fileGDT + 'P'
+        : '';
     if (myTabIndex === 'pdcu') {
       whichOneToLoad += fileStore;
     } else if (myTabIndex === 'mpps') {
@@ -79,7 +83,16 @@ export const fetchGLTFAndTree = async (props) => {
     } else {
       whichOneToLoad += fileGDT;
     }
-
+    // console.log(
+    //   'Who am i oktoparse showKinematicSliderMovegltfparam fetchitems',
+    //   myTabIndex,
+    //   myTabedIndex,
+    //   showKinematicMove,
+    //   showKinematicSliderMove,
+    //   okToParse,
+    //   whichOneToGDT,
+    //   whichOneToLoad
+    // );
     setProgressBarLoad(true);
     let statusRes = await getAFileFromStore(whichOneToLoad, 'status');
     let percent = 0;
@@ -162,6 +175,15 @@ export const fetchGLTFAndTree = async (props) => {
         percent
       );
       console.log('WhichOneToLoad', whichOneToLoad, gdtRes, myResourcePath);
+    } else {
+      if (whichOneToGDT !== '') {
+        gdtRes = await getAFileFromURLStore(
+          whichOneToGDT,
+          'gdt',
+          myResourcePath,
+          percent
+        );
+      }
     }
 
     setgltfjson({
@@ -861,13 +883,10 @@ export const isOKToParseForInternalUseProduct = async ({
       if (!item.fileSliderKinematic || item.fileSliderKinematic === null) {
         if (item.fileStore && item.fileStore.length > 0) {
           const fileSliderKinematic =
-            item.fileStore.slice(0, item.fileStore.length - 1) + 'P0';
+            item.fileStore.slice(0, item.fileStore.length - 1) + 'P3';
           const whichOneToLoad = getResourcePathURL(item) + fileSliderKinematic;
           const whichOneToStatus = getStatusPathURL(item) + fileSliderKinematic;
-          okToParse = await checkStatusToParse(
-            whichOneToLoad,
-            whichOneToStatus
-          );
+          okToParse = await checkOnlyStatusToParse(whichOneToStatus);
           if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
             item.fileSliderKinematic = fileSliderKinematic;
           } else {
@@ -879,7 +898,7 @@ export const isOKToParseForInternalUseProduct = async ({
           getResourcePathURL(item) + item.fileSliderKinematic;
         const whichOneToStatus =
           getStatusPathURL(item) + item.fileSliderKinematic;
-        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        okToParse = await checkOnlyStatusToParse(whichOneToStatus);
         if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
           item.fileSliderKinematic = null;
         }
@@ -935,10 +954,25 @@ export const handleInternalUseProduct = async (props) => {
     kinematicItemList,
     showKinematicSliderMove
   } = props;
+  //console.log('Got here to enter main function getPartsKinematicMovement');
+
+  //console.log('Got here before to set isloading');
   setIsLoading(true);
+  //console.log('Got here after to set isloading');
+
   setIsFileLoading(true);
-  setProgressBarLoad(true);
+  //console.log('Got here after to set setIsFileLoading');
+  if (setProgressBarLoad) {
+    setProgressBarLoad(true);
+  }
+
+  //console.log('Got here after to set setProgressBarLoad');
   let percent = 0;
+  // console.log(
+  //   'Got here to enter getPartsKinematicMovement',
+  //   showKinematicSliderMove ? STATEPROPS.edgesize : 0,
+  //   showKinematicSliderMove ? STATEPROPS.vertexsize : 0
+  // );
   try {
     const getHierarchyRes = await getPartsKinematicMovement(
       getStepFile(item),
@@ -948,7 +982,10 @@ export const handleInternalUseProduct = async (props) => {
       kinematicItemList,
       item.id || item._id,
       item.name,
-      showKinematicSliderMove
+      showKinematicSliderMove,
+      getSurfaceFile(item),
+      showKinematicSliderMove ? STATEPROPS.edgesize : 0,
+      showKinematicSliderMove ? STATEPROPS.vertexsize : 0
     );
 
     setIsFileLoading(false);
@@ -959,7 +996,7 @@ export const handleInternalUseProduct = async (props) => {
     if (datastatus) {
       percent = datastatus.percent;
     }
-
+    //console.log('Data Got from Backend', getHierarchyRes.data);
     // setPercentage(percent);
 
     if ((!datastore || percent !== 100) && item.fileUUId) {
@@ -984,12 +1021,19 @@ export const handleInternalUseProduct = async (props) => {
         console.log('Finally got here kineamtic status', statusRes);
         const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
         const treeRes = await getAFileFromStore(datafile, 'tree', true);
+
         console.log('Setting', gltfRes, treeRes);
         if (showKinematicSliderMove) {
+          const gdtRes = await getAFileFromStore(
+            item.fileUUId + '/' + item.fileGDT + 'P',
+            'gdt',
+            true
+          );
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
             sliderkinematic: datastore,
+            gdttable: gdtRes.data,
             resourcepath: resourcePathURL
           });
         } else {
@@ -1017,9 +1061,15 @@ export const handleInternalUseProduct = async (props) => {
       if (datastore) {
         //const multiAssembly = treeLength > 0;
         if (showKinematicSliderMove) {
+          const gdtRes = await getAFileFromStore(
+            item.fileUUId + '/' + item.fileGDT + 'P',
+            'gdt',
+            true
+          );
           setgltfjson({
             ...getHierarchyRes.data,
             sliderkinematic: datastore,
+            gdttable: gdtRes.data,
             resourcepath: resourcePathURL
           });
         } else {
@@ -1045,7 +1095,10 @@ export const handleInternalUseProduct = async (props) => {
     }
     setIsLoading(false);
     setIsFileLoading(false);
-    setProgressBarLoad(false);
+    if (setProgressBarLoad) {
+      setProgressBarLoad(false);
+    }
+
     /* 
 
 
@@ -1071,7 +1124,9 @@ export const handleInternalUseProduct = async (props) => {
   } catch (error) {
     setIsLoading(false);
     setIsFileLoading(false);
-    setProgressBarLoad(false);
+    if (setProgressBarLoad) {
+      setProgressBarLoad(false);
+    }
   }
 };
 
@@ -1095,6 +1150,13 @@ export const getStepFile = (item) => {
   }
   return item.fileId;
 };
+export const getSurfaceFile = (item) => {
+  if (item.fileUUId) {
+    const fullpath = item.surfName;
+    return fullpath.slice(6, fullpath.length);
+  }
+  return item.surfName;
+};
 
 const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
   const myResourcePath = await checkExistingPathFromStore(
@@ -1105,6 +1167,46 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
   if (myResourcePath) {
     return PROCESSINGSTATUS.PROCESSED;
   }
+  const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
+  if (isFileExistingInServer(statusURL)) {
+    const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
+    let percent = 0;
+    if (
+      statusRes &&
+      statusRes.data &&
+      !isEmptyObjectDictionary(statusRes.data)
+    ) {
+      percent = statusRes.data.percent;
+      if (percent === 100) {
+        return PROCESSINGSTATUS.PROCESSED;
+      }
+    } else {
+      return PROCESSINGSTATUS.HUNG;
+    }
+    //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
+    let currenttime = new Date().toUTCString();
+    let servertime = statusRes.data.current;
+    let utctimearray = currenttime.split(' ');
+    let servertimearray = servertime.split('-');
+
+    let currenttimearray = utctimearray[4].split(':');
+    let difference =
+      (currenttimearray[0] - servertimearray[0]) * 60 * 60 +
+      (currenttimearray[1] - servertimearray[1]) * 60 +
+      (currenttimearray[2] - servertimearray[2]);
+
+    if (difference < 0) {
+      difference += 24 * 60 * 60;
+    }
+    if (difference > 5 * 60) {
+      // Increased from 2 to 5 since some file takes ~ 4 mins to load into memory..
+      return PROCESSINGSTATUS.HUNG;
+    }
+    return PROCESSINGSTATUS.INPROGRESS;
+  }
+  return PROCESSINGSTATUS.NOTSTARTED;
+};
+const checkOnlyStatusToParse = async (whichOneToStatus) => {
   const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
   if (isFileExistingInServer(statusURL)) {
     const statusRes = await getAFileFromStore(whichOneToStatus, 'status');

@@ -171,7 +171,8 @@ export const gltf_Dict = {
   offset: 'O',
   curve: 'U',
   direction: 'V',
-  basic: 'b'
+  basic: 'b',
+  kinematicdimension: 'q'
 };
 export const element_Dict = {
   P: 'PART',
@@ -513,6 +514,72 @@ export const USESTYLES = makeStyles((theme) => ({
   tableCell: {
     padding: '0px 8px',
     whiteSpace: 'normal'
+  },
+  barstats: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+    maxHeight: '30px', // borderlinearprogress root.height
+    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    '& span': {
+      width: '100%'
+    }
+  },
+  barroot: {
+    flexGrow: 1,
+    gap: 1,
+    height: 30,
+    display: 'flex',
+    padding: 1
+  },
+  custom_file: {
+    position: 'relative',
+    width: '100%',
+    height: 'calc(1.5em + .75rem + 2px)'
+  },
+  custom_file_input: {
+    zIndex: 2,
+    margin: 0,
+    overflow: 'hidden',
+    opacity: 0,
+    position: 'relative',
+    width: '100%',
+    height: 'calc(1.5em + .75rem + 2px)'
+  },
+  custom_file_label: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: '.375rem .75rem',
+    lineHeight: 1.5,
+    color: '#495057',
+    left: 0,
+    zIndex: 1,
+    height: 'calc(1.5em + .75rem + 2px)',
+    overflow: 'hidden',
+    fontWeight: 400,
+    backgroundColor: '#fff',
+    border: '1px solid #ced4da',
+    borderRadius: '.25rem',
+    '&::after': {
+      bottom: 0,
+      zIndex: 3,
+      display: 'block',
+      height: 'calc(1.5em + .75rem)',
+      content: '"Browse"',
+      backgroundColor: '#e9ecef',
+      borderLeft: 'inherit',
+      borderRadius: '0 .25rem .25rem 0',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      padding: '.375rem .75rem',
+      lineHeight: 1.5,
+      color: '#495057'
+    }
   }
 }));
 export const StyledTableRow = withStyles((theme) => ({

@@ -51,7 +51,7 @@ from .structparts import (Assembly, conversion)
 from .structparts.structquery.occ_impl import (OCPStepIGESAnalyser, OCPImporters)
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, get_exact_bounding_details,
     minimum_distance_only, scale_shape, getPartStackablePositions, get_bounding_details,
     get_oriented_bounding_details, recognize_direction, recognize_entity, getDictionaryFromOBB) #rotate_shape,
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
@@ -5536,6 +5536,9 @@ def FileSaveGDT(request):
             name = request.data['name']  
             if name=='null':
                 name='Blank'
+            slidermove = controllers.convertToBool(request.data['slidermove'],False)
+            if slidermove:
+                name=name+"P"            
             try:
                 gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 if not os.path.isfile(gdtfile):
@@ -6121,7 +6124,7 @@ def getKinematicInformationFromIndex(kinematicParts,partname):
     return ("No Name", "Empty Item", "STATIC", 0, 0, [0,0,0], [0,0,0], 0, 0, 0, 0, 0, None, False, False) 
     
 
-def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',refname='',partsteps=[],slidermove=False):#,thumbwidth,thumbheight):
+def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',refname='',partsteps=[],slidermove=False,surfacefile='',edgesize=0,vertexsize=0):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -6137,6 +6140,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
+       
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
             
             try:
@@ -6180,7 +6184,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         
         try:
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
-            _, myShapes = outputShapes
+            dimensionKinematic, myShapes = outputShapes
             
             shapeArray,_,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             print("myshapes",shapePickles)
@@ -6222,6 +6226,11 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     #print("What we got here",whatWeGotFromKinematicInfo)
                     partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = whatWeGotFromKinematicInfo
                     [ax,ay,az]=axis 
+                    if chain==1 and sequence==1:
+                        dimensionKinematic = get_exact_bounding_details(eachShape)
+                        print("Got chain1, sequence1, dimension",dimensionKinematic)
+                    #else:
+                    #    print("Got chain, sequence, dimension",chain,sequence,dimensionKinematic)
                     #print("Error has occured here?")
                     if shapeOfAxis is None:
                         shapeOfAxis=eachShape
@@ -6255,11 +6264,11 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             #     shapeorder = shapeorder[0:maxChainShape]
             # print("Info of kinematic after truncating",shapeorder,kinematicrotation,lengthOfKinematicParts,lengthOfOnlyShapes)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
+                filename=sourceFileName,shapeslist=shapeArray,includeparts=(slidermove==True),distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, kinematicrotation=kinematicrotation if slidermove==False else None,
-                shapeorder=shapeorder,delay=animationtime,refid=refid,refname=refname,
-                kinematicslider=True if slidermove==True else None).dump()
+                edgesize=edgesize, vertexsize=vertexsize, kinematicrotation=kinematicrotation if slidermove==False else None,
+                shapeorder=shapeorder,delay=animationtime,refid=refid,refname=refname, kinematicdimension=dimensionKinematic,
+                kinematicslider=True if slidermove==True else None,kinematicsurface=surfacefile if slidermove==True else None).dump()
 
         except Exception as e:
             print("error",e) 
@@ -6271,7 +6280,8 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                             'animationtime':animationtime,
                             'colorshapes':shapePickles,
                             'refid':refid,
-                            'refname':refname}
+                            'refname':refname,
+                            'surfacefile':surfacefile if slidermove==True else None}
             picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:                                
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
@@ -6301,6 +6311,9 @@ def FileGetKinematicRotationalAnimation(request):
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
             refname=request.GET.get('refname','')
+            surfacefile=request.GET.get('surfacefile')
+            edgesize=controllers.convertToFloat(request.GET.get('edgesize',"0"),0)
+            vertexsize=controllers.convertToFloat(request.GET.get('vertexsize',"0"),0)
             distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
             anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
             animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
@@ -6309,20 +6322,20 @@ def FileGetKinematicRotationalAnimation(request):
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files: 
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,edgesize,"R")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,None,None,MEDIA_URL+surfacefile,edgesize,vertexsize))
                     mythread.start()  
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,edgesize,"R")
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname))
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,None,None,MEDIA_URL+surfacefile,0,0))
                     mythread.start()         
         elif request.method == 'POST':
             #print("Reached here in kinematic move",request.data)
@@ -6330,30 +6343,34 @@ def FileGetKinematicRotationalAnimation(request):
             distancegap = controllers.convertToFloat(request.data['distancegap'],0.1)
             anglegap = controllers.convertToFloat(request.data['anglegap'],0.5)
             animationtime = controllers.convertToFloat(request.data['animationtime'],1.0)
-            print("kinematicmove",id,distancegap,anglegap,animationtime)
+            
             parts = request.data['parts']
             refid = request.data['refid']
             refname = request.data['refname']
+            surfacefile=request.data['surfacefile']
+            edgesize=controllers.convertToFloat(request.data['edgesize'],0)
+            vertexsize=controllers.convertToFloat(request.data['vertexsize'],0)
             partsteps=json.loads(parts)
             slidermove=controllers.convertToBool(request.data['slidermove'],False)
+            print("kinematicmove",id,distancegap,anglegap,animationtime,surfacefile,edgesize,slidermove)
             starttime = datetime.utcnow() 
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files: 
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R" if slidermove==False else "P")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,edgesize,"R" if slidermove==False else "P")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove,MEDIA_URL+surfacefile if slidermove==True else None,edgesize,vertexsize))
                     mythread.start()  
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R" if slidermove==False else "P")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,edgesize,"R" if slidermove==False else "P")
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove))
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove,MEDIA_URL+surfacefile if slidermove==True else None,edgesize,vertexsize))
                     mythread.start() 
         return JsonResponse(data, safe=False)    
     except Exception as e:

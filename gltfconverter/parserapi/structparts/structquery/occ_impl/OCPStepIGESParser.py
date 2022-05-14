@@ -2826,11 +2826,11 @@ class StepIgesAnalyser():
         myTreeLen = len(self.tstep_dict["tree"])
         self.lenFeatures = len(self.outputFeatures)
         self.lenfeature = 0
-        newfilename = self.displaypath+pathfilename+".progress"
+        #newfilename = self.displaypath+pathfilename+".progress"
         self.myParentId_Dict={}
         self.edgestarttime = datetime.utcnow() 
         self.currenttime = self.edgestarttime
-        self.progressfile = newfilename
+        #self.progressfile = newfilename
         self.lenfeature = 0
         self.write_progress(0)
         """ with open(newfilename, 'w') as fh:

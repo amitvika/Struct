@@ -3,6 +3,7 @@ import { Snackbar, Button, Tab, Tabs, Grid } from '@mui/material';
 import { useParams, useHistory } from 'react-router-dom';
 
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
+import SurfaceNavigation from '@monostruct/common/containers/SurfaceNavigationTab';
 import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
@@ -81,6 +82,8 @@ const ItemDetail = ({ itemValue }) => {
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
   const [showKinematicMove, setShowKinematicMove] = useState(false);
   const [showKinematicSliderMove, setShowKinematicSliderMove] = useState(false);
+  const [showKinematicSliderAnimate, setShowKinematicSliderAnimate] =
+    useState(false);
   const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
   const [kinematicItemList, setKinematicItemList] = useState([]);
   const [activeGLTFFile, setActiveGLTFileState] = useState('');
@@ -97,11 +100,24 @@ const ItemDetail = ({ itemValue }) => {
     Y: 0,
     Z: 0
   });
+  const [xyzBeginPosition, setXYZBeginPosition] = useState({
+    X: 0,
+    Y: 0,
+    Z: 0
+  });
+  const [xyzShiftPosition, setXYZShiftPosition] = useState({
+    X: 0,
+    Y: 0,
+    Z: 0
+  });
   const [kinematicParameters, setKinematicParameters] = useState({
     step: 1,
-    error: 8,
-    iterations: 41
+    error: 4,
+    iterations: 21,
+    methods: 1,
+    gap: 0.001
   });
+
   /* useEffect(() => {
     if (itemValue) {
       setItemProperties(itemValue);
@@ -165,7 +181,19 @@ const ItemDetail = ({ itemValue }) => {
       whatEffect: false
     });
   }, [showKinematicSliderMove]);
-
+  /* useEffect(() => {
+    console.log(
+      'Started handleGLTFAndTreeLoading from useeffect itemProperties.surfName',
+      itemProperties,
+      showKinematicSliderMove,
+      tabIndex
+    );
+    handleGLTFAndTreeLoading({
+      item: itemProperties,
+      myTabedIndex: tabIndex,
+      whatEffect: false
+    });
+  }, [itemProperties.surfName]); */
   useEffect(() => {
     handleGLTFAndTreeLoading({
       item: itemProperties,
@@ -242,7 +270,13 @@ const ItemDetail = ({ itemValue }) => {
         setCompletionProgressText,
         setgltfjson
       };
-
+      // console.log(
+      //   'Who am i',
+      //   myTabIndex,
+      //   myTabedIndex,
+      //   showKinematicMove,
+      //   showKinematicSliderMove
+      // );
       if (myTabIndex === 'iupc') {
         let myFileKinamatic = null;
         let okToParse = await isOKToParseForInternalUseProduct({
@@ -250,8 +284,33 @@ const ItemDetail = ({ itemValue }) => {
           regenerateKinematicMove,
           showKinematicSliderMove
         });
+        // console.log(
+        //   'Who am i oktoparse',
+        //   myTabIndex,
+        //   myTabedIndex,
+        //   showKinematicMove,
+        //   showKinematicSliderMove,
+        //   okToParse
+        // );
         if (showKinematicSliderMove) {
+          // console.log(
+          //   'Who am i oktoparse showKinematicSliderMove',
+          //   myTabIndex,
+          //   myTabedIndex,
+          //   showKinematicMove,
+          //   showKinematicSliderMove,
+          //   okToParse
+          // );
           if (!item.fileSliderKinematic || item.fileSliderKinematic === null) {
+            // console.log(
+            //   'Who am i oktoparse showKinematicSliderMove!item.fileSliderKinematic',
+            //   myTabIndex,
+            //   myTabedIndex,
+            //   showKinematicMove,
+            //   showKinematicSliderMove,
+            //   okToParse,
+            //   item.fileSliderKinematic
+            // );
             updatedItemProp = await handleInternalUseProduct({
               item,
               myTabedIndex,
@@ -274,6 +333,15 @@ const ItemDetail = ({ itemValue }) => {
             myFileKinamatic = updatedItemProp.fileSliderKinematic;
           } else {
             gltfParam.fileSliderKinematic = item.fileSliderKinematic;
+            // console.log(
+            //   'Who am i oktoparse showKinematicSliderMovegltfparam',
+            //   myTabIndex,
+            //   myTabedIndex,
+            //   showKinematicMove,
+            //   showKinematicSliderMove,
+            //   okToParse,
+            //   item.fileSliderKinematic
+            // );
             await fetchGLTFAndTree({
               ...gltfParam,
               okToParse,
@@ -308,6 +376,7 @@ const ItemDetail = ({ itemValue }) => {
             myFileKinamatic = updatedItemProp.fileKinematic;
           } else {
             gltfParam.fileKinematic = item.fileKinematic;
+
             await fetchGLTFAndTree({
               ...gltfParam,
               okToParse,
@@ -666,6 +735,46 @@ const ItemDetail = ({ itemValue }) => {
         return 'Add vendor items here';
       case 'cf':
         return <Classification {...{ handleSave }} />;
+      case 'surf':
+        return (
+          <SurfaceNavigation
+            itemId={id}
+            handleItemUpdateLocallay={handleSave}
+            handleItemSaveOnServer={handleSave}
+            drawLine={itemProperties.drawLine}
+            distanceGap={itemProperties.distanceGap}
+            angleGap={itemProperties.angleGap}
+            {...{
+              allowFirstLevelItems,
+              setAllowFirstLevelItems,
+              createAutoAssemblyOrder,
+              setCreateAutoAssemblyOrder,
+              activeGLTFFile,
+              setActiveGLTFile,
+              setCreateAutoStackability,
+              createAutoStackability,
+              selectedOption,
+              setSelectedOption,
+              setPercentage,
+              setProgressBarLoad,
+              setCurrentProgressText,
+              setCompletionProgressText,
+              setCenterActionText,
+              progressBarLoad,
+              percentage,
+              currentProgressText,
+              completionProgressText,
+              centerActionText,
+              itemProperties,
+              setItemProperties,
+              gltfjson,
+              setgltfjson,
+              tabIndex,
+              setTabIndex,
+              isDesignSite: false
+            }}
+          />
+        );
       case 'pdcu':
         return (
           <BaseItemProperties
@@ -763,6 +872,7 @@ const ItemDetail = ({ itemValue }) => {
             gltfjson={gltfjson}
             setgltfjson={setgltfjson}
             isLoading={isLoading}
+            setIsLoading={setIsLoading}
             handleItemUpdate={handleSave}
             tabIndex={tabIndex}
             additionalSaveFunction={additionalSaveFunction}
@@ -789,6 +899,8 @@ const ItemDetail = ({ itemValue }) => {
             setShowKinematicMove={setShowKinematicMove}
             showKinematicSliderMove={showKinematicSliderMove}
             setShowKinematicSliderMove={setShowKinematicSliderMove}
+            showKinematicSliderAnimate={showKinematicSliderAnimate}
+            setShowKinematicSliderAnimate={setShowKinematicSliderAnimate}
             regenerateKinematicMove={regenerateKinematicMove}
             setRegenerateKinematicMove={setRegenerateKinematicMove}
             kinematicItemList={kinematicItemList}
@@ -803,8 +915,13 @@ const ItemDetail = ({ itemValue }) => {
             setXYZEndEffectorPosition={setXYZEndEffectorPosition}
             xyzControlPosition={xyzControlPosition}
             setXYZControlPosition={setXYZControlPosition}
+            xyzBeginPosition={xyzBeginPosition}
+            setXYZBeginPosition={setXYZBeginPosition}
+            xyzShiftPosition={xyzShiftPosition}
+            setXYZShiftPosition={setXYZShiftPosition}
             kinematicParameters={kinematicParameters}
             setKinematicParameters={setKinematicParameters}
+            handleItemSaveOnServer={handleSave}
             {...{ handleSave }}
           />
         );
@@ -960,7 +1077,7 @@ const ItemDetail = ({ itemValue }) => {
     production: 'Production',
     assembly: 'Assembly',
     itemReport: 'Item Report',
-    makeItemConfigurable: 'Make Item Configurable/Customizable',
+    surf: 'Make Item Configurable/Customizable',
     AssignToClient: 'Assign to Client(s)',
     sv: 'Supplying Vendors',
     instanceOfThisItem: 'Instance of this Item',

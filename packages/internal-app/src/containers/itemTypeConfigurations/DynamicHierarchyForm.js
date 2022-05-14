@@ -22,6 +22,7 @@ export default function DynamicHierarchyForm(props) {
     selected3JSData,
     showKinematicMove,
     showKinematicSliderMove,
+    showKinematicSliderAnimate,
     isMountSufaceFaceSelection,
     setIsMountSufaceFaceSelection
   } = props;
@@ -270,6 +271,7 @@ export default function DynamicHierarchyForm(props) {
               selected3JSData,
               showKinematicMove,
               showKinematicSliderMove,
+              showKinematicSliderAnimate,
               isMountSufaceFaceSelection,
               setIsMountSufaceFaceSelection
             }}

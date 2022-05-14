@@ -54,20 +54,28 @@ export default function Viewer({
   setActiveGLTFile = () => {},
   drawAxisLines = null,
   showKinematicSliderMove = false,
+  showKinematicSliderAnimate = false,
   kinematicItemList = [],
   setKinematicItemList = () => {},
   xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
   setXYZEndEffectorPosition = () => {},
   xyzControlPosition = { X: 0, Y: 0, Z: 0 },
   setXYZControlPosition = () => {},
+  xyzBeginPosition = { X: 0, Y: 0, Z: 0 },
+  setXYZBeginPosition = () => {},
+  xyzShiftPosition = { X: 0, Y: 0, Z: 0 },
+  setXYZShiftPosition = () => {},
   kinematicParameters = {
     step: 1,
-    error: 8,
-    iterations: 41,
-    methods: 2
+    error: 4,
+    iterations: 21,
+    methods: 1,
+    gap: 0.001
   },
   setKinematicParameters = null,
-  itemProperties = null
+  itemProperties = null,
+  setProgressAnimate = null,
+  setProgressAnimateText = null
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -88,7 +96,7 @@ export default function Viewer({
   }, [fileUUId]);
   // useEffect(() => {
   //   if (gltfjson) {
-  //     console.log('I got a change in gltfjson', gltfjson);
+  //     console.log('I got a change in gltfjson in viewer', gltfjson);
   //   }
   // }, [gltfjson]);
   useEffect(() => {
@@ -195,15 +203,22 @@ export default function Viewer({
           drawAxisLines={drawAxisLines}
           showKinematicMove={showKinematicMove}
           showKinematicSliderMove={showKinematicSliderMove}
+          showKinematicSliderAnimate={showKinematicSliderAnimate}
           kinematicItemList={kinematicItemList}
           setKinematicItemList={setKinematicItemList}
           xyzEndEffectorPosition={xyzEndEffectorPosition}
           setXYZEndEffectorPosition={setXYZEndEffectorPosition}
           xyzControlPosition={xyzControlPosition}
           setXYZControlPosition={setXYZControlPosition}
+          xyzBeginPosition={xyzBeginPosition}
+          setXYZBeginPosition={setXYZBeginPosition}
+          xyzShiftPosition={xyzShiftPosition}
+          setXYZShiftPosition={setXYZShiftPosition}
           kinematicParameters={kinematicParameters}
           setKinematicParameters={setKinematicParameters}
           itemProperties={itemProperties}
+          setProgressAnimate={setProgressAnimate}
+          setProgressAnimateText={setProgressAnimateText}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />

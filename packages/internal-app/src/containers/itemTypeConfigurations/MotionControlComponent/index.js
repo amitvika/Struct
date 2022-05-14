@@ -15,7 +15,10 @@ import Slider from '@mui/material/Slider';
 import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { getTableData } from './helper';
-import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
+import {
+  SELECTFEATURE,
+  SELECTASSEMBLY
+} from '@monostruct/common/gltf/Tree/utils';
 import {
   gltf_Dict,
   DEFAULTROWSELECTCOLOR
@@ -51,7 +54,8 @@ export default function MotionControlComponent({
   setKinematicItemList,
   selected3JSData,
   showKinematicMove,
-  showKinematicSliderMove
+  showKinematicSliderMove,
+  showKinematicSliderAnimate
 }) {
   const alertContext = React.useContext(AlertContext);
 
@@ -150,7 +154,7 @@ export default function MotionControlComponent({
 
   React.useEffect(() => {
     setItemList(kinematicItemList);
-    setSelectedOption(SELECTASSEMBLY);
+    setSelectedOption(showKinematicSliderMove ? SELECTFEATURE : SELECTASSEMBLY);
     console.log(
       'Reaching here to change items of itemlist',
       kinematicItemList,
@@ -390,14 +394,18 @@ export default function MotionControlComponent({
                       return;
                     }
                     setSelectedValue(item.id);
-                    setSelectedOption(SELECTASSEMBLY);
+                    setSelectedOption(
+                      showKinematicSliderMove ? SELECTFEATURE : SELECTASSEMBLY
+                    );
                     const tableData = getTableData({
                       gltfjson,
                       filePartName: itemName(item)
                     });
                     setRenderData(tableData, {
                       name: 'NoKey',
-                      option: SELECTASSEMBLY
+                      option: showKinematicSliderMove
+                        ? SELECTFEATURE
+                        : SELECTASSEMBLY
                     });
                     console.log('Clicked and Sent', tableData, item.id);
                     onClick(mykey);
@@ -532,6 +540,7 @@ export default function MotionControlComponent({
                               chain_number: newValue
                             });
                           }}
+                          disabled={showKinematicSliderAnimate}
                         />
                       ) : (
                         ''

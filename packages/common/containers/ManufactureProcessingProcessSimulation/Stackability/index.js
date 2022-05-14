@@ -233,12 +233,17 @@ export default function Stackability(props) {
             xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
             setXYZEndEffectorPosition={null}
             xyzControlPosition={{ X: 0, Y: 0, Z: 0 }}
+            xyzBeginPosition={{ X: 0, Y: 0, Z: 0 }}
+            setXYZBeginPosition={null}
+            xyzShiftPosition={{ X: 0, Y: 0, Z: 0 }}
+            setXYZShiftPosition={null}
             setXYZControlPosition={null}
             kinematicParameters={{
               step: 1,
-              error: 8,
-              iterations: 41,
-              methods: 2
+              error: 4,
+              iterations: 21,
+              methods: 1,
+              gap: 0.001
             }}
             setKinematicParameters={null}
             itemProperties={null}

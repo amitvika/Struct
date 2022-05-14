@@ -856,7 +856,7 @@ def recognize_by_threejs(curve):
                    
     elif curve_type == GeomAbs_BSplineCurve:
         return True  
-    elif curve_type == GeomAbs_OtherCurve:
+    elif curve_type == GeomAbs_OffsetCurve:
         return False  
     elif curve_type == GeomAbs_OtherCurve:
         return False

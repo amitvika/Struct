@@ -863,7 +863,7 @@ export const isOKToParseForInternalUseProduct = async ({
       if (!item.fileSliderKinematic || item.fileSliderKinematic === null) {
         if (item.fileStore && item.fileStore.length > 0) {
           const fileSliderKinematic =
-            item.fileStore.slice(0, item.fileStore.length - 1) + 'P0';
+            item.fileStore.slice(0, item.fileStore.length - 1) + 'P3';
           const whichOneToLoad = getResourcePathURL(item) + fileSliderKinematic;
           const whichOneToStatus = getStatusPathURL(item) + fileSliderKinematic;
           okToParse = await checkStatusToParse(
@@ -946,7 +946,10 @@ export const handleInternalUseProduct = async (props) => {
       kinematicItemList,
       item.id || item,
       item.name,
-      showKinematicSliderMove
+      showKinematicSliderMove,
+      getSurfaceFile(item),
+      showKinematicSliderMove ? STATEPROPS.edgesize : 0,
+      showKinematicSliderMove ? STATEPROPS.vertexsize : 0
     );
 
     setIsFileLoading(false);
@@ -1093,7 +1096,13 @@ export const getStepFile = (item) => {
   }
   return item.fileId;
 };
-
+export const getSurfaceFile = (item) => {
+  if (item.fileUUId) {
+    const fullpath = item.surfName;
+    return fullpath.slice(6, fullpath.length);
+  }
+  return item.surfName;
+};
 const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
   const myResourcePath = await checkExistingPathFromStore(
     whichOneToStatus,

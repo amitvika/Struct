@@ -24,6 +24,7 @@ export default function DynamicCriteria({
   selected3JSData,
   showKinematicMove,
   showKinematicSliderMove,
+  showKinematicSliderAnimate,
   isMountSufaceFaceSelection,
   setIsMountSufaceFaceSelection
 }) {
@@ -150,6 +151,7 @@ export default function DynamicCriteria({
                   active={fieldItem.activeCell}
                   showKinematicMove={showKinematicMove}
                   showKinematicSliderMove={showKinematicSliderMove}
+                  showKinematicSliderAnimate={showKinematicSliderAnimate}
                   onChange={(mykeyinfo, valuefound) => {
                     if (fieldItem.activeCell) {
                       handleOnChange(fieldItem.fieldName, valuefound);
@@ -187,7 +189,8 @@ export default function DynamicCriteria({
                   setKinematicItemList,
                   selected3JSData,
                   showKinematicMove,
-                  showKinematicSliderMove
+                  showKinematicSliderMove,
+                  showKinematicSliderAnimate
                 }}
               />
             )}

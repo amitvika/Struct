@@ -89,7 +89,8 @@ export default function LargeFileUpload({
   setCreateAutoAssemblyOrder,
   createAutoStackability,
   setCreateAutoStackability,
-  datauuid = null
+  datauuid = null,
+  disabled = false
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -110,8 +111,10 @@ export default function LargeFileUpload({
     }
   }, [fileToBeUpload, progress]);
   const onChange = (e) => {
+    console.log('Reached after clicking browse', e);
     resetChunkProperties();
     const dataload = e.target.files[0];
+    console.log('Reached after resetting chunk', dataload);
     if (dataload && dataload.size) {
       setFileSize(dataload.size);
       const totalCount =
@@ -121,8 +124,14 @@ export default function LargeFileUpload({
       setChunkCount(totalCount);
       const fileID = datauuid ? datauuid : uuidv4();
       setFileGuid(fileID);
-      //console.log('File Loading', dataload);
-      const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');
+
+      const filenameDerivedWithExtension = dataload.name.replace(
+        /^.*[\\\/]/,
+        ''
+      );
+      const filenameWithExtension = datauuid
+        ? appendUUIDFileName(filenameDerivedWithExtension, uuidv4())
+        : filenameDerivedWithExtension;
       setFileNameHere(filenameWithExtension);
       setIsFileLoading(true);
     } else {
@@ -158,7 +167,10 @@ export default function LargeFileUpload({
           setProgress(percentage);
           if (counter == chunkCount) {
             setIsFileLoading(false);
+            console.log('Going to call handlefileupload', counter, chunkCount);
             handleFileUpload(data);
+          } else {
+            console.log('Recieved Chunk', counter, chunkCount);
           }
         } else {
           setIsFileLoading(false);
@@ -194,8 +206,10 @@ export default function LargeFileUpload({
   };
   const handleExportButton = () => {
     download({
-      downloadURL: itemProperties.fileName,
-      fileName: getActualFileName(itemProperties.fileName)
+      downloadURL: datauuid ? itemProperties.surfName : itemProperties.fileName,
+      fileName: getActualFileName(
+        datauuid ? itemProperties.surfName : itemProperties.fileName
+      )
     });
   };
 
@@ -211,16 +225,23 @@ export default function LargeFileUpload({
     setDrawLine(e.target.checked);
   };
 
-  const getActualFileName = (url) => url.replace(/^.*[\\\/]/, ''); // url.split('/').pop();
+  const getActualFileName = (url) => (url ? url.replace(/^.*[\\\/]/, '') : ''); // url.split('/').pop();
 
-  const fileGDTPath =
-    (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
-    (itemProperties.fileGDT ? itemProperties.fileGDT : '');
+  const appendUUIDFileName = (url, uuid) => {
+    var re = /(?:\.([^.]+))?$/;
+    const extension = re.exec(url)[1];
+    return url.split('.').slice(0, -1).join('.') + uuid + '.' + extension;
+  };
+  // const fileGDTPath =
+  //   (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
+  //   (itemProperties.fileGDT ? itemProperties.fileGDT : '');
   //console.log(fileGDTPath);
   if (
     itemProperties.fileStore &&
     itemProperties.fileGDT &&
-    itemProperties.stepTreeLength // && checkExistingPathFromStore(fileGDTPath, 'gltf', true)
+    itemProperties.stepTreeLength &&
+    !datauuid
+    // && checkExistingPathFromStore(fileGDTPath, 'gltf', true)
   ) {
     // console.log(itemProperties.fileStore, distanceGap, angleGap, fileGDTPath);
     return (
@@ -253,42 +274,43 @@ export default function LargeFileUpload({
 
   return (
     <div>
-      <Box sx={{ width: '100%' }}>
-        <TextField
-          type="number"
-          InputProps={{
-            inputProps: {
-              max: 10,
-              min: 0.01
+      {!datauuid && (
+        <Box sx={{ width: '100%' }}>
+          <TextField
+            type="number"
+            InputProps={{
+              inputProps: {
+                max: 10,
+                min: 0.01
+              }
+            }}
+            label="Distance Tollerance"
+            onChange={onDistanceChange}
+            value={distanceGap}
+          />
+          <TextField
+            type="number"
+            InputProps={{
+              inputProps: {
+                max: 3.13,
+                min: 0.01
+              }
+            }}
+            label="Angle Tollerance"
+            onChange={onAngleChange}
+            value={angleGap}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={drawLine}
+                label="Load All Edges"
+                onChange={onDrawLineChange}
+              />
             }
-          }}
-          label="Distance Tollerance"
-          onChange={onDistanceChange}
-          value={distanceGap}
-        />
-        <TextField
-          type="number"
-          InputProps={{
-            inputProps: {
-              max: 3.13,
-              min: 0.01
-            }
-          }}
-          label="Angle Tollerance"
-          onChange={onAngleChange}
-          value={angleGap}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={drawLine}
-              label="Load All Edges"
-              onChange={onDrawLineChange}
-            />
-          }
-          label="Load All Edges"
-        />
-        {/* <FormControlLabel
+            label="Load All Edges"
+          />
+          {/* <FormControlLabel
           control={
             <Checkbox
               checked={allowFirstLevelItems}
@@ -300,37 +322,40 @@ export default function LargeFileUpload({
           }
           label="Create First Level Items"
         /> */}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={createAutoAssemblyOrder}
-              label="Obtain Assembly Order"
-              onChange={(event) =>
-                setCreateAutoAssemblyOrder(event.target.checked)
-              }
-            />
-          }
-          label="Obtain Assembly Order"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={createAutoStackability}
-              label="Obtain Stackability"
-              onChange={(event) =>
-                setCreateAutoStackability(event.target.checked)
-              }
-            />
-          }
-          label="Obtain Stackability"
-        />
-      </Box>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={createAutoAssemblyOrder}
+                label="Obtain Assembly Order"
+                onChange={(event) =>
+                  setCreateAutoAssemblyOrder(event.target.checked)
+                }
+              />
+            }
+            label="Obtain Assembly Order"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={createAutoStackability}
+                label="Obtain Stackability"
+                onChange={(event) =>
+                  setCreateAutoStackability(event.target.checked)
+                }
+              />
+            }
+            label="Obtain Stackability"
+          />
+        </Box>
+      )}
       <Box sx={{ width: '100%' }}>
         <LinearProgress variant="determinate" value={getTrimmedValue} />
       </Box>
 
       <div style={{ display: 'flex' }}>
-        <Typography variant="h6">Upload Cad</Typography>
+        {datauuid && 'Surface'}
+        {!datauuid && <Typography variant="h6">Upload Cad</Typography>}
+        &nbsp;&nbsp;
         <Box
           component="div"
           className={classes.custom_file}
@@ -343,9 +368,14 @@ export default function LargeFileUpload({
             type="file"
             accept=".step,.stp,.igs,.iges,.stl,.brep"
             onChange={onChange}
+            disabled={disabled}
           />
           <label className={classes.custom_file_label} htmlFor="file">
-            {itemProperties.fileStore ? itemProperties.fileStore : label}
+            {datauuid
+              ? getActualFileName(itemProperties.surfName) || label
+              : itemProperties.fileStore
+              ? itemProperties.fileStore
+              : label}
           </label>
         </Box>
       </div>

@@ -52,7 +52,7 @@ def gltfdict() :
         "offset":"O",
         "curve":"U",
         "direction":"V",
-        "basic":"b"
-
+        "basic":"b",
+        "kinematicdimension":"q"
         }
     return my_dict

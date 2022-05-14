@@ -256,6 +256,56 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
         zmin, zmax = swap(zmin,zmax) 
     return  (xmin, ymin, zmin, xmax, ymax, zmax)
 
+def get_exact_bounding_details(shape, tol=1e-6, optimal_BB=True):
+    """ return the bounding box of the TopoDS_Shape `shape`
+
+    Parameters
+    ----------
+
+    shape : TopoDS_Shape or a subclass such as TopoDS_Face
+        the shape to compute the bounding box from
+
+    tol: float
+        tolerance of the computed boundingbox
+
+    use_triangulation : bool, True by default
+        This makes the computation more accurate
+
+    Returns
+    -------
+        if `as_pnt` is True, return a tuple of gp_Pnt instances
+         for the lower and another for the upper X,Y,Z values representing the bounding box
+
+        if `as_pnt` is False, return a tuple of lower and then upper X,Y,Z values
+         representing the bounding box
+    """
+    bbox = Bnd_Box()
+    bbox.SetGap(tol)
+    try:
+        if optimal_BB:
+            use_triangulation = True
+            use_shapetolerance = True
+            
+            brepbndlib_AddOptimal(shape, bbox, use_triangulation, use_shapetolerance)
+        else:
+            brepbndlib_Add(shape, bbox)
+    except Exception as e:
+        print("Unable to find bounding box,",e)        
+    # note: useTriangulation is True by default, we set it explicitely, but t's not necessary
+    
+    xmin, ymin, zmin, xmax, ymax, zmax = 0, 0, 0, 0, 0, 0
+    try:
+        xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
+    except Exception as e:
+        pass
+    
+    if xmin > xmax:
+        xmin, xmax = swap(xmin,xmax)
+    if ymin > ymax:
+        ymin, ymax = swap(ymin,ymax)
+    if zmin > zmax:
+        zmin, zmax = swap(zmin,zmax) 
+    return  (xmin, ymin, zmin, xmax, ymax, zmax)
 def get_oriented_bounding_details(shape, optimal_BB=True):
     """ return the minimum bounding box of the TopoDS_Shape `shape`
 

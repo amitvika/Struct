@@ -508,7 +508,39 @@ const CustomAutoSubmitInput = ({ handleInputChange }) => {
     />
   );
 };
-
+export const DisplayLabel = (props) => {
+  const { label, width } = props;
+  if (width) {
+    return (
+      <Box
+        sx={{
+          p: 1,
+          direction: 'column',
+          border: '1px dotted',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: { width }
+        }}
+      >
+        {label}
+      </Box>
+    );
+  } else {
+    return (
+      <Box
+        sx={{
+          p: 1,
+          direction: 'column',
+          border: '1px dotted',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {label}
+      </Box>
+    );
+  }
+};
 export const PlusMinus = (props) => {
   const {
     label,
@@ -518,7 +550,8 @@ export const PlusMinus = (props) => {
     step = 1,
     tooltipPlus = '',
     tooltipMinus = '',
-    onChange = () => {}
+    onChange = () => {},
+    disabled = false
   } = props;
 
   const [counter, setCounter] = useState(parseFloat(value || 0));
@@ -586,7 +619,7 @@ export const PlusMinus = (props) => {
   return (
     <ButtonGroup size="small" aria-label="small outlined button group">
       {/* <Button disabled>{label}</Button> */}
-      <Box
+      {/* <Box
         sx={{
           p: 1,
           direction: 'column',
@@ -596,10 +629,15 @@ export const PlusMinus = (props) => {
         }}
       >
         {label}
-      </Box>
-
+      </Box> */}
+      <DisplayLabel label={label} />
       <Tooltip title={tooltipMinus}>
-        <Button onClick={decrementValue} size={'small'} variant="contained">
+        <Button
+          onClick={decrementValue}
+          size={'small'}
+          variant="contained"
+          disabled={disabled}
+        >
           <RemoveIcon />
         </Button>
       </Tooltip>
@@ -612,12 +650,18 @@ export const PlusMinus = (props) => {
           console.log('Changing data', event, data);
           assignValue(data);
         }}
+        disabled={disabled}
         min={min}
         max={max}
         step={step}
       />
       <Tooltip title={tooltipPlus}>
-        <Button onClick={incrementValue} size={'small'} variant="contained">
+        <Button
+          onClick={incrementValue}
+          size={'small'}
+          variant="contained"
+          disabled={disabled}
+        >
           <AddIcon />
         </Button>
       </Tooltip>
@@ -638,7 +682,8 @@ export const ParameterInput = (props) => {
     min = 0,
     max = 100,
     step = 0.001,
-    digits = 3
+    digits = 3,
+    disabled = false
   } = props;
 
   const [counter, setCounter] = useState(parseFloat(value || 0));
@@ -659,7 +704,7 @@ export const ParameterInput = (props) => {
   return (
     <ButtonGroup size="small" aria-label="small outlined button group">
       {/* <Button disabled>{label}</Button> */}
-      <Box
+      {/* <Box
         sx={{
           p: 1,
           direction: 'column',
@@ -669,8 +714,8 @@ export const ParameterInput = (props) => {
         }}
       >
         {label}
-      </Box>
-
+      </Box> */}
+      <DisplayLabel label={label} />
       <Tooltip title={tooltip}>
         <NumberInput
           floatingLabelText={'Please input ' + label}
@@ -681,6 +726,7 @@ export const ParameterInput = (props) => {
             console.log('Changing data', event, data);
             assignValue(data);
           }}
+          disabled={disabled}
           min={min}
           max={max}
           step={step}

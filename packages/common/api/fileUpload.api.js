@@ -51,12 +51,18 @@ export const saveTreeInfo = async (tree, name, fileGUID) => {
   return axios.post(`${host}/savetree/`, formTree);
 };
 
-export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
+export const saveGDTInfo = async (
+  gdt,
+  name,
+  fileGUID = '',
+  slidermove = false
+) => {
   // console.log(gdt);
   var formGDT = new FormData();
   formGDT.append('gdt', stringify(gdt));
   formGDT.append('name', name);
   formGDT.append('uuid', fileGUID || '');
+  formGDT.append('slidermove', slidermove === true);
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 
@@ -174,7 +180,10 @@ export const getPartsKinematicMovement = async (
   kinematicItemList,
   refId,
   refName,
-  showKinematicSliderMove
+  showKinematicSliderMove,
+  surfName = '',
+  edgesize = 0,
+  vertexsize = 0
 ) => {
   var formInfo = new FormData();
   formInfo.append('id', id);
@@ -185,8 +194,11 @@ export const getPartsKinematicMovement = async (
   formInfo.append('refname', refName);
   formInfo.append('parts', stringify({ parts: kinematicItemList }));
   formInfo.append('slidermove', showKinematicSliderMove ? true : false);
-
+  formInfo.append('surfacefile', surfName);
+  formInfo.append('edgesize', edgesize);
+  formInfo.append('vertexsize', vertexsize);
   console.log('Kinematic Move', kinematicItemList);
+
   return axios.post(`${host}/kinematicmove/`, formInfo);
 
   /*  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
@@ -243,8 +255,10 @@ export const getAllFiles = async () => {
 };
 export const getAFile = async (file) => {
   const fetchURL = `${host}/getcontent?file=${file}&timestamp=${new Date().getTime()}`;
-  // console.log(fetchURL);
-  return axios.get(fetchURL);
+  console.log('Fetching', fetchURL);
+  const resdata = await axios.get(fetchURL); // console.log(fetchURL);
+  console.log('Fetched', fetchURL);
+  return resdata;
 };
 export const fetchAFile = async (file, path) => {
   const fetchURL = `${host}/fetchcontent?file=${file}&path=${path || ''}`;
@@ -257,16 +271,16 @@ export const getAFileFromURLStore = async (
   fromURL,
   percent = 100
 ) => {
-  if (ext == 'status' || ext == 'progress') {
+  if (ext === 'status' || ext === 'progress') {
     const fetchURL = `${resourcePathStatus}${store}.${ext}`;
     // console.log(fetchURL);
     return getAFile(fetchURL);
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
     let fetchURL = '';
-    if ((ext == 'gdt' || percent != 100) && availURL) {
+    if ((ext === 'gdt' || percent !== 100) && availURL) {
       fetchURL = `${
-        availURL == resourcePathURL ? resourcePathDisplay : resourcePathS3
+        availURL === resourcePathURL ? resourcePathDisplay : resourcePathS3
       }${store}.${ext}`;
       console.log('Fetching for gdt from direct', fetchURL);
       try {
@@ -279,11 +293,12 @@ export const getAFileFromURLStore = async (
     try {
       console.log('Fetching from direct', fetchURL);
       const resData = await axios.get(fetchURL);
+      console.log('Fetched from direct', fetchURL);
       if (resData) return resData;
     } catch (error) {
       console.log('Error while fetching 1', error, fetchURL);
     }
-    if (availURL != fromURL && availURL != null && fromURL != null) {
+    if (availURL !== fromURL && availURL !== null && fromURL !== null) {
       const linuxURL = `${fromURL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -297,14 +312,14 @@ export const getAFileFromURLStore = async (
       }
     }
     fetchURL = `${
-      availURL == resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
+      availURL === resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
     }${store}.${ext}`;
     console.log('Getting file from', fetchURL);
     return getAFile(fetchURL);
   }
 };
 export const getAFileFromPathStore = async (store, ext, fromPath) => {
-  if (ext == 'status' || ext == 'progress') {
+  if (ext === 'status' || ext === 'progress') {
     const fetchURL = `${resourcePathStatus}${store}.${ext}`;
     // console.log(fetchURL);
     return getAFile(fetchURL);
@@ -324,10 +339,10 @@ export const getExistingPathFromServer = async (store, ext) => {
   try {
     const resdata = await axios.get(fetchURL);
     if (resdata && resdata.data) {
-      if (resdata.data.path == 'Linux') {
+      if (resdata.data.path === 'Linux') {
         return resourcePathURL;
       }
-      if (resdata.data.path == 'S3') {
+      if (resdata.data.path === 'S3') {
         return resourcePathS3URL;
       }
       return '';
@@ -339,12 +354,24 @@ export const getExistingPathFromServer = async (store, ext) => {
   }
 };
 
-export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
-  if (ext == 'status' || ext == 'progress') {
+export const getAFileFromStore = async (
+  store,
+  ext,
+  fetchDirect = false,
+  slidermove = false
+) => {
+  if (ext === 'status' || ext === 'progress') {
     // const fetchURL = `${resourceStatusURL}${store}.${ext}`;
-    const fetchURL = `${resourcePathStatus}${store}.${ext}`;
+    if (slidermove === false) {
+      const fetchURL = `${resourcePathStatus}${store}.${ext}`;
+      return getAFile(fetchURL);
+    } else {
+      const fetchURL = `${resourcePathStatus}${store}P.${ext}`;
+      return getAFile(fetchURL);
+    }
+
     // console.log(fetchURL);
-    return getAFile(fetchURL);
+
     // console.log(fetchURL);
     //return axios.get(fetchURL);
   } else {
@@ -352,7 +379,7 @@ export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
     let fetchURL = '';
     if (fetchDirect && availURL) {
       fetchURL = `${
-        availURL == resourcePathURL ? resourcePathDisplay : resourcePathS3
+        availURL === resourcePathURL ? resourcePathDisplay : resourcePathS3
       }${store}.${ext}`;
       console.log('Fetching files from directory', fetchURL);
       try {
@@ -362,7 +389,7 @@ export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
       }
     }
     fetchURL = `${availURL ? availURL : resourcePathURL}${store}.${ext}`;
-    if (availURL != null) {
+    if (availURL !== null) {
       try {
         const resData = await axios.get(fetchURL);
         if (resData) return resData;
@@ -370,7 +397,7 @@ export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
         console.log('Error while fetching 1', error, fetchURL);
       }
     }
-    if (availURL != resourcePathURL && availURL != null) {
+    if (availURL !== resourcePathURL && availURL !== null) {
       const linuxURL = `${resourcePathURL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -382,7 +409,7 @@ export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
         }
       }
     }
-    if (availURL != resourcePathS3URL && availURL != null) {
+    if (availURL !== resourcePathS3URL && availURL !== null) {
       const linuxURL = `${resourcePathS3URL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -395,7 +422,7 @@ export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
       }
     }
     fetchURL = `${
-      availURL == resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
+      availURL === resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
     }${store}.${ext}`;
     console.log('Getting file from', fetchURL);
     return getAFile(fetchURL);
@@ -408,7 +435,7 @@ export const checkExistingPathFromStore = async (
   checkPresence = false,
   checkURL = null
 ) => {
-  if (ext == 'status' || ext == 'progress') {
+  if (ext === 'status' || ext === 'progress') {
     return resourceStatusURL;
   } else {
     if (checkURL) {
@@ -429,14 +456,14 @@ export const checkExistingPathFromStore = async (
       }
     }
 
-    /* if (checkURL != resourcePathURL) {
+    /* if (checkURL !== resourcePathURL) {
       const linuxURL = `${resourcePathURL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
         return resourcePathURL;
       }
     }
-    if (checkURL != resourcePathS3URL) {
+    if (checkURL !== resourcePathS3URL) {
       const s3URL = `${resourcePathS3URL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(s3URL);
       if (isFileExists) {

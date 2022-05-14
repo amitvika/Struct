@@ -1,24 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { Typography } from '@mui/material';
+import { LinearProgress, Box, Typography } from '@mui/material';
+
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
+//import Box from '@mui/material/Box';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import DynamicFeedOutlinedIcon from '@mui/icons-material/DynamicFeedOutlined';
 import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
+import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import {
   SELECTFEATURE,
   USESTYLES,
   SELECTANITEM,
-  gltf_Dict
+  gltf_Dict,
+  getFileNameWithoutExtension,
+  arrayCopy
 } from '@monostruct/common/gltf/Tree/utils';
-import { PlusMinus, ParameterInput } from '@monostruct/common/gltf/PlusMinus';
+import {
+  PlusMinus,
+  ParameterInput,
+  DisplayLabel
+} from '@monostruct/common/gltf/PlusMinus';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import DynamicHierarchyForm from './DynamicHierarchyForm';
 import { get } from 'lodash';
+import { handleInternalUseProduct } from '../itemDetail/ItemDetails.helper.js';
+import { withStyles } from '@material-ui/core/styles';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
+const BorderLinearProgress = withStyles((theme) => {
+  return {
+    root: {
+      borderRadius: 30,
+      width: 10,
+      height: '100%'
+    },
+    barroot: {
+      borderRadius: 30,
+      width: 10,
+      height: '100%'
+    },
+    bar: {
+      borderRadius: 30,
+      transform: ({ value }) => {
+        return `translateY(${value}%) !important`;
+      }
+    }
+  };
+})(LinearProgress);
 
 export default function ItemTypeConfigurations(props) {
   const {
@@ -29,6 +61,7 @@ export default function ItemTypeConfigurations(props) {
     gltfjson,
     setgltfjson,
     isLoading,
+    setIsLoading,
     itemProperties,
     setItemProperties,
     handleItemUpdate,
@@ -56,18 +89,27 @@ export default function ItemTypeConfigurations(props) {
     setDrawAxisLines,
     showKinematicSliderMove,
     setShowKinematicSliderMove,
+    showKinematicSliderAnimate,
+    setShowKinematicSliderAnimate,
     xyzEndEffectorPosition,
     setXYZEndEffectorPosition,
     xyzControlPosition,
     setXYZControlPosition,
+    xyzBeginPosition,
+    setXYZBeginPosition,
+    xyzShiftPosition,
+    setXYZShiftPosition,
     kinematicParameters,
-    setKinematicParameters
+    setKinematicParameters,
+    handleItemSaveOnServer
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
   const [percentager, setPercentager] = useState(percentage || 0);
   //const [xyzEndEffectorPosition, setXYZEndEffectorPosition] = useState({ X: 0, Y: 0, Z: 0 });
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [progressAnimate, setProgressAnimate] = useState(0);
+  const [progressAnimateText, setProgressAnimateText] = useState(0);
   const [currentProgressTexter, setCurrentProgressTexter] =
     useState(currentProgressText);
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
@@ -336,6 +378,7 @@ export default function ItemTypeConfigurations(props) {
         selected3JSData={selected3JSData}
         showKinematicMove={showKinematicMove}
         showKinematicSliderMove={showKinematicSliderMove}
+        showKinematicSliderAnimate={showKinematicSliderAnimate}
         {...{
           itemProperties,
           gltfjson,
@@ -362,6 +405,12 @@ export default function ItemTypeConfigurations(props) {
       setShowKinematicMove(false);
       setRegenerateKinematicMove(0);
     }
+  };
+
+  const handleSwitchSliderAnimate = async (event) => {
+    setProgressAnimate(0);
+    setProgressAnimateText('');
+    setShowKinematicSliderAnimate(event.target.checked);
   };
 
   const handleRegenerate = async (event) => {
@@ -409,7 +458,7 @@ export default function ItemTypeConfigurations(props) {
         Z: data
       });
     }
-    console.log('Changing', xyz, data);
+    console.log('Changing End Effector', xyz, data);
   };
   const OnChangeOfParameter = (xyz, data) => {
     if (xyz === 'Step') {
@@ -417,7 +466,8 @@ export default function ItemTypeConfigurations(props) {
         step: data,
         error: kinematicParameters.error,
         iterations: kinematicParameters.iterations,
-        methods: kinematicParameters.methods
+        methods: kinematicParameters.methods,
+        gap: kinematicParameters.gap
       });
     }
     if (xyz === 'Error') {
@@ -425,7 +475,8 @@ export default function ItemTypeConfigurations(props) {
         step: kinematicParameters.step,
         error: data,
         iterations: kinematicParameters.iterations,
-        methods: kinematicParameters.methods
+        methods: kinematicParameters.methods,
+        gap: kinematicParameters.gap
       });
     }
     if (xyz === 'Iteration') {
@@ -433,7 +484,8 @@ export default function ItemTypeConfigurations(props) {
         step: kinematicParameters.step,
         error: kinematicParameters.error,
         iterations: data,
-        methods: kinematicParameters.methods
+        methods: kinematicParameters.methods,
+        gap: kinematicParameters.gap
       });
     }
     if (xyz === 'Method') {
@@ -441,11 +493,151 @@ export default function ItemTypeConfigurations(props) {
         step: kinematicParameters.step,
         error: kinematicParameters.error,
         iterations: kinematicParameters.iterations,
-        methods: data
+        methods: data,
+        gap: kinematicParameters.gap
       });
     }
-    console.log('Changing', xyz, data);
+    if (xyz === 'Gap') {
+      setKinematicParameters({
+        step: kinematicParameters.step,
+        error: kinematicParameters.error,
+        iterations: kinematicParameters.iterations,
+        methods: kinematicParameters.methods,
+        gap: data
+      });
+    }
+    console.log('Changing Parameter', xyz, data);
   };
+  const OnChangeOfShift = (xyz, data) => {
+    if (xyz === 'X') {
+      setXYZShiftPosition({
+        X: data,
+        Y: xyzBeginPosition.Y,
+        Z: xyzBeginPosition.Z
+      });
+    }
+    if (xyz === 'Y') {
+      setXYZShiftPosition({
+        X: xyzBeginPosition.X,
+        Y: data,
+        Z: xyzBeginPosition.Z
+      });
+    }
+    if (xyz === 'Z') {
+      setXYZShiftPosition({
+        X: xyzBeginPosition.X,
+        Y: xyzBeginPosition.Y,
+        Z: data
+      });
+    }
+    console.log('Changing Position', xyz, data);
+  };
+
+  const handleFileUpload = async (data) => {
+    setIsLoading(true);
+
+    try {
+      //const fileUploadRes = await upload3DFile(data);
+      //"uuid":uuid,"filename":newfilename,"bytes":fileswritten
+      const localFileId = 'Media/' + data.uuid + '/' + data.filename;
+      //console.log('After File Upload', data);
+
+      if (!data.uuid || !data.filename) {
+        // eslint-disable-next-line no-throw-literal
+        // console.log('File Upload Error', data);
+        setIsLoading(false);
+        throw { message: 'File upload error' };
+      }
+      let dataload = '';
+      let datastore = '';
+      let datagdt = '';
+
+      dataload = data.filename;
+
+      let filenameWithOutExtension = getFileNameWithoutExtension(dataload);
+      datastore = filenameWithOutExtension + '0';
+      datagdt = filenameWithOutExtension + '3';
+      console.log(
+        'Got files as',
+        datastore,
+        itemProperties.surfStore,
+        dataload,
+        itemProperties.surfName,
+        data.uuid,
+        itemProperties.fileUUId
+      );
+
+      if (
+        datastore != itemProperties.surfStore ||
+        localFileId != itemProperties.surfName ||
+        data.uuid != itemProperties.fileUUId
+      ) {
+        console.log('Entering to save', itemProperties, datastore, dataload);
+        setItemProperties((prevData) => ({
+          ...prevData,
+          surfStore: datastore,
+          surfName: localFileId
+        }));
+        handleItemSaveOnServer({
+          surfStore: datastore,
+          surfName: localFileId,
+          surfGDT: null,
+          surfKinematic: null
+        });
+
+        const myTabedIndex = 'iupc';
+        const myTabIndex =
+          myTabedIndex === 'iupc' &&
+          !showKinematicMove &&
+          !showKinematicSliderMove
+            ? 'gdtac'
+            : myTabedIndex;
+        let item = arrayCopy(itemProperties);
+        item.surfName = localFileId;
+        item.surfStore = datastore;
+        console.log('Entering to Parse', itemProperties, item);
+        let updatedItemProp = await handleInternalUseProduct({
+          item,
+          myTabedIndex,
+          myTabIndex,
+          setIsLoading,
+          setIsFileLoading,
+          setProgressBarLoad: setProgressBarLoader,
+          percentage: percentager,
+          setPercentage: setPercentager,
+          setCurrentProgressText: setCurrentProgressTexter,
+          setCompletionProgressText: setCompletionProgressTexter,
+          setgltfjson,
+          kinematicItemList,
+          showKinematicSliderMove
+        });
+        updatedItemProp.surfName = localFileId;
+        updatedItemProp.surfStore = datastore;
+        handleItemSaveOnServer(updatedItemProp);
+      }
+      if (activeGLTFFile != localFileId || !localFileId) {
+        console.log('Setting active gltf file to', localFileId);
+        setActiveGLTFile(localFileId);
+      } else {
+        console.log(
+          'Setting active gltf file to',
+          localFileId +
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
+        );
+        setActiveGLTFile(
+          localFileId +
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
+        );
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      setIsFileLoading(false);
+    }
+  };
+  const removeFile = (data) => {};
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
@@ -490,6 +682,7 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfPosition('X', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <PlusMinus
@@ -499,6 +692,7 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfPosition('Y', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <PlusMinus
@@ -508,6 +702,7 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfPosition('Z', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <ParameterInput
@@ -516,15 +711,16 @@ export default function ItemTypeConfigurations(props) {
               min={0.001}
               max={1000}
               step={0.0001}
-              digits={3}
+              digits={4}
               onChange={(event, data) => {
                 OnChangeOfParameter('Step', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <ParameterInput
               label={'Precision'}
-              value={kinematicParameters.error || 8}
+              value={kinematicParameters.error || 4}
               min={-2}
               max={100}
               step={1}
@@ -532,11 +728,12 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfParameter('Error', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <ParameterInput
               label={'Iteration'}
-              value={kinematicParameters.iterations || 1}
+              value={kinematicParameters.iterations || 21}
               min={1}
               max={1000}
               step={1}
@@ -544,11 +741,12 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfParameter('Iteration', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
             &nbsp;&nbsp;
             <ParameterInput
               label={'Method'}
-              value={kinematicParameters.methods || 2}
+              value={kinematicParameters.methods || 1}
               min={1}
               max={6}
               step={1}
@@ -556,7 +754,119 @@ export default function ItemTypeConfigurations(props) {
               onChange={(event, data) => {
                 OnChangeOfParameter('Method', data);
               }}
+              disabled={showKinematicSliderAnimate}
             />
+            <br />
+            &nbsp;&nbsp;
+            <ButtonGroup size="small" aria-label="small outlined button group">
+              <DisplayLabel label={'Shift'} />
+              &nbsp;
+              <PlusMinus
+                label={'X'}
+                step={kinematicParameters.step}
+                value={xyzBeginPosition.X}
+                onChange={(event, data) => {
+                  OnChangeOfShift('X', data);
+                }}
+                disabled={showKinematicSliderAnimate}
+              />
+              &nbsp;&nbsp;
+              <PlusMinus
+                label={'Y'}
+                step={kinematicParameters.step}
+                value={xyzBeginPosition.Y}
+                onChange={(event, data) => {
+                  OnChangeOfShift('Y', data);
+                }}
+                disabled={showKinematicSliderAnimate}
+              />
+              &nbsp;&nbsp;
+              <PlusMinus
+                label={'Z'}
+                step={kinematicParameters.step}
+                value={xyzBeginPosition.Z}
+                onChange={(event, data) => {
+                  OnChangeOfShift('Z', data);
+                }}
+                disabled={showKinematicSliderAnimate}
+              />
+              &nbsp;&nbsp;
+              <LargeFileUpload
+                handleFileUpload={handleFileUpload}
+                removeFile={removeFile}
+                itemProperties={itemProperties}
+                setItemProperties={setItemProperties}
+                datauuid={itemProperties.fileUUId}
+                isFileLoading={isFileLoading}
+                setIsFileLoading={setIsFileLoading}
+                label={'STEP, IGES, STL, BREP'}
+              />
+              &nbsp;&nbsp;
+              <ParameterInput
+                label={'Gap'}
+                value={kinematicParameters.gap || 0.001}
+                min={0}
+                max={1000}
+                step={0.0001}
+                digits={4}
+                onChange={(event, data) => {
+                  OnChangeOfParameter('Gap', data);
+                }}
+              />
+              {/* <div className={classes.barroot}>
+                <Box className={classes.barstats}>
+                  <BorderLinearProgress
+                    variant="determinate"
+                    value={progressAnimate}
+                  />
+                </Box>
+              </div> */}
+              &nbsp;&nbsp;
+              <Box sx={{ width: '15%' }}>
+                <div style={{ position: 'relative' }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progressAnimate}
+                    style={{ height: '30px', width: '100px' }}
+                  />
+                  <Typography
+                    style={{
+                      position: 'absolute',
+                      color: 'white',
+                      top: 0,
+                      left: '85%',
+                      transform: 'translateX(-60%)'
+                    }}
+                  >
+                    <div style={{ display: 'flex' }}>
+                      <DisplayLabel
+                        label={
+                          showKinematicSliderAnimate
+                            ? 'Stop Animate:'
+                            : 'Start Animate:'
+                        }
+                        width={'110px'}
+                      />
+                      <Switch
+                        checked={showKinematicSliderAnimate}
+                        onChange={handleSwitchSliderAnimate}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                      />
+                      <Typography
+                        style={{
+                          color: 'black'
+                        }}
+                      >
+                        <DisplayLabel
+                          label={progressAnimateText ? progressAnimateText : ''}
+                          width={'130px'}
+                        />
+                      </Typography>
+                    </div>
+                  </Typography>
+                </div>
+              </Box>
+            </ButtonGroup>
           </>
         )}
       </Grid>
@@ -592,6 +902,7 @@ export default function ItemTypeConfigurations(props) {
         whatchanger={whatchange}
         showKinematicMove={showKinematicMove}
         showKinematicSliderMove={showKinematicSliderMove}
+        showKinematicSliderAnimate={showKinematicSliderAnimate}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
         activeGLTFFile={activeGLTFFile}
@@ -606,9 +917,15 @@ export default function ItemTypeConfigurations(props) {
         setXYZEndEffectorPosition={setXYZEndEffectorPosition}
         xyzControlPosition={xyzControlPosition}
         setXYZControlPosition={setXYZControlPosition}
+        xyzBeginPosition={xyzBeginPosition}
+        setXYZBeginPosition={setXYZBeginPosition}
+        xyzShiftPosition={xyzShiftPosition}
+        setXYZShiftPosition={setXYZShiftPosition}
         kinematicParameters={kinematicParameters}
         setKinematicParameters={setKinematicParameters}
         itemProperties={itemProperties}
+        setProgressAnimate={setProgressAnimate}
+        setProgressAnimateText={setProgressAnimateText}
         //{...{ whatchange }}
       />
     </>

@@ -71,20 +71,28 @@ export default function GeometricDimensioningTab(props) {
     drawAxisLines = null,
     setDrawAxisLines = () => {},
     showKinematicSliderMove = false,
+    showKinematicSliderAnimate = false,
     kinematicItemList = [],
     setKinematicItemList = () => {},
     xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
     setXYZEndEffectorPosition = () => {},
     xyzControlPosition = { X: 0, Y: 0, Z: 0 },
     setXYZControlPosition = () => {},
+    xyzBeginPosition = { X: 0, Y: 0, Z: 0 },
+    setXYZBeginPosition = () => {},
+    xyzShiftPosition = { X: 0, Y: 0, Z: 0 },
+    setXYZShiftPosition = () => {},
     kinematicParameters = {
       step: 1,
-      error: 8,
-      iterations: 41,
-      methods: 2
+      error: 4,
+      iterations: 21,
+      methods: 1,
+      gap: 0.001
     },
     setKinematicParameters = null,
-    itemProperties = null
+    itemProperties = null,
+    setProgressAnimate = null,
+    setProgressAnimateText = null
   } = props;
   const classes = USESTYLES();
 
@@ -229,7 +237,7 @@ export default function GeometricDimensioningTab(props) {
   useEffect(() => {
     const includeParts = true;
     const gltfjsonlen = gltfjson ? Object.keys(gltfjson).length : 0;
-    console.log('Changing gltfjson', gltfjson, state.gltfjson);
+    console.log('Changing gltfjson', gltfjson, state.gltfjson, gltfjsonlen);
     if (gltfjsonlen > 0) {
       myGlobalTree = null;
       setState({
@@ -324,6 +332,7 @@ export default function GeometricDimensioningTab(props) {
         );
       }
       additionalSaveFunction(saveGDTDataTable);
+      console.log('Done set in state gltfjson', gltfjson);
     }
   }, [gltfjson]);
 
@@ -355,6 +364,7 @@ export default function GeometricDimensioningTab(props) {
   const globalSetGltfJSon = (json) => {
     try {
       setgltfjson(json);
+      console.log('Did setting gltfjson from globalsetgltfjson', json);
     } catch (error) {
       console.log('While setting gltfjson', error);
     }
@@ -395,17 +405,12 @@ export default function GeometricDimensioningTab(props) {
       setState({ gltfjson: myTree });
       globalSetGltfJSon(myTree);
       globalSetActiveDataTable(activeTable);
-      if (
-        !showKinematicMove &&
-        myTree.gdttable &&
-        fileGDT &&
-        fileUUIder &&
-        !showKinematicSliderMove
-      ) {
+      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
         const savedData = await saveGDTInfo(
           myTree.gdttable,
           fileGDT,
-          fileUUIder
+          fileUUIder,
+          showKinematicSliderMove
         );
         console.log('Saved data from reset selections', savedData);
       } else {
@@ -497,6 +502,9 @@ export default function GeometricDimensioningTab(props) {
     } */
     let myTree = getMyTree(selectedOption);
     let previousActivetable = myGlobalActiveDataTable;
+    if (Array.isArray(myTree.gdttable) === false) {
+      myTree.gdttable = arrayCopy([defaultGDTTable]);
+    }
     let activetable = myTree.gdttable.length;
     //console.log('My tree gdttable', myTree.gdttable, activetable);
     myTree.gdttable.push({
@@ -548,7 +556,11 @@ export default function GeometricDimensioningTab(props) {
       mystate_gltfjson = gltfjson;
     }
     let myTree = { ...mystate_gltfjson };
+    if (Array.isArray(myTree.gdttable) === false) {
+      myTree.gdttable = [{ ...defaultGDTTable, option: option }];
+    }
     let gdttable = myTree.gdttable || [{ ...defaultGDTTable, option: option }];
+
     //console.log('Before assigning', gdttable, key, option);
     for (let index = 0; index < gdttable.length; index++) {
       const element = gdttable[index];
@@ -2143,15 +2155,18 @@ export default function GeometricDimensioningTab(props) {
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
-      if (
-        !showKinematicMove &&
-        myTree.gdttable &&
-        fileGDT &&
-        fileUUIder &&
-        !showKinematicSliderMove
-      ) {
-        const savedData = await saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder);
-        console.log('Saved Data from Changed selections', savedData);
+      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
+        const savedData = await saveGDTInfo(
+          gdtTableCopy,
+          fileGDT,
+          fileUUIder,
+          showKinematicSliderMove
+        );
+        console.log(
+          'Saved Data from Changed selections',
+          savedData,
+          showKinematicSliderMove
+        );
       } else {
         console.log(
           'I am not saving data from changed selections',
@@ -2285,6 +2300,7 @@ export default function GeometricDimensioningTab(props) {
       <Paper className={`${classes.paper} ${classes.viewerContainer}`}>
         <Viewer
           {...state}
+          gltfjson={gltfjson}
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
           selectedOption={selectedOption}
@@ -2321,15 +2337,22 @@ export default function GeometricDimensioningTab(props) {
           setActiveGLTFile={setActiveGLTFile}
           drawAxisLines={drawAxisLines}
           showKinematicSliderMove={showKinematicSliderMove}
+          showKinematicSliderAnimate={showKinematicSliderAnimate}
           kinematicItemList={kinematicItemList}
           setKinematicItemList={setKinematicItemList}
           xyzEndEffectorPosition={xyzEndEffectorPosition}
           setXYZEndEffectorPosition={setXYZEndEffectorPosition}
           xyzControlPosition={xyzControlPosition}
           setXYZControlPosition={setXYZControlPosition}
+          xyzBeginPosition={xyzBeginPosition}
+          setXYZBeginPosition={setXYZBeginPosition}
+          xyzShiftPosition={xyzShiftPosition}
+          setXYZShiftPosition={setXYZShiftPosition}
           kinematicParameters={kinematicParameters}
           setKinematicParameters={setKinematicParameters}
           itemProperties={itemProperties}
+          setProgressAnimate={setProgressAnimate}
+          setProgressAnimateText={setProgressAnimateText}
         />
       </Paper>
 
