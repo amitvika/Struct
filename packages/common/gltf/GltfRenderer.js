@@ -1390,13 +1390,14 @@ class GLTFRenderer extends Component {
           this.calculateInverseKinematicMovementIndex = 0;
         }
       }
-      this.animateResultKinematicList = this.cloneChainInfoBackward(
-        this.calculateInverseKinematicMovementArray[
-          this.calculateInverseKinematicMovementIndex
-        ],
-        this.props.kinematicItemList,
-        this.state.indexedKinematicParsedInfo
-      );
+      // this.animateResultKinematicList = this.cloneChainInfoBackward(
+      //   this.calculateInverseKinematicMovementArray[
+      //     this.calculateInverseKinematicMovementIndex
+      //   ],
+      //   this.props.kinematicItemList,
+      //   this.state.indexedKinematicParsedInfo
+      // );
+      this.cloneChainInfoToKinematicList();
       console.log(
         'Executing',
         this.calculateInverseKinematicMovementIndex,
@@ -2006,7 +2007,9 @@ class GLTFRenderer extends Component {
         'Completed Entering setting state and started setting setXYZBeginPosition'
       );
       const derviedDimension = this.getVectorFromDimension(dimension);
-
+      this.animateResultKinematicList = this.cloneList(
+        this.props.kinematicItemList
+      );
       if (this.props.setXYZBeginPosition) {
         this.props.setXYZBeginPosition({
           X: derviedDimension.x,
@@ -6794,6 +6797,33 @@ class GLTFRenderer extends Component {
       }
     }
     return clonedChain;
+  };
+  cloneChainInfoToKinematicList = () => {
+    let clonedChain = this.animateResultKinematicList;
+    const nodesArray =
+      this.calculateInverseKinematicMovementArray[
+        this.calculateInverseKinematicMovementIndex
+      ];
+    const parsedIndexInfo = this.state.indexedKinematicParsedInfo;
+    if (nodesArray) {
+      for (let index = 0; index < nodesArray.length - 1; index++) {
+        let [
+          sequence,
+          sequenceItem,
+          propsElementIndex,
+          currentNodeIndex,
+          isActuatorNode,
+          isLinearNode,
+          isEndEffectorNode,
+          currentAxisNode,
+          currentPositionNode
+        ] = parsedIndexInfo[index];
+        let propsElement =
+          clonedChain[propsElementIndex === -1 ? index : propsElementIndex];
+        propsElement.actuator_motion_control.chain_number =
+          nodesArray[index + 1].A;
+      }
+    }
   };
   getPerpendicularDirection = (axis, point) => {
     const dotLength = point.x * axis.x + point.y * axis.y + point.z * axis.z;

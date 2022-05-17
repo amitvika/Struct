@@ -66,10 +66,13 @@ class ParsingDetailsController():
                 storageSerializer.matched_across=getNotNone(storageSerializer.matched_across,[])
                 storageSerializer.s3storage=flag
                 storageSerializer.save()
+                return storageSerializer._id
             else:
                 print("Not saving because record is none",storageSerializer)
+                return -1
         except Exception as e:
             print("Error while updating flag",e,storageSerializer)
+            return -1
     
     def s3TobeCopied(self):
         return ParsingDetails.objects.filter(s3storage=False,percent=100)       
@@ -180,9 +183,11 @@ class ParsingDetailsController():
                 print("Storage Serializer Head", storageSerializer, storageSerializer.matched_across,storageData["matched"], storageSerializer.filename)
                 print("")
                 storageSerializer.save()
+                return storageSerializer._id
             
         except Exception as e:
             print("Error while saving",e)
+            return -1
     
        
 class ChildParsingDetailsController():
@@ -252,9 +257,11 @@ class ChildParsingDetailsController():
             print("Storage Serializer Head", storageSerializer, "Tail")
             print("")
             storageSerializer.save()
+            return storageSerializer._id
             
         except Exception as e:
             print("Error while saving",e)
+            return -1
 
 class EdgeParsingDetailsController():
     def __init__( self, alwaysNew=False ):
@@ -310,9 +317,10 @@ class EdgeParsingDetailsController():
             print("Storage Serializer Head", storageSerializer, "Tail")
             print("")
             storageSerializer.save()
-            
+            return storageSerializer._id
         except Exception as e:
             print("Error while saving",e)
+            return -1
 
 class ItemDetailsController():
     def __init__( self, alwaysNew=False ):
