@@ -1552,7 +1552,7 @@ class StepExportWithColor(object):
                         fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                 except Exception as e:
                     print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
-                controllers.ChildParsingDetailsController().save(mystatusdict,self.refname,self.basefilename,self.refid,"pd")                       
+                controllers.ChildParsingDetailsController().save(mystatusdict,self.refname,self.displaypath+self.basefilename,self.refid,"pd")                       
         
         except Exception as e:
                 print("While Writing",e,self.assemblycreatedcurrentcount)

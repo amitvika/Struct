@@ -125,7 +125,7 @@ class ParsingDetailsController():
             storageData["assembly"]=getValueFromJSONKey(statusDictionary,"assembly")
             print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
             storageSerializers =[] 
-            if referenceID:
+            if referenceID and len(referenceID)>0:
                 storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
             else:
                 storageSerializers = ParsingDetails.objects.filter(filename=originalFileName,tab_suffix=storageData["tab_suffix"])        
@@ -218,7 +218,7 @@ class ChildParsingDetailsController():
             storageData["comparepercent"]=convertToFloat(getValueFromJSONKey(statusDictionary,"comparepercent"),0)
             print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
             storageSerializers =[] 
-            if referenceID:
+            if referenceID and len(referenceID)>0:
                 storageSerializers = ChildParsingDetails.objects.filter(external_ref=referenceID)
             else:
                 storageSerializers = ChildParsingDetails.objects.filter(filename=originalFileName)        

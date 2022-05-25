@@ -80,6 +80,16 @@ class NURBSCurve extends Curve {
 
     return tangent;
   }
+
+  getTangents(divisions = 5) {
+    const tangents = [];
+
+    for (let d = 0; d <= divisions; d++) {
+      tangents.push(this.getTangent(d / divisions));
+    }
+
+    return tangents;
+  }
 }
 
 export { NURBSCurve };

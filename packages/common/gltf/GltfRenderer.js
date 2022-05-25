@@ -1407,6 +1407,9 @@ class GLTFRenderer extends Component {
         this.animateResultKinematicList
       );
       this.ApplyForwardKinematicMovementFromPoint();
+      // if (this.props.setKinematicItemList) {
+      //   this.props.setKinematicItemList(this.animateResultKinematicList);
+      // }
     }
     this.render();
 
@@ -14469,6 +14472,7 @@ class GLTFRenderer extends Component {
                 this.onInitProgress(fileStore + '.tree');
                 treeRes.data.forEach((element) => {
                   let points = [];
+                  let tangents = [];
                   let curveCode = 'L';
                   let elementNodeName = elementCopy(element[gltf_Dict['name']]);
                   if (element[gltf_Dict['points']]) {
@@ -14489,6 +14493,25 @@ class GLTFRenderer extends Component {
                         );
                         points.push(thisPoint);
                       }
+                      let currentPoint =
+                        points.length > 0 ? points[0] : new Vector3();
+                      let prevPoint = currentPoint;
+                      for (
+                        let indexTangent = 0;
+                        indexTangent < points.length;
+                        indexTangent++
+                      ) {
+                        let nextIndex = indexTangent + 1;
+                        if (nextIndex == points.length) {
+                          nextIndex = points.length - 1;
+                        }
+                        const nextPoint = points[nextIndex];
+                        let tangent = new Vector3();
+                        tangent.copy(nextPoint).sub(prevPoint).normalize();
+                        tangents.push(tangent);
+                        prevPoint = currentPoint;
+                        currentPoint = nextPoint;
+                      }
                     } else {
                       const myPoints = element[gltf_Dict['points']];
                       if (myPoints) {
@@ -14501,6 +14524,25 @@ class GLTFRenderer extends Component {
                           points.push(thisPoint);
                           //xyzpoints.push(thisPoint.x,thisPoint.y,thisPoint.z);
                         });
+                        let currentPoint =
+                          points.length > 0 ? points[0] : new Vector3();
+                        let prevPoint = currentPoint;
+                        for (
+                          let indexTangent = 0;
+                          indexTangent < points.length;
+                          indexTangent++
+                        ) {
+                          let nextIndex = indexTangent + 1;
+                          if (nextIndex == points.length) {
+                            nextIndex = points.length - 1;
+                          }
+                          const nextPoint = points[nextIndex];
+                          let tangent = new Vector3();
+                          tangent.copy(nextPoint).sub(prevPoint).normalize();
+                          tangents.push(tangent);
+                          prevPoint = currentPoint;
+                          currentPoint = nextPoint;
+                        }
                       }
                     }
                   } else if (element[gltf_Dict['entity']]) {
@@ -14570,6 +14612,13 @@ class GLTFRenderer extends Component {
                               (curveCode === 'H'
                                 ? Math.cosh(tindex)
                                 : Math.cos(tindex));
+                        let A1t =
+                          curveCode === 'P'
+                            ? 0
+                            : major *
+                              (curveCode === 'H'
+                                ? Math.sinh(tindex)
+                                : -Math.sin(tindex));
                         let A2 =
                           curveCode === 'P'
                             ? 0
@@ -14577,23 +14626,41 @@ class GLTFRenderer extends Component {
                               (curveCode === 'H'
                                 ? Math.sinh(tindex)
                                 : Math.sin(tindex));
+                        let A2t =
+                          curveCode === 'P'
+                            ? 0
+                            : minor *
+                              (curveCode === 'H'
+                                ? Math.cosh(tindex)
+                                : Math.cos(tindex));
                         if (curveCode === 'P') {
                           const focal = major;
                           if (focal === 0) {
                             A1 = tindex;
+                            A1t = 1;
                             A2 = 0;
+                            A2t = 0;
                           } else {
                             A1 = (tindex * tindex) / (4.0 * focal);
                             A2 = tindex;
+                            A1t = tindex / (2.0 * focal);
+                            A2t = 1;
                           }
                         }
 
-                        let thisPoint = new Vector3(
+                        const thisPoint = new Vector3(
                           (A1 * XDir[0] + A2 * YDir[0] + Center[0]) * 0.001,
                           (A1 * XDir[2] + A2 * YDir[2] + Center[2]) * 0.001,
                           (A1 * XDir[1] + A2 * YDir[1] + Center[1]) * -0.001
                         );
+
                         points.push(thisPoint);
+                        const tangent = new Vector3(
+                          (A1t * XDir[0] + A2t * YDir[0]) * 0.001,
+                          (A1t * XDir[2] + A2t * YDir[2]) * 0.001,
+                          (A1t * XDir[1] + A2t * YDir[1]) * -0.001
+                        ).normalize();
+                        tangents.push(tangent);
                         //console.log('Got point as', A1, A2, thisPoint);
                       }
                     } else {
@@ -14831,6 +14898,7 @@ class GLTFRenderer extends Component {
                           //   end_index
                           // );
                           points = nurbsCurve.getPoints(200);
+                          tangents = nurbsCurve.getTangents(200);
                         } else {
                           console.log('No Length found', myBase64Floats);
                         }
@@ -14924,6 +14992,7 @@ class GLTFRenderer extends Component {
                     ourMesh.renderOrder += 20;
                     ourMesh.curveCode = curveCode;
                     ourMesh.curvePoints = points;
+                    ourMesh.curveTangents = tangents;
                     parentLineNodes.add(ourMesh);
                   } else {
                     let material = new PointsMaterial({
