@@ -84,6 +84,10 @@ const ItemDetail = ({ itemValue }) => {
   const [showKinematicSliderMove, setShowKinematicSliderMove] = useState(false);
   const [showKinematicSliderAnimate, setShowKinematicSliderAnimate] =
     useState(false);
+  const [
+    showKinematicSliderAnimateValues,
+    setShowKinematicSliderAnimateValues
+  ] = useState(false);
   const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
   const [kinematicItemList, setKinematicItemList] = useState([]);
   const [activeGLTFFile, setActiveGLTFileState] = useState('');
@@ -901,6 +905,10 @@ const ItemDetail = ({ itemValue }) => {
             setShowKinematicSliderMove={setShowKinematicSliderMove}
             showKinematicSliderAnimate={showKinematicSliderAnimate}
             setShowKinematicSliderAnimate={setShowKinematicSliderAnimate}
+            showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
+            setShowKinematicSliderAnimateValues={
+              setShowKinematicSliderAnimateValues
+            }
             regenerateKinematicMove={regenerateKinematicMove}
             setRegenerateKinematicMove={setRegenerateKinematicMove}
             kinematicItemList={kinematicItemList}

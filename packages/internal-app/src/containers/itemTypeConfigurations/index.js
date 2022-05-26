@@ -91,6 +91,8 @@ export default function ItemTypeConfigurations(props) {
     setShowKinematicSliderMove,
     showKinematicSliderAnimate,
     setShowKinematicSliderAnimate,
+    showKinematicSliderAnimateValues,
+    setShowKinematicSliderAnimateValues,
     xyzEndEffectorPosition,
     setXYZEndEffectorPosition,
     xyzControlPosition,
@@ -379,6 +381,7 @@ export default function ItemTypeConfigurations(props) {
         showKinematicMove={showKinematicMove}
         showKinematicSliderMove={showKinematicSliderMove}
         showKinematicSliderAnimate={showKinematicSliderAnimate}
+        showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
         {...{
           itemProperties,
           gltfjson,
@@ -411,6 +414,10 @@ export default function ItemTypeConfigurations(props) {
     setProgressAnimate(0);
     setProgressAnimateText('');
     setShowKinematicSliderAnimate(event.target.checked);
+  };
+
+  const handleSwitchSliderAnimateValues = async (event) => {
+    setShowKinematicSliderAnimateValues(event.target.checked);
   };
 
   const handleRegenerate = async (event) => {
@@ -834,7 +841,7 @@ export default function ItemTypeConfigurations(props) {
                       position: 'absolute',
                       color: 'white',
                       top: 0,
-                      left: '85%',
+                      left: showKinematicSliderAnimate ? '75%' : '85%',
                       transform: 'translateX(-60%)'
                     }}
                   >
@@ -866,6 +873,23 @@ export default function ItemTypeConfigurations(props) {
                   </Typography>
                 </div>
               </Box>
+              {showKinematicSliderAnimate && (
+                <div style={{ display: 'flex' }}>
+                  <DisplayLabel
+                    label={
+                      showKinematicSliderAnimateValues
+                        ? 'Hide Changes:'
+                        : 'Show Changes:'
+                    }
+                    width={'150px'}
+                  />
+                  <Switch
+                    checked={showKinematicSliderAnimateValues}
+                    onChange={handleSwitchSliderAnimateValues}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                </div>
+              )}
             </ButtonGroup>
           </>
         )}
@@ -903,6 +927,7 @@ export default function ItemTypeConfigurations(props) {
         showKinematicMove={showKinematicMove}
         showKinematicSliderMove={showKinematicSliderMove}
         showKinematicSliderAnimate={showKinematicSliderAnimate}
+        showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
         activeGLTFFile={activeGLTFFile}

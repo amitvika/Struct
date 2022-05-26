@@ -55,7 +55,8 @@ export default function MotionControlComponent({
   selected3JSData,
   showKinematicMove,
   showKinematicSliderMove,
-  showKinematicSliderAnimate
+  showKinematicSliderAnimate,
+  showKinematicSliderAnimateValues
 }) {
   const alertContext = React.useContext(AlertContext);
 
@@ -531,7 +532,9 @@ export default function MotionControlComponent({
                               ? actuator_motion_control.chain_number
                               : 0
                           }
-                          valueLabelDisplay="on"
+                          valueLabelDisplay={
+                            showKinematicSliderAnimateValues ? 'on' : 'auto'
+                          }
                           valueLabelFormat={(x) => Number(x).toFixed(2)}
                           onChange={(event, newValue) => {
                             event.stopPropagation();

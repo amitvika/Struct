@@ -706,6 +706,15 @@ class GLTFRenderer extends Component {
           }
         }
       } else {
+        // if (this.props.showKinematicSliderAnimate) {
+        //   //this.ApplyForwardKinematicMovementFromPoint();
+        //   this.ApplyForwardKinematicMovement(
+        //     prevProps,
+        //     this.state.indexedKinematicParsedInfo,
+        //     this.props.xyzShiftPosition,
+        //     this.state.kinematicDimension
+        //   );
+        // } else {
         this.ApplyShiftingKinematicMovement(
           prevProps,
           this.state.indexedKinematicParsedInfo
@@ -722,6 +731,7 @@ class GLTFRenderer extends Component {
           this.props.xyzShiftPosition,
           this.state.kinematicDimension
         );
+        // }
       }
     }
     /* 
@@ -1406,10 +1416,21 @@ class GLTFRenderer extends Component {
         ],
         this.animateResultKinematicList
       );
-      this.ApplyForwardKinematicMovementFromPoint();
-      // if (this.props.setKinematicItemList) {
-      //   this.props.setKinematicItemList(this.animateResultKinematicList);
-      // }
+      if (this.props.showKinematicSliderAnimateValues) {
+        if (this.props.setKinematicItemList) {
+          //this.props.setKinematicItemList(this.animateResultKinematicList);
+          setTimeout(() => {
+            this.props.setKinematicItemList(this.animateResultKinematicList);
+            console.log('Set kinematiclist', this.animateResultKinematicList);
+          }, 0);
+        } else {
+          this.ApplyForwardKinematicMovementFromPoint();
+        }
+
+        // this.ApplyForwardKinematicMovementFromPoint();
+      } else {
+        this.ApplyForwardKinematicMovementFromPoint();
+      }
     }
     this.render();
 

@@ -72,6 +72,7 @@ export default function GeometricDimensioningTab(props) {
     setDrawAxisLines = () => {},
     showKinematicSliderMove = false,
     showKinematicSliderAnimate = false,
+    showKinematicSliderAnimateValues = false,
     kinematicItemList = [],
     setKinematicItemList = () => {},
     xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
@@ -2338,6 +2339,7 @@ export default function GeometricDimensioningTab(props) {
           drawAxisLines={drawAxisLines}
           showKinematicSliderMove={showKinematicSliderMove}
           showKinematicSliderAnimate={showKinematicSliderAnimate}
+          showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
           kinematicItemList={kinematicItemList}
           setKinematicItemList={setKinematicItemList}
           xyzEndEffectorPosition={xyzEndEffectorPosition}
