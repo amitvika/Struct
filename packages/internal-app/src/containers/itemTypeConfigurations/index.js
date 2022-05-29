@@ -93,6 +93,8 @@ export default function ItemTypeConfigurations(props) {
     setShowKinematicSliderAnimate,
     showKinematicSliderAnimateValues,
     setShowKinematicSliderAnimateValues,
+    applyTangentToEdges,
+    setApplyTangentToEdges,
     xyzEndEffectorPosition,
     setXYZEndEffectorPosition,
     xyzControlPosition,
@@ -382,6 +384,7 @@ export default function ItemTypeConfigurations(props) {
         showKinematicSliderMove={showKinematicSliderMove}
         showKinematicSliderAnimate={showKinematicSliderAnimate}
         showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
+        applyTangentToEdges={applyTangentToEdges}
         {...{
           itemProperties,
           gltfjson,
@@ -419,7 +422,9 @@ export default function ItemTypeConfigurations(props) {
   const handleSwitchSliderAnimateValues = async (event) => {
     setShowKinematicSliderAnimateValues(event.target.checked);
   };
-
+  const handleSwitchTangentToEdges = async (event) => {
+    setApplyTangentToEdges(event.target.checked);
+  };
   const handleRegenerate = async (event) => {
     setRegenerateKinematicMove(regenerateKinematicMove + 1);
   };
@@ -829,6 +834,15 @@ export default function ItemTypeConfigurations(props) {
                 </Box>
               </div> */}
               &nbsp;&nbsp;
+              <div style={{ display: 'flex' }}>
+                <DisplayLabel label={'Tangent To Edges:'} width={'140px'} />
+                <Switch
+                  checked={applyTangentToEdges}
+                  onChange={handleSwitchTangentToEdges}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+              </div>
+              &nbsp;&nbsp;
               <Box sx={{ width: '15%' }}>
                 <div style={{ position: 'relative' }}>
                   <LinearProgress
@@ -841,7 +855,7 @@ export default function ItemTypeConfigurations(props) {
                       position: 'absolute',
                       color: 'white',
                       top: 0,
-                      left: showKinematicSliderAnimate ? '75%' : '85%',
+                      left: showKinematicSliderAnimate ? '70%' : '75%',
                       transform: 'translateX(-60%)'
                     }}
                   >
@@ -928,6 +942,7 @@ export default function ItemTypeConfigurations(props) {
         showKinematicSliderMove={showKinematicSliderMove}
         showKinematicSliderAnimate={showKinematicSliderAnimate}
         showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
+        applyTangentToEdges={applyTangentToEdges}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
         activeGLTFFile={activeGLTFFile}

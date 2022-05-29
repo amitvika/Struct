@@ -24,6 +24,7 @@ export default function DynamicHierarchyForm(props) {
     showKinematicSliderMove,
     showKinematicSliderAnimate,
     showKinematicSliderAnimateValues,
+    applyTangentToEdges,
     isMountSufaceFaceSelection,
     setIsMountSufaceFaceSelection
   } = props;
@@ -274,6 +275,7 @@ export default function DynamicHierarchyForm(props) {
               showKinematicSliderMove,
               showKinematicSliderAnimate,
               showKinematicSliderAnimateValues,
+              applyTangentToEdges,
               isMountSufaceFaceSelection,
               setIsMountSufaceFaceSelection
             }}

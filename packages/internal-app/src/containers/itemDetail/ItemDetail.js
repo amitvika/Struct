@@ -88,6 +88,7 @@ const ItemDetail = ({ itemValue }) => {
     showKinematicSliderAnimateValues,
     setShowKinematicSliderAnimateValues
   ] = useState(false);
+  const [applyTangentToEdges, setApplyTangentToEdges] = useState(false);
   const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
   const [kinematicItemList, setKinematicItemList] = useState([]);
   const [activeGLTFFile, setActiveGLTFileState] = useState('');
@@ -909,6 +910,8 @@ const ItemDetail = ({ itemValue }) => {
             setShowKinematicSliderAnimateValues={
               setShowKinematicSliderAnimateValues
             }
+            applyTangentToEdges={applyTangentToEdges}
+            setApplyTangentToEdges={setApplyTangentToEdges}
             regenerateKinematicMove={regenerateKinematicMove}
             setRegenerateKinematicMove={setRegenerateKinematicMove}
             kinematicItemList={kinematicItemList}

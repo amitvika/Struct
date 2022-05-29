@@ -56,6 +56,7 @@ export default function Viewer({
   showKinematicSliderMove = false,
   showKinematicSliderAnimate = false,
   showKinematicSliderAnimateValues = false,
+  applyTangentToEdges = false,
   kinematicItemList = [],
   setKinematicItemList = () => {},
   xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
@@ -206,6 +207,7 @@ export default function Viewer({
           showKinematicSliderMove={showKinematicSliderMove}
           showKinematicSliderAnimate={showKinematicSliderAnimate}
           showKinematicSliderAnimateValues={showKinematicSliderAnimateValues}
+          applyTangentToEdges={applyTangentToEdges}
           kinematicItemList={kinematicItemList}
           setKinematicItemList={setKinematicItemList}
           xyzEndEffectorPosition={xyzEndEffectorPosition}

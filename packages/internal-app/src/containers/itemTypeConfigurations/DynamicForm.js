@@ -26,6 +26,7 @@ export default function DynamicCriteria({
   showKinematicSliderMove,
   showKinematicSliderAnimate,
   showKinematicSliderAnimateValues,
+  applyTangentToEdges,
   isMountSufaceFaceSelection,
   setIsMountSufaceFaceSelection
 }) {
@@ -156,6 +157,7 @@ export default function DynamicCriteria({
                   showKinematicSliderAnimateValues={
                     showKinematicSliderAnimateValues
                   }
+                  applyTangentToEdges={applyTangentToEdges}
                   onChange={(mykeyinfo, valuefound) => {
                     if (fieldItem.activeCell) {
                       handleOnChange(fieldItem.fieldName, valuefound);
@@ -195,7 +197,8 @@ export default function DynamicCriteria({
                   showKinematicMove,
                   showKinematicSliderMove,
                   showKinematicSliderAnimate,
-                  showKinematicSliderAnimateValues
+                  showKinematicSliderAnimateValues,
+                  applyTangentToEdges
                 }}
               />
             )}

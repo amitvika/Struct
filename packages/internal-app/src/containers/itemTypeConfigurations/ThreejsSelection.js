@@ -31,6 +31,7 @@ export default function ThreejsSelection(props) {
     showKinematicSliderMove,
     showKinematicSliderAnimate,
     showKinematicSliderAnimateValues,
+    applyTangentToEdges,
     isMountSufaceFaceSelection,
     setIsMountSufaceFaceSelection
   } = props;

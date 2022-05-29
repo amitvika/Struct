@@ -56,6 +56,7 @@ const ItemDetailHOC = (Component) =>
       showKinematicSliderAnimateValues,
       setShowKinematicSliderAnimateValues
     ] = useState(false);
+    const [applyTangentToEdges, setApplyTangentToEdges] = useState(false);
     const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
     const [kinematicItemList, setKinematicItemList] = useState([]);
     const [activeGLTFFile, setActiveGLTFileState] = useState('');

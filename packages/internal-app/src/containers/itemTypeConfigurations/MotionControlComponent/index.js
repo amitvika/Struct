@@ -56,7 +56,8 @@ export default function MotionControlComponent({
   showKinematicMove,
   showKinematicSliderMove,
   showKinematicSliderAnimate,
-  showKinematicSliderAnimateValues
+  showKinematicSliderAnimateValues,
+  applyTangentToEdges
 }) {
   const alertContext = React.useContext(AlertContext);
 
