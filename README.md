@@ -40,12 +40,19 @@ yarn install
 - Install miniconda
 - start miniconda terminal
 
-- run `conda env remove --name structserver or structquery ` ### this is needed if incase you want to delete the already created environment.
-- Following is for pythonocc-core 7.4 environment supplied by cadquery
+### the following is needed if incase you want to delete the already created environment.
+
+- run `conda env remove --name structquery ` # or structserver
+
+### Following is for pythonocc-core 7.4 environment supplied by cadquery which is recommended
+
 - run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel
-- Following is for pythonocc-core 7.5 environment without cadquery
+
+### Following is for pythonocc-core 7.5 environment without cadquery which is not recommended since this version has lot of hanging functionalities which is found while running
+
 - run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel` # or structquery
-- run `conda activate structserver` # or structquery
+
+- run `conda activate structquery` # or structserver
 - run `conda install -c pytorch -c nvidia -c fastai fastai`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
@@ -135,7 +142,7 @@ yarn start-public
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
 
 ```bash
-conda activate structserver # or structquery
+conda activate structquery # or structserver
 ```
 
 - For headless AWS to start opengl, following 4 commands needed and they are not needed for windows environment
@@ -168,7 +175,7 @@ python manage.py runserver localhost:8000
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
 
 ```bash
-conda activate structserver
+conda activate structquery # or structserver
 ```
 
 - Run the following command
