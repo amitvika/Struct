@@ -52,6 +52,8 @@ yarn install
 
 - run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel` # or structquery
 
+### Following is needed for both pythonocc-core 7.4 and 7.5
+
 - run `conda activate structquery` # or structserver
 - run `conda install -c pytorch -c nvidia -c fastai fastai`
 - CD to `gltfconverter` directory
@@ -170,6 +172,8 @@ export DISPLAY=:1
 ```python
 python manage.py runserver localhost:8000
 ```
+
+#### For everyday in windows enivronment.
 
 - cd `gltfconverter` folder
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
