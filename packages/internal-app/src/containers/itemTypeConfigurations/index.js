@@ -889,6 +889,7 @@ export default function ItemTypeConfigurations(props) {
               </Box>
               {showKinematicSliderAnimate && (
                 <div style={{ display: 'flex' }}>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   <DisplayLabel
                     label={
                       showKinematicSliderAnimateValues

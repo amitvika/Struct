@@ -6929,17 +6929,55 @@ class GLTFRenderer extends Component {
     const endEffectorDot = B_currentEndEffectorposition.dot(
       C_currentTargetPosition
     );
-    const theta = Math.acos(endEffectorDot);
+    let theta = Math.acos(endEffectorDot);
     let quaternion = new Quaternion();
     quaternion
       .setFromAxisAngle(B_currentEndEffectorposition, theta)
       .normalize();
-    const resEffector = B_currentEndEffectorposition.clone()
+    let resEffector = B_currentEndEffectorposition.clone()
       .applyQuaternion(quaternion)
       .normalize();
-    const resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    let resDot = 1 - resEffector.dot(C_currentTargetPosition);
     console.log(
       'Angle finding',
+      B_currentEndEffectorposition,
+      C_currentTargetPosition,
+      theta,
+      endEffectorDot,
+      resDot
+    );
+    if (resDot * resDot <= 0.000001) {
+      return theta;
+    }
+    theta = -theta;
+    quaternion
+      .setFromAxisAngle(B_currentEndEffectorposition, theta)
+      .normalize();
+    resEffector = B_currentEndEffectorposition.clone()
+      .applyQuaternion(quaternion)
+      .normalize();
+    resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    console.log(
+      'Angle finding Minus',
+      B_currentEndEffectorposition,
+      C_currentTargetPosition,
+      theta,
+      endEffectorDot,
+      resDot
+    );
+    if (resDot * resDot <= 0.000001) {
+      return theta;
+    }
+    theta = Math.PI + theta;
+    quaternion
+      .setFromAxisAngle(B_currentEndEffectorposition, theta)
+      .normalize();
+    resEffector = B_currentEndEffectorposition.clone()
+      .applyQuaternion(quaternion)
+      .normalize();
+    resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    console.log(
+      'Angle finding PI Minus ',
       B_currentEndEffectorposition,
       C_currentTargetPosition,
       theta,
@@ -9998,7 +10036,11 @@ class GLTFRenderer extends Component {
         selectedObjectsElement.curvePoints.length === 2
       ) {
         if (pointObject.length === 1) {
-          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint, true);
+          return this.getPointsFrom(
+            firstSelectedPoint,
+            lastSelectedPoint,
+            true
+          );
         }
       }
       let direction = pointObject.length === 1;
@@ -10064,9 +10106,17 @@ class GLTFRenderer extends Component {
         selectedObjectsElement.curvePoints.length === 2
       ) {
         if (direction) {
-          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint,true);
+          return this.getPointsFrom(
+            firstSelectedPoint,
+            lastSelectedPoint,
+            true
+          );
         } else {
-          return this.getPointsFrom(lastSelectedPoint, firstSelectedPoint,true);
+          return this.getPointsFrom(
+            lastSelectedPoint,
+            firstSelectedPoint,
+            true
+          );
         }
       } else {
         return this.getPointsFromDirection(selectedObjectsElement, direction);
@@ -10212,7 +10262,7 @@ class GLTFRenderer extends Component {
               ) {
                 curvePoints = this.getPointsFrom(
                   selectedObjectsElement.curvePoints[0],
-                  selectedObjectsElement.curvePoints[1], 
+                  selectedObjectsElement.curvePoints[1],
                   true
                 );
               }

@@ -511,6 +511,7 @@ export default function MotionControlComponent({
                             !actuator_motion_control.is_end_effector
                         });
                       }}
+                      disabled={showKinematicSliderAnimate}
                     />
                   </BootstrapTableCell>
                   {showKinematicSliderMove && (

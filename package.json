@@ -17,5 +17,6 @@
     "dev": "yarn start & yarn server",
     "lint": "yarn lint:public",
     "lint:public": "yarn workspace @monostruct/public-app lint"
-  }
+  },
+  "dependencies": {}
 }
