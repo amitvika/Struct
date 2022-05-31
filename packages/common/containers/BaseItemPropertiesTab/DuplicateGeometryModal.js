@@ -3,13 +3,19 @@ import MainModal from '@monostruct/common/components/Modal';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import ItemApi from '@monostruct/common/api/items.api';
+import DuplicateItemsApi from '@monostruct/common/api/duplicateItems.api';
+import ItemAPI from '@monostruct/common/api/items.api';
 import TableGridView from '@monostruct/common/components/TableGridView';
 import { columnsForItemView } from '@monostruct/common/constants/item';
 import { useParams, useHistory } from 'react-router-dom';
 
 export default function DuplicateGeometryModal() {
   const [isOpen, setOpen] = React.useState(false);
+  const [itemList, setItemList] = React.useState(null);
+  const handleDuplicateItems = (itemList) => {
+    setItemList(itemList);
+  };
+
   return (
     <>
       <Button variant="outlined" onClick={() => setOpen(true)}>
@@ -25,15 +31,42 @@ export default function DuplicateGeometryModal() {
         }}
       >
         <Box>
-          <CreateDuplicateChildItems />
-          <IdentifiedDuplicateItems />
+          <CreateDuplicateChildItems itemList={itemList} />
+          <IdentifiedDuplicateItems handleDuplicateItems={handleDuplicateItems} />
         </Box>
       </MainModal>
     </>
   );
 }
 
-const CreateDuplicateChildItems = () => {
+const CreateDuplicateChildItems = ({ itemList }) => {
+  const { id } = useParams();
+  const createDuplicateItems = () => {
+    const newItem = itemList.map((item) => ({
+      fileUUId: item.fileUUId,
+      name: item.fileName,
+      fileName: item.fileName,
+      fileStore: item.fileStore,
+      parent_id: id,
+      compliance: item.compliance,
+      fullProcess: item.fullProcess,
+      storage: item.storage,
+      distanceGap: item.distanceGap,
+      angleGap: item.angleGap,
+      drawLine: item.drawLine,
+      hierarchySelections: item.hierarchySelections,
+      classificationConfig: item.classificationConfig,
+      is_child_item: true,
+      multiAssembly: item.multiAssembly ? item.multiAssembly : false
+    }));
+    try {
+      return ItemAPI.upsertItems(newItem);
+    } catch (error) {
+      console.log('While creating error', newItem, error);
+      return false;
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -53,6 +86,7 @@ const CreateDuplicateChildItems = () => {
           whiteSpace: 'nowrap',
           height: 'fit-content'
         }}
+        onClick={createDuplicateItems}
       >
         Create item with duplicate geometry
       </Button>
@@ -60,12 +94,12 @@ const CreateDuplicateChildItems = () => {
   );
 };
 
-const IdentifiedDuplicateItems = () => {
+const IdentifiedDuplicateItems = ({ handleDuplicateItems }) => {
   const { id } = useParams();
   let history = useHistory();
-  const handleItemClick = (id, data, openInTab) => {
-    let link = `/items/${id}`;
-    if (openInTab) {
+  const handleItemClick = (newId, data, openInTab) => {
+    let link = `/items/${newId}`;
+    if (newId !== id) {
       const win = window.open(link, '_blank');
       win.focus();
     } else {
@@ -73,17 +107,25 @@ const IdentifiedDuplicateItems = () => {
     }
   };
 
+  const handleFilteredList = (filteredList) => {
+    handleDuplicateItems(filteredList);
+  };
+
   return (
     <TableGridView
       title={'Identified duplicate items'}
       fields={columnsForItemView}
-      fetchList={(query) => ItemApi.getItemsAPI(`parent_id=${id}&${query}`)}
+      fetchList={(query) => DuplicateItemsApi.getItemsAPI(`id=${id}&${query}`)}
       isAddEditActionsEnabled={false}
       handleItemClick={handleItemClick}
+      handleFilteredList={handleFilteredList}
       isEditLinkVisible={false}
       isDesignModalOpened={false}
-      isPaginationEnabled={true}
+      isPaginationEnabled={false}
       isChildItemTable={true}
+      isToolbarEnabled={false}
+      isHistoryLinkVisible={false}
+      showDeleteActionButton={false}
     />
   );
 };

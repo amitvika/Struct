@@ -3,7 +3,6 @@ import { Paper, Icon, Typography, Tooltip } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
-
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
@@ -13,6 +12,7 @@ import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils'
 import { createChildItems } from './helper';
 import Checkbox from '@mui/material/Checkbox';
 import DuplicateGeometryModal from './DuplicateGeometryModal';
+import DuplicateChildGeometryModal from './DuplicateChildGeometryModal';
 
 const useStyles = makeStyles((theme) => ({
   item_row: {
@@ -103,12 +103,6 @@ export default function GeometryInput({
         [name]: value
       }
     }));
-    // console.log(
-    //   'Changing item properties from Geometryinput from name value',
-    //   itemProperties,
-    //   name,
-    //   value
-    // );
   };
 
   return (
@@ -183,7 +177,7 @@ export default function GeometryInput({
             </Typography>
           </Grid>
           <Grid item className={classes.item_row}>
-            <DuplicateGeometryModal />
+            <DuplicateGeometryModal /> <DuplicateChildGeometryModal />
           </Grid>
 
           <Grid item className={classes.item_row}>

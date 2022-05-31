@@ -18,18 +18,20 @@ function Toolbar({
   isDeleteCheckboxVisible = true,
   isHistoryCheckboxVisible = true,
   isCustomAddButtonVisible = false,
-  handleAddButtonPress = () => {},
+  handleAddButtonPress = () => { },
   AdditionalFilter = null,
   showHistoryButtonToolbar = true,
   showArchiveButtonToolbar = true,
   CustomAddButton,
   handleSearch,
+  isToolbarEnabled = true,
   ...restProps
 }) {
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
   return (
     <Paper
       style={{
+        display: isToolbarEnabled ? 'flex' : 'none',
         padding: '10px',
         marginTop: '10px',
         marginBottom: '10px',
@@ -67,9 +69,8 @@ function Toolbar({
                 <HistoryIcon
                   sx={{
                     fontSize: 30,
-                    color: `${
-                      isHistoryCheckboxVisible ? '#000000' : 'disabled'
-                    }`
+                    color: `${isHistoryCheckboxVisible ? '#000000' : 'disabled'
+                      }`
                   }}
                 />
               </IconButton>

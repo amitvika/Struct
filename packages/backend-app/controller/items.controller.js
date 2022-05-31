@@ -153,7 +153,7 @@ exports.getAll = async (req, res) => {
         if (
           itemDetail.itemTypeConfiguration &&
           itemDetail.itemTypeConfiguration.itemType ===
-            'Machine - Tool/Workholding'
+          'Machine - Tool/Workholding'
         ) {
           return true;
         } else {
