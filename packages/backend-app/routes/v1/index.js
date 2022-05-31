@@ -11,6 +11,9 @@ router.use('/cpp', require('./cpp'));
 router.use('/upload', require('./upload'));
 router.use('/items', require('./items.route'));
 router.use('/itemOrder', require('./itemOrder.route'));
+router.use('/duplicateItems', require('./duplicateItems.route'));
+router.use('/duplicateChildItems', require('./duplicateChildItems.route'));
+
 
 router.use('/clients', require('./clients'));
 router.use('/userAccessTypes', require('./userAccessTypes'));

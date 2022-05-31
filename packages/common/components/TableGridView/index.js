@@ -28,7 +28,7 @@ const TableGridView = ({
   title,
   fields = [],
   fetchList,
-  upsertListItem = () => {},
+  upsertListItem = () => { },
   ManageTeamModal,
   isDesignModalOpened = true,
   AddUpdateModal = CommonAddUpdateModal,
@@ -36,8 +36,9 @@ const TableGridView = ({
   isCustomAddButtonVisible = true,
   isAddEditActionsEnabled = false,
   handleItemClick,
-  showSuccessAlert = () => {},
-  showErrorAlert = () => {},
+  handleFilteredList = () => { },
+  showSuccessAlert = () => { },
+  showErrorAlert = () => { },
   AdditionalFilter = null,
   handleAddButtonPress,
   isPaginationEnabled = false,
@@ -48,7 +49,8 @@ const TableGridView = ({
   showHistoryButtonToolbar = true,
   showArchiveButtonToolbar = true,
   CustomAddButton,
-  isChildItemTable = false
+  isChildItemTable = false,
+  isToolbarEnabled = true
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -115,6 +117,7 @@ const TableGridView = ({
 
     setList(mappedList);
     setFilteredList(mappedList.filter((item) => !item.is_archived));
+    handleFilteredList(mappedList.filter((item) => !item.is_archived));
   };
 
   const handleViewArchived = () => {
@@ -360,6 +363,7 @@ const TableGridView = ({
           isCustomAddButtonVisible={isCustomAddButtonVisible}
           handleAddButtonPress={handleToggleModal}
           isSearchBarVisible={true}
+          isToolbarEnabled={isToolbarEnabled}
           AdditionalFilter={AdditionalFilter}
           {...{
             isHistoryCheckboxVisible,
