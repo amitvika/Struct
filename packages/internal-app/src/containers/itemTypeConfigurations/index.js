@@ -895,7 +895,7 @@ export default function ItemTypeConfigurations(props) {
                         ? 'Hide Changes:'
                         : 'Show Changes:'
                     }
-                    width={'150px'}
+                    width={'120px'}
                   />
                   <Switch
                     checked={showKinematicSliderAnimateValues}

@@ -668,20 +668,28 @@ class GLTFRenderer extends Component {
         //this.calculateInverseKinematicMovementFromPointsWithoutLoop(false);
       } else if (
         this.props.showKinematicSliderAnimate !=
-        prevProps.showKinematicSliderAnimate
+          prevProps.showKinematicSliderAnimate ||
+        this.props.applyTangentToEdges != prevProps.applyTangentToEdges
       ) {
+        if (this.props.applyTangentToEdges != prevProps.applyTangentToEdges) {
+          this.state_calculatedKinematicItemChainChanged = true;
+        }
         if (this.props.showKinematicSliderAnimate) {
           // this.calculateInverseKinematicMovementFromPoints(
           //   this.state.indexedKinematicParsedInfo,
           //   this.props.xyzShiftPosition,
           //   this.state.kinematicDimension
           // );
+
           if (this.state_calculatedKinematicItemChainChanged === true) {
             this.calculateInverseKinematicMovementFromPointsWithoutLoop(true);
           } else {
             console.log('No need to recalculate since nothing was changed');
           }
-        } else if (this.calculateInverseKinematicMovementArray.length > 0) {
+        } else if (
+          this.calculateInverseKinematicMovementArray.length > 0 &&
+          this.props.applyTangentToEdges === prevProps.applyTangentToEdges
+        ) {
           if (
             this.calculateInverseKinematicMovementIndex >=
               this.calculateInverseKinematicMovementArray.length ||
@@ -6849,6 +6857,13 @@ class GLTFRenderer extends Component {
       }
     }
   };
+  getNormalizedAngle = (angle) => {
+    const pi = Math.PI;
+    let retAngle = angle;
+    while (retAngle > pi) retAngle -= 2 * pi;
+    while (retAngle < -pi) retAngle += 2 * pi;
+    return retAngle;
+  };
   getPerpendicularDirection = (axis, point) => {
     const dotLength = point.x * axis.x + point.y * axis.y + point.z * axis.z;
     const direction = new Vector3().subVectors(
@@ -9905,11 +9920,13 @@ class GLTFRenderer extends Component {
       }
     }
   };
-  getPointsFrom = (p0, p1) => {
+  getPointsFrom = (p0, p1, direction) => {
     let points = [];
     let tangents = [];
     const diffVector = new Vector3().subVectors(p1, p0);
-    const tangent = diffVector.clone().normalize();
+    const tangent = (
+      direction === true ? diffVector.clone() : new Vector3().subVectors(p0, p1)
+    ).normalize();
     const gap = this.props.kinematicParameters
       ? this.props.kinematicParameters.gap
         ? this.props.kinematicParameters.gap
@@ -9981,7 +9998,7 @@ class GLTFRenderer extends Component {
         selectedObjectsElement.curvePoints.length === 2
       ) {
         if (pointObject.length === 1) {
-          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint);
+          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint, true);
         }
       }
       let direction = pointObject.length === 1;
@@ -10047,9 +10064,9 @@ class GLTFRenderer extends Component {
         selectedObjectsElement.curvePoints.length === 2
       ) {
         if (direction) {
-          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint);
+          return this.getPointsFrom(firstSelectedPoint, lastSelectedPoint,true);
         } else {
-          return this.getPointsFrom(lastSelectedPoint, firstSelectedPoint);
+          return this.getPointsFrom(lastSelectedPoint, firstSelectedPoint,true);
         }
       } else {
         return this.getPointsFromDirection(selectedObjectsElement, direction);
@@ -10195,7 +10212,8 @@ class GLTFRenderer extends Component {
               ) {
                 curvePoints = this.getPointsFrom(
                   selectedObjectsElement.curvePoints[0],
-                  selectedObjectsElement.curvePoints[1]
+                  selectedObjectsElement.curvePoints[1], 
+                  true
                 );
               }
               for (
@@ -11171,6 +11189,9 @@ class GLTFRenderer extends Component {
               selectedObjectsElement.curvePoints &&
               selectedObjectsElement.curvePoints.length > 0
             ) {
+              if (this.state_angleIteration === 0) {
+                this.state_changeMadeInInnerLoop = false;
+              }
               if (
                 this.state_pointsIndex === 0 &&
                 this.state_angleIteration === 0
@@ -11629,6 +11650,16 @@ class GLTFRenderer extends Component {
                               }
                               if (differenceBetween !== 0) {
                                 currentChainValue.A += differenceBetween;
+                                if (!isLinear) {
+                                  let normalizedAngle = this.getNormalizedAngle(
+                                    currentChainValue.A
+                                  );
+                                  differenceBetween =
+                                    normalizedAngle -
+                                    currentChainValue.A +
+                                    differenceBetween;
+                                  currentChainValue.A = normalizedAngle;
+                                }
                                 console.log(
                                   'Applying difference',
                                   differenceBetween,
@@ -11871,6 +11902,7 @@ class GLTFRenderer extends Component {
                                   lengthBetweenTargetAndEndEffector
                                 ) {
                                   changeMadeInInnerLoop = true;
+                                  this.state_changeMadeInInnerLoop = true;
                                   couldFindTheta = true;
                                   changeMade = true;
                                   if (
@@ -12103,7 +12135,10 @@ class GLTFRenderer extends Component {
                   this.state_angleIteration = 0;
                 }
                 if (this.state_angleIteration === 0) {
-                  if (this.props.setKinematicItemList && changeMade) {
+                  if (
+                    this.props.setKinematicItemList &&
+                    (changeMade || this.state_changeMadeInInnerLoop)
+                  ) {
                     this.displayForDebug(
                       this.state_calculatedKinematicItemChain,
                       'My Values',
@@ -12636,6 +12671,16 @@ class GLTFRenderer extends Component {
                       }
                       if (differenceBetween !== 0) {
                         currentChainValue.A += differenceBetween;
+                        if (!isLinear) {
+                          let normalizedAngle = this.getNormalizedAngle(
+                            currentChainValue.A
+                          );
+                          differenceBetween =
+                            normalizedAngle -
+                            currentChainValue.A +
+                            differenceBetween;
+                          currentChainValue.A = normalizedAngle;
+                        }
                         console.log(
                           'Applying difference',
                           differenceBetween,
@@ -12689,6 +12734,7 @@ class GLTFRenderer extends Component {
                         if (mostTheta < differenceBetween) {
                           mostTheta = differenceBetween;
                         }
+                        //changeMadeInInnerLoop = differenceBetween!==0;
                       } else {
                         console.log(
                           'Applying 0 diffference',
@@ -12872,6 +12918,7 @@ class GLTFRenderer extends Component {
                           lengthBetweenTargetAndEndEffector
                         ) {
                           changeMadeInInnerLoop = true;
+                          this.state_changeMadeInInnerLoop = true;
                           couldFindTheta = true;
                           changeMade = true;
                           if (
