@@ -234,12 +234,12 @@ Cache.enabled = false; //If it is true, sometime crashes..
 const traverseMaterials = (object, callback) => {
   object
     ? object.traverse((node) => {
-        if (!node.isMesh) return;
-        const materials = Array.isArray(node.material)
-          ? node.material
-          : [node.material];
-        materials.forEach(callback);
-      })
+      if (!node.isMesh) return;
+      const materials = Array.isArray(node.material)
+        ? node.material
+        : [node.material];
+      materials.forEach(callback);
+    })
     : '';
 };
 
@@ -413,15 +413,15 @@ class GLTFRenderer extends Component {
           ? prevProps.gltfobj.gdttable[this.props.activeDataTable]
             ? prevProps.gltfobj.gdttable[this.props.activeDataTable].edges
               ? prevProps.gltfobj.gdttable[this.props.activeDataTable].edges
-                  .length > 0
+                .length > 0
                 ? this.props.gltfobj
                   ? this.props.gltfobj.gdttable
                     ? this.props.gltfobj.gdttable[this.props.activeDataTable]
                       ? this.props.gltfobj.gdttable[this.props.activeDataTable]
-                          .edges
+                        .edges
                         ? this.props.gltfobj.gdttable[
-                            this.props.activeDataTable
-                          ].edges.length === 0
+                          this.props.activeDataTable
+                        ].edges.length === 0
                         : true
                       : true
                     : true
@@ -536,7 +536,7 @@ class GLTFRenderer extends Component {
 
     const toChangeGLTF = prevProps
       ? prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
-        prevProps.activeDataTable !== this.props.activeDataTable
+      prevProps.activeDataTable !== this.props.activeDataTable
       : true; //prevProps.activefile !== this.props.activefile;
 
     var toChange = toChangeGLTF;
@@ -571,8 +571,8 @@ class GLTFRenderer extends Component {
         if (
           prevProps
             ? prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
-              !this.content ||
-              this.content.length === 0
+            !this.content ||
+            this.content.length === 0
             : true
         ) {
           console.log(
@@ -612,7 +612,7 @@ class GLTFRenderer extends Component {
       if (
         prevProps
           ? JSON.stringify(prevProps.drawAxisLines || []) !==
-            JSON.stringify(this.props.drawAxisLines || [])
+          JSON.stringify(this.props.drawAxisLines || [])
           : true
       ) {
         for (
@@ -668,7 +668,7 @@ class GLTFRenderer extends Component {
         //this.calculateInverseKinematicMovementFromPointsWithoutLoop(false);
       } else if (
         this.props.showKinematicSliderAnimate !=
-          prevProps.showKinematicSliderAnimate ||
+        prevProps.showKinematicSliderAnimate ||
         this.props.applyTangentToEdges != prevProps.applyTangentToEdges
       ) {
         if (this.props.applyTangentToEdges != prevProps.applyTangentToEdges) {
@@ -692,7 +692,7 @@ class GLTFRenderer extends Component {
         ) {
           if (
             this.calculateInverseKinematicMovementIndex >=
-              this.calculateInverseKinematicMovementArray.length ||
+            this.calculateInverseKinematicMovementArray.length ||
             this.calculateInverseKinematicMovementIndex < 0
           ) {
             this.calculateInverseKinematicMovementIndex = 0;
@@ -700,7 +700,7 @@ class GLTFRenderer extends Component {
           if (this.props.setKinematicItemList) {
             const resultKinematicList = this.cloneChainInfoBackward(
               this.calculateInverseKinematicMovementArray[
-                this.calculateInverseKinematicMovementIndex
+              this.calculateInverseKinematicMovementIndex
               ],
               this.props.kinematicItemList,
               this.state.indexedKinematicParsedInfo
@@ -1021,15 +1021,15 @@ class GLTFRenderer extends Component {
 
       this.shiftposition = this.props.showKinematicSliderMove
         ? {
-            x: 0, // object.position.x - center.x,
-            y: 0, // object.position.y - center.y,
-            z: 0 // object.position.z - center.z
-          }
+          x: 0, // object.position.x - center.x,
+          y: 0, // object.position.y - center.y,
+          z: 0 // object.position.z - center.z
+        }
         : {
-            x: object.position.x - center.x,
-            y: object.position.y - center.y,
-            z: object.position.z - center.z
-          };
+          x: object.position.x - center.x,
+          y: object.position.y - center.y,
+          z: object.position.z - center.z
+        };
       object.position.x += this.shiftposition.x;
       object.position.y += this.shiftposition.y;
       object.position.z += this.shiftposition.z;
@@ -1420,7 +1420,7 @@ class GLTFRenderer extends Component {
         'Executing',
         this.calculateInverseKinematicMovementIndex,
         this.calculateInverseKinematicMovementArray[
-          this.calculateInverseKinematicMovementIndex
+        this.calculateInverseKinematicMovementIndex
         ],
         this.animateResultKinematicList
       );
@@ -1501,83 +1501,83 @@ class GLTFRenderer extends Component {
       this.content.forEach((element) => {
         element
           ? element.traverse((node) => {
-              if (node.isLight) {
-                this.setStateWithoutError({ addLights: false });
-                //this.state.addLights = false;
-              } else if (node.isMesh) {
-                // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
-                node.frustumCulled = false;
-                if (node.material) {
-                  node.material.transparent = false;
+            if (node.isLight) {
+              this.setStateWithoutError({ addLights: false });
+              //this.state.addLights = false;
+            } else if (node.isMesh) {
+              // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
+              node.frustumCulled = false;
+              if (node.material) {
+                node.material.transparent = false;
+              }
+              for (var i = 0; i < this.state_selectedObjects.length; i++) {
+                if (node.name === this.state_selectedObjects[i].name) {
+                  this.setSelectionColor(node);
+                  this.state_selectedObjects[i] = node;
+                  break;
                 }
-                for (var i = 0; i < this.state_selectedObjects.length; i++) {
-                  if (node.name === this.state_selectedObjects[i].name) {
-                    this.setSelectionColor(node);
-                    this.state_selectedObjects[i] = node;
-                    break;
-                  }
+              }
+              if (this.firstshell) {
+                if (node.name === this.firstshell.name) {
+                  this.setSelectionColor(node);
+                  this.firstshell = node;
                 }
-                if (this.firstshell) {
-                  if (node.name === this.firstshell.name) {
-                    this.setSelectionColor(node);
-                    this.firstshell = node;
-                  }
+              }
+              if (this.secondshell) {
+                if (node.name === this.secondshell.name) {
+                  this.setSelectionColor(node);
+                  this.secondshell = node;
                 }
-                if (this.secondshell) {
-                  if (node.name === this.secondshell.name) {
-                    this.setSelectionColor(node);
-                    this.secondshell = node;
-                  }
-                }
-                const visibility = this.visibllity(node, true, option);
-                if (this.props.materialtype !== 'Basic') {
-                  const materials = Array.isArray(node.material)
-                    ? node.material
-                    : [node.material];
-                  materials.forEach((material) => {
-                    material.visible = visibility;
-                    var prevMaterial = material;
-                    if (this.props.materialtype === 'Standard') {
-                      material = new MeshStandardMaterial();
+              }
+              const visibility = this.visibllity(node, true, option);
+              if (this.props.materialtype !== 'Basic') {
+                const materials = Array.isArray(node.material)
+                  ? node.material
+                  : [node.material];
+                materials.forEach((material) => {
+                  material.visible = visibility;
+                  var prevMaterial = material;
+                  if (this.props.materialtype === 'Standard') {
+                    material = new MeshStandardMaterial();
+                  } else {
+                    if (this.props.materialtype === 'Lambert') {
+                      material = new MeshLambertMaterial();
                     } else {
-                      if (this.props.materialtype === 'Lambert') {
-                        material = new MeshLambertMaterial();
+                      if (this.props.materialtype === 'Phong') {
+                        material = new MeshPhongMaterial();
                       } else {
-                        if (this.props.materialtype === 'Phong') {
-                          material = new MeshPhongMaterial();
-                        } else {
-                          if (this.props.materialtype === 'Physical') {
-                            material = new MeshPhysicalMaterial();
-                          }
+                        if (this.props.materialtype === 'Physical') {
+                          material = new MeshPhysicalMaterial();
                         }
                       }
                     }
+                  }
 
-                    MeshBasicMaterial.prototype.copy.call(
-                      material,
-                      prevMaterial
-                    );
-                  });
-                } else {
-                  const materials = Array.isArray(node.material)
-                    ? node.material
-                    : [node.material];
-                  materials.forEach((material) => {
-                    //console.log("before",material);
-                    material.visible = visibility;
-                    //console.log("after",material);
-                  });
-                }
-                this.changeMaterialStats(
-                  node.material,
-                  this.state.side,
-                  this.state.opaque,
-                  this.state.wiremesh,
-                  this.state.castshadow,
-                  this.state.transparency
-                );
+                  MeshBasicMaterial.prototype.copy.call(
+                    material,
+                    prevMaterial
+                  );
+                });
+              } else {
+                const materials = Array.isArray(node.material)
+                  ? node.material
+                  : [node.material];
+                materials.forEach((material) => {
+                  //console.log("before",material);
+                  material.visible = visibility;
+                  //console.log("after",material);
+                });
               }
-            })
+              this.changeMaterialStats(
+                node.material,
+                this.state.side,
+                this.state.opaque,
+                this.state.wiremesh,
+                this.state.castshadow,
+                this.state.transparency
+              );
+            }
+          })
           : '';
       });
     }
@@ -1982,7 +1982,7 @@ class GLTFRenderer extends Component {
         this.scene.add( this.trackballWidget );
         this.trackballWidget.visible = false;
         this.trackballWidget.renderOrder = 1; // Don't draw to early, thus obscuring other transparent objects        
-				
+      	
  */
     //console.log('Updateing clips', object, clips);
     this.setClips(clips);
@@ -2391,10 +2391,10 @@ class GLTFRenderer extends Component {
       if (this.content && this.content.length > 0) {
         this.content[0]
           ? this.content[0].traverse((node) => {
-              if (node.isCamera && node.name === name) {
-                this.activeCamera = node;
-              }
-            })
+            if (node.isCamera && node.name === name) {
+              this.activeCamera = node;
+            }
+          })
           : '';
       }
     }
@@ -2407,12 +2407,12 @@ class GLTFRenderer extends Component {
       this.content.forEach((element) => {
         element
           ? traverseMaterials(element, (material) => {
-              if (material.map) material.map.encoding = encoding;
-              if (material.emissiveMap)
-                material.emissiveMap.encoding = encoding;
-              if (material.map || material.emissiveMap)
-                material.needsUpdate = true;
-            })
+            if (material.map) material.map.encoding = encoding;
+            if (material.emissiveMap)
+              material.emissiveMap.encoding = encoding;
+            if (material.map || material.emissiveMap)
+              material.needsUpdate = true;
+          })
           : '';
       });
     }
@@ -2518,29 +2518,29 @@ class GLTFRenderer extends Component {
       this.content.forEach((element) => {
         element
           ? traverseMaterials(element, (material) => {
-              this.changeMaterialStats(
-                material,
-                mySide,
-                myOpaque,
-                myWiremesh,
-                myCastShadow,
-                myTransparancy
-              );
-            })
+            this.changeMaterialStats(
+              material,
+              mySide,
+              myOpaque,
+              myWiremesh,
+              myCastShadow,
+              myTransparancy
+            );
+          })
           : '';
       });
       this.content.forEach((element) => {
         element
           ? element.traverse((node) => {
-              if (node.isMesh && node.skeleton && mySkeleton) {
-                const helper = new SkeletonHelper(
-                  node.skeleton.bones[0].parent
-                );
-                helper.material.linewidth = 3;
-                this.scene.add(helper);
-                this.skeletonHelpers.push(helper);
-              }
-            })
+            if (node.isMesh && node.skeleton && mySkeleton) {
+              const helper = new SkeletonHelper(
+                node.skeleton.bones[0].parent
+              );
+              helper.material.linewidth = 3;
+              this.scene.add(helper);
+              this.skeletonHelpers.push(helper);
+            }
+          })
           : '';
       });
     }
@@ -2811,8 +2811,8 @@ class GLTFRenderer extends Component {
         this.content.forEach((element) => {
           element
             ? traverseMaterials(element, (material) => {
-                material.needsUpdate = true;
-              })
+              material.needsUpdate = true;
+            })
             : '';
         });
       });
@@ -2911,15 +2911,15 @@ class GLTFRenderer extends Component {
     this.content.forEach((element) => {
       element
         ? element.traverse((node) => {
-            if (node.isMesh && node.morphTargetInfluences) {
-              morphMeshes.push(node);
-            }
-            if (node.isCamera) {
-              node.name =
-                node.name || `VIEWER__camera_${cameraNames.length + 1}`;
-              cameraNames.push(node.name);
-            }
-          })
+          if (node.isMesh && node.morphTargetInfluences) {
+            morphMeshes.push(node);
+          }
+          if (node.isCamera) {
+            node.name =
+              node.name || `VIEWER__camera_${cameraNames.length + 1}`;
+            cameraNames.push(node.name);
+          }
+        })
         : '';
     });
 
@@ -3617,7 +3617,7 @@ class GLTFRenderer extends Component {
           this.mouse.x,
           this.mouse.y,
           (this.activeCamera.near + this.activeCamera.far) /
-            (this.activeCamera.near - this.activeCamera.far)
+          (this.activeCamera.near - this.activeCamera.far)
         );
         /*  zoomDirection.unproject(this.activeCamera);  
                 let revVector = new Vector3().copy(zoomDirection).project(this.activeCamera);
@@ -3664,15 +3664,15 @@ class GLTFRenderer extends Component {
 
           const upperBox = new Vector3(
             startx +
-              this.orthogonalImageBox.max.x -
-              this.orthogonalImageBox.min.x,
+            this.orthogonalImageBox.max.x -
+            this.orthogonalImageBox.min.x,
             starty +
-              this.orthogonalImageBox.max.y -
-              this.orthogonalImageBox.min.y,
+            this.orthogonalImageBox.max.y -
+            this.orthogonalImageBox.min.y,
             startz +
-              this.orthogonalImageBox.max.z -
-              this.orthogonalImageBox.min.z +
-              this.shiftposition.z
+            this.orthogonalImageBox.max.z -
+            this.orthogonalImageBox.min.z +
+            this.shiftposition.z
           );
           /*  const u1=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.min.z);
                     const u2=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.min.z);
@@ -3791,7 +3791,7 @@ class GLTFRenderer extends Component {
     var vector = new Vector2();
     vector.set(
       (pageX - this.canvas.width * 0.5 - this.canvas.left) /
-        (this.canvas.width * 0.5),
+      (this.canvas.width * 0.5),
       (this.canvas.height + 2 * (this.canvas.top - pageY)) / this.canvas.height
     );
 
@@ -4302,7 +4302,7 @@ class GLTFRenderer extends Component {
           let errorMessage = 'Did not Render Properly ';
           try {
             errorMessage += exception.toString();
-          } catch (exc) {}
+          } catch (exc) { }
           this.openSnackBar('error', errorMessage);
         } catch (error) {
           console.log(
@@ -5737,7 +5737,7 @@ class GLTFRenderer extends Component {
     if (
       (this.props.whatchanged === SELECTANITEM &&
         stringify(changedata || {}) !==
-          stringify(this.changeddataarray || {})) ||
+        stringify(this.changeddataarray || {})) ||
       this.props.whatchanged !== this.whatchanged ||
       (changedata ? changedata[gltf_Dict['name']] : '') !== this.activeId ||
       (this.props.whatchanged === SELECTCOLOR &&
@@ -6321,7 +6321,7 @@ class GLTFRenderer extends Component {
           propsElement.actuator_motion_control.cylindrical_axis_of_rotation
             .position !== undefined
             ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
-                .position
+              .position
             : [0, 0, 0];
         return this.drawAxisLine(axis, position, propsElement.name);
       }
@@ -6401,9 +6401,9 @@ class GLTFRenderer extends Component {
 
           const element = sequencedElement
             ? this.getKinematicItem(
-                this.props.kinematicItemList,
-                sequencedElement
-              )
+              this.props.kinematicItemList,
+              sequencedElement
+            )
             : this.props.kinematicItemList[index];
           //const element = this.props.kinematicItemList[index];
           if (
@@ -6411,7 +6411,7 @@ class GLTFRenderer extends Component {
             element.actuator_motion_control &&
             ((!sequencedElement &&
               element.actuator_motion_control.axis_number >
-                propsElement.actuator_motion_control.axis_number) ||
+              propsElement.actuator_motion_control.axis_number) ||
               sequencedElement)
           ) {
             let node = this.findNodeFrom(element);
@@ -6710,7 +6710,7 @@ class GLTFRenderer extends Component {
           element &&
           element.actuator_motion_control &&
           element.actuator_motion_control.axis_number ===
-            propsElement.actuator_motion_control.axis_number + 1
+          propsElement.actuator_motion_control.axis_number + 1
         ) {
           return element;
         }
@@ -6834,7 +6834,7 @@ class GLTFRenderer extends Component {
     let clonedChain = this.animateResultKinematicList;
     const nodesArray =
       this.calculateInverseKinematicMovementArray[
-        this.calculateInverseKinematicMovementIndex
+      this.calculateInverseKinematicMovementIndex
       ];
     const parsedIndexInfo = this.state.indexedKinematicParsedInfo;
     if (nodesArray) {
@@ -6907,92 +6907,142 @@ class GLTFRenderer extends Component {
     return angleBetween;
   };
   getAngleBetweenVectorsFromAxis = (
-    A_currentPositionAxis,
-    B_currentEndEffectorposition,
-    C_currentTargetPosition
+    PositionAxis,
+    EndEffectorPosition,
+    TargetPosition
   ) => {
     let crossProduct = new Vector3().crossVectors(
-      B_currentEndEffectorposition,
-      C_currentTargetPosition
+      EndEffectorPosition,
+      TargetPosition
     );
-    let endEffectorDot = B_currentEndEffectorposition.dot(
-      C_currentTargetPosition
+    let endEffectorDot = EndEffectorPosition.dot(
+      TargetPosition
     );
-    let targetDot = crossProduct.dot(A_currentPositionAxis);
+    let targetDot = crossProduct.dot(PositionAxis);
 
     return Math.atan2(targetDot, endEffectorDot);
   };
   getAngleBetweenVectorsWithoutAxis = (
-    B_currentEndEffectorposition,
-    C_currentTargetPosition
+    EndEffectorPosition,
+    TargetPosition,
+    precision = 0.000001
   ) => {
-    const endEffectorDot = B_currentEndEffectorposition.dot(
-      C_currentTargetPosition
+    const endEffectorDot = EndEffectorPosition.dot(
+      TargetPosition
     );
-    let theta = Math.acos(endEffectorDot);
+    const thetaCosInverse = Math.acos(endEffectorDot);
+    let theta = thetaCosInverse;
     let quaternion = new Quaternion();
     quaternion
-      .setFromAxisAngle(B_currentEndEffectorposition, theta)
+      .setFromAxisAngle(EndEffectorPosition, theta)
       .normalize();
-    let resEffector = B_currentEndEffectorposition.clone()
+    let resEffector = EndEffectorPosition.clone()
       .applyQuaternion(quaternion)
       .normalize();
-    let resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    let resDot = 1 - resEffector.dot(TargetPosition);
     console.log(
       'Angle finding',
-      B_currentEndEffectorposition,
-      C_currentTargetPosition,
+      EndEffectorPosition,
+      TargetPosition,
       theta,
       endEffectorDot,
       resDot
     );
-    if (resDot * resDot <= 0.000001) {
+    let resDotSquare = resDot * resDot;
+    let minPrecision = resDotSquare;
+    let minTheta = theta;
+    if (resDotSquare <= precision) {
       return theta;
     }
     theta = -theta;
     quaternion
-      .setFromAxisAngle(B_currentEndEffectorposition, theta)
+      .setFromAxisAngle(EndEffectorPosition, theta)
       .normalize();
-    resEffector = B_currentEndEffectorposition.clone()
+    resEffector = EndEffectorPosition.clone()
       .applyQuaternion(quaternion)
       .normalize();
-    resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    resDot = 1 - resEffector.dot(TargetPosition);
     console.log(
       'Angle finding Minus',
-      B_currentEndEffectorposition,
-      C_currentTargetPosition,
+      EndEffectorPosition,
+      TargetPosition,
       theta,
       endEffectorDot,
       resDot
     );
-    if (resDot * resDot <= 0.000001) {
+    resDotSquare = resDot * resDot;
+    if (resDotSquare <= precision) {
       return theta;
+    } else {
+      if (resDotSquare < minPrecision) {
+        minPrecision = resDotSquare;
+        minTheta = theta;
+      }
     }
     theta = Math.PI + theta;
     quaternion
-      .setFromAxisAngle(B_currentEndEffectorposition, theta)
+      .setFromAxisAngle(EndEffectorPosition, theta)
       .normalize();
-    resEffector = B_currentEndEffectorposition.clone()
+    resEffector = EndEffectorPosition.clone()
       .applyQuaternion(quaternion)
       .normalize();
-    resDot = 1 - resEffector.dot(C_currentTargetPosition);
+    resDot = 1 - resEffector.dot(TargetPosition);
     console.log(
       'Angle finding PI Minus ',
-      B_currentEndEffectorposition,
-      C_currentTargetPosition,
+      EndEffectorPosition,
+      TargetPosition,
       theta,
       endEffectorDot,
       resDot
     );
-    if (resDot * resDot <= 0.000001) {
+    resDotSquare = resDot * resDot;
+    if (resDotSquare <= precision) {
       return theta;
+    } else {
+      if (resDotSquare < minPrecision) {
+        minPrecision = resDotSquare;
+        minTheta = theta;
+      }
     }
-    return -theta;
+    theta = -theta;
+    quaternion
+      .setFromAxisAngle(EndEffectorPosition, theta)
+      .normalize();
+    resEffector = EndEffectorPosition.clone()
+      .applyQuaternion(quaternion)
+      .normalize();
+    resDot = 1 - resEffector.dot(TargetPosition);
+    console.log(
+      'Angle finding Minus PI Minus ',
+      EndEffectorPosition,
+      TargetPosition,
+      theta,
+      endEffectorDot,
+      resDot
+    );
+    resDotSquare = resDot * resDot;
+    if (resDotSquare <= precision) {
+      return theta;
+    } else {
+      if (resDotSquare < minPrecision) {
+        minPrecision = resDotSquare;
+        minTheta = theta;
+      }
+    }
+    console.log(
+      'No Axis Meets',
+      EndEffectorPosition,
+      TargetPosition,
+      theta,
+      endEffectorDot,
+      resDot
+    );
+    return minTheta;
   };
   calculateKinematicMovement_old = (prevProps, parsedInfo) => {
     if (
       JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
-        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(this.props.xyzControlPosition || []) &&
       JSON.stringify(parsedInfo || []) !== JSON.stringify([])
     ) {
       if (
@@ -7026,11 +7076,11 @@ class GLTFRenderer extends Component {
         );
         let lengthBetweenTargetAndEndEffector =
           differenceBetweenTargetAndEndEffector.x *
-            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.x +
           differenceBetweenTargetAndEndEffector.y *
-            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
-            differenceBetweenTargetAndEndEffector.z;
+          differenceBetweenTargetAndEndEffector.z;
         if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
@@ -7128,9 +7178,9 @@ class GLTFRenderer extends Component {
 
                 const propsElement = sequencedElement
                   ? this.getKinematicItem(
-                      calculatedKinematicItemList,
-                      sequencedElement
-                    )
+                    calculatedKinematicItemList,
+                    sequencedElement
+                  )
                   : calculatedKinematicItemList[index];
 
                 const currentNode = this.findNodeFrom(propsElement);
@@ -7147,28 +7197,28 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control &&
                   !propsElement.actuator_motion_control.is_end_effector &&
                   propsElement.actuator_motion_control.child_part_type ===
-                    'ACTUATOR'
+                  'ACTUATOR'
                 ) {
                   let currentAxis = propsElement.actuator_motion_control
                     .cylindrical_axis_of_rotation
                     ? propsElement.actuator_motion_control
-                        .cylindrical_axis_of_rotation.axis
+                      .cylindrical_axis_of_rotation.axis
                       ? new Vector3(
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
-                        )
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                      )
                       : new Vector3()
                     : new Vector3();
                   let currentPosition = propsElement.actuator_motion_control
                     .cylindrical_axis_of_rotation
                     ? propsElement.actuator_motion_control
-                        .cylindrical_axis_of_rotation.position
+                      .cylindrical_axis_of_rotation.position
                       ? new Vector3(
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
-                        )
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                      )
                       : new Vector3()
                     : new Vector3();
 
@@ -7258,8 +7308,8 @@ class GLTFRenderer extends Component {
                       ) {
                         differenceBetween = Math.sqrt(
                           differencePosition.x * differencePosition.x +
-                            differencePosition.y * differencePosition.y +
-                            differencePosition.z * differencePosition.z
+                          differencePosition.y * differencePosition.y +
+                          differencePosition.z * differencePosition.z
                         );
                         if (methodIndex === 0) {
                           leastTheta = differenceBetween;
@@ -7600,21 +7650,21 @@ class GLTFRenderer extends Component {
                   if (isLinear) {
                     const currentLength = Math.sqrt(
                       currentPositionAxis.x * currentPositionAxis.x +
-                        currentPositionAxis.y * currentPositionAxis.y +
-                        currentPositionAxis.z * currentPositionAxis.z
+                      currentPositionAxis.y * currentPositionAxis.y +
+                      currentPositionAxis.z * currentPositionAxis.z
                     );
                     if (currentLength !== 0) {
                       localCurrentTranslation.add(
                         new Vector3(
                           (currentPositionAxis.x *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.y *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.z *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength
+                          currentLength
                         )
                       );
                     }
@@ -7669,7 +7719,7 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control &&
                   propsElement.actuator_motion_control.is_end_effector &&
                   propsElement.actuator_motion_control.child_part_type ===
-                    'ACTUATOR'
+                  'ACTUATOR'
                 ) {
                   if (this.props.itemProperties) {
                     const itemProperties = this.props.itemProperties;
@@ -7702,11 +7752,11 @@ class GLTFRenderer extends Component {
                         );
                       let differenceCalculatedBetween =
                         differenceCalcuatedPosition.x *
-                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.x +
                         differenceCalcuatedPosition.y *
-                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.y +
                         differenceCalcuatedPosition.z *
-                          differenceCalcuatedPosition.z;
+                        differenceCalcuatedPosition.z;
                       if (
                         differenceCalculatedBetween <
                         lengthBetweenTargetAndEndEffector
@@ -7860,7 +7910,7 @@ class GLTFRenderer extends Component {
   calculateInverseKinematicMovement_withoutIndex = (prevProps, parsedInfo) => {
     if (
       JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
-        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(this.props.xyzControlPosition || []) &&
       JSON.stringify(parsedInfo || []) !== JSON.stringify([])
     ) {
       if (
@@ -7890,11 +7940,11 @@ class GLTFRenderer extends Component {
         );
         let lengthBetweenTargetAndEndEffector =
           differenceBetweenTargetAndEndEffector.x *
-            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.x +
           differenceBetweenTargetAndEndEffector.y *
-            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
-            differenceBetweenTargetAndEndEffector.z;
+          differenceBetweenTargetAndEndEffector.z;
         if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
@@ -7968,9 +8018,9 @@ class GLTFRenderer extends Component {
 
                 const propsElement = sequencedElement
                   ? this.getKinematicItem(
-                      calculatedKinematicItemList,
-                      sequencedElement
-                    )
+                    calculatedKinematicItemList,
+                    sequencedElement
+                  )
                   : calculatedKinematicItemList[index];
 
                 const currentNode = this.findNodeFrom(propsElement);
@@ -7981,28 +8031,28 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control &&
                   !propsElement.actuator_motion_control.is_end_effector &&
                   propsElement.actuator_motion_control.child_part_type ===
-                    'ACTUATOR'
+                  'ACTUATOR'
                 ) {
                   let currentAxis = propsElement.actuator_motion_control
                     .cylindrical_axis_of_rotation
                     ? propsElement.actuator_motion_control
-                        .cylindrical_axis_of_rotation.axis
+                      .cylindrical_axis_of_rotation.axis
                       ? new Vector3(
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
-                        )
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                      )
                       : new Vector3()
                     : new Vector3();
                   let currentPosition = propsElement.actuator_motion_control
                     .cylindrical_axis_of_rotation
                     ? propsElement.actuator_motion_control
-                        .cylindrical_axis_of_rotation.position
+                      .cylindrical_axis_of_rotation.position
                       ? new Vector3(
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
-                          propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
-                        )
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                      )
                       : new Vector3()
                     : new Vector3();
 
@@ -8095,14 +8145,14 @@ class GLTFRenderer extends Component {
                         if (differenceBetween > 0) {
                           differenceBetween = Math.sqrt(
                             differencePosition.x * differencePosition.x +
-                              differencePosition.y * differencePosition.y +
-                              differencePosition.z * differencePosition.z
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
                           );
                         } else {
                           differenceBetween = -Math.sqrt(
                             differencePosition.x * differencePosition.x +
-                              differencePosition.y * differencePosition.y +
-                              differencePosition.z * differencePosition.z
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
                           );
                         }
                       }
@@ -8258,21 +8308,21 @@ class GLTFRenderer extends Component {
                   if (isLinear) {
                     const currentLength = Math.sqrt(
                       currentPositionAxis.x * currentPositionAxis.x +
-                        currentPositionAxis.y * currentPositionAxis.y +
-                        currentPositionAxis.z * currentPositionAxis.z
+                      currentPositionAxis.y * currentPositionAxis.y +
+                      currentPositionAxis.z * currentPositionAxis.z
                     );
                     if (currentLength !== 0) {
                       localCurrentTranslation.add(
                         new Vector3(
                           (currentPositionAxis.x *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.y *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.z *
                             propsElement.actuator_motion_control.chain_number) /
-                            currentLength
+                          currentLength
                         )
                       );
                     }
@@ -8318,7 +8368,7 @@ class GLTFRenderer extends Component {
                   propsElement.actuator_motion_control &&
                   propsElement.actuator_motion_control.is_end_effector &&
                   propsElement.actuator_motion_control.child_part_type ===
-                    'ACTUATOR'
+                  'ACTUATOR'
                 ) {
                   if (this.props.itemProperties) {
                     const itemProperties = this.props.itemProperties;
@@ -8350,11 +8400,11 @@ class GLTFRenderer extends Component {
                         );
                       let differenceCalculatedBetween =
                         differenceCalcuatedPosition.x *
-                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.x +
                         differenceCalcuatedPosition.y *
-                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.y +
                         differenceCalcuatedPosition.z *
-                          differenceCalcuatedPosition.z;
+                        differenceCalcuatedPosition.z;
                       if (
                         differenceCalculatedBetween <
                         lengthBetweenTargetAndEndEffector
@@ -8519,16 +8569,16 @@ class GLTFRenderer extends Component {
         ] = parsedIndexInfo[displayIndex];
         propsElement =
           this.props.kinematicItemList[
-            propsElementIndex === -1 ? index : propsElementIndex
+          propsElementIndex === -1 ? index : propsElementIndex
           ];
       }
       const calcElement =
         calculatedKinematicItemList[
-          (parsedIndexInfo ? displayIndex + 1 : displayIndex) < maxLengthItem
-            ? parsedIndexInfo
-              ? displayIndex + 1
-              : displayIndex
-            : maxLengthItem
+        (parsedIndexInfo ? displayIndex + 1 : displayIndex) < maxLengthItem
+          ? parsedIndexInfo
+            ? displayIndex + 1
+            : displayIndex
+          : maxLengthItem
         ];
       console.log(
         flag,
@@ -8550,7 +8600,7 @@ class GLTFRenderer extends Component {
   ) => {
     if (
       JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
-        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(this.props.xyzControlPosition || []) &&
       JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
     ) {
       if (
@@ -8580,11 +8630,11 @@ class GLTFRenderer extends Component {
         );
         let lengthBetweenTargetAndEndEffector =
           differenceBetweenTargetAndEndEffector.x *
-            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.x +
           differenceBetweenTargetAndEndEffector.y *
-            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
-            differenceBetweenTargetAndEndEffector.z;
+          differenceBetweenTargetAndEndEffector.z;
         if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
@@ -8666,11 +8716,11 @@ class GLTFRenderer extends Component {
                 ] = parsedIndexInfo[index];
                 let propsElement =
                   this.props.kinematicItemList[
-                    propsElementIndex === -1 ? index : propsElementIndex
+                  propsElementIndex === -1 ? index : propsElementIndex
                   ];
                 let currentChainValue =
                   calculatedKinematicItemChain[
-                    propsElementIndex === -1 ? index : propsElementIndex
+                  propsElementIndex === -1 ? index : propsElementIndex
                   ];
 
                 if (isActuatorNode) {
@@ -8758,14 +8808,14 @@ class GLTFRenderer extends Component {
                         if (differenceBetween > 0) {
                           differenceBetween = Math.sqrt(
                             differencePosition.x * differencePosition.x +
-                              differencePosition.y * differencePosition.y +
-                              differencePosition.z * differencePosition.z
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
                           );
                         } else {
                           differenceBetween = -Math.sqrt(
                             differencePosition.x * differencePosition.x +
-                              differencePosition.y * differencePosition.y +
-                              differencePosition.z * differencePosition.z
+                            differencePosition.y * differencePosition.y +
+                            differencePosition.z * differencePosition.z
                           );
                         }
                       }
@@ -8923,18 +8973,18 @@ class GLTFRenderer extends Component {
                   if (isLinear) {
                     const currentLength = Math.sqrt(
                       currentPositionAxis.x * currentPositionAxis.x +
-                        currentPositionAxis.y * currentPositionAxis.y +
-                        currentPositionAxis.z * currentPositionAxis.z
+                      currentPositionAxis.y * currentPositionAxis.y +
+                      currentPositionAxis.z * currentPositionAxis.z
                     );
                     if (currentLength !== 0) {
                       localCurrentTranslation.add(
                         new Vector3(
                           (currentPositionAxis.x * currentChainValue) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.y * currentChainValue) /
-                            currentLength,
+                          currentLength,
                           (currentPositionAxis.z * currentChainValue) /
-                            currentLength
+                          currentLength
                         )
                       );
                     }
@@ -9009,11 +9059,11 @@ class GLTFRenderer extends Component {
                         );
                       let differenceCalculatedBetween =
                         differenceCalcuatedPosition.x *
-                          differenceCalcuatedPosition.x +
+                        differenceCalcuatedPosition.x +
                         differenceCalcuatedPosition.y *
-                          differenceCalcuatedPosition.y +
+                        differenceCalcuatedPosition.y +
                         differenceCalcuatedPosition.z *
-                          differenceCalcuatedPosition.z;
+                        differenceCalcuatedPosition.z;
                       if (
                         differenceCalculatedBetween <
                         lengthBetweenTargetAndEndEffector
@@ -9167,7 +9217,7 @@ class GLTFRenderer extends Component {
   ) => {
     if (
       JSON.stringify(prevProps ? prevProps.xyzControlPosition || [] : []) !==
-        JSON.stringify(this.props.xyzControlPosition || []) &&
+      JSON.stringify(this.props.xyzControlPosition || []) &&
       JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
     ) {
       if (
@@ -9194,11 +9244,11 @@ class GLTFRenderer extends Component {
         );
         let lengthBetweenTargetAndEndEffector =
           differenceBetweenTargetAndEndEffector.x *
-            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.x +
           differenceBetweenTargetAndEndEffector.y *
-            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
-            differenceBetweenTargetAndEndEffector.z;
+          differenceBetweenTargetAndEndEffector.z;
         if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
@@ -9262,7 +9312,7 @@ class GLTFRenderer extends Component {
         // );
         const howManyIterations = this.props.kinematicParameters
           ? this.props.kinematicParameters.iterations +
-              ((this.props.kinematicParameters.iterations + 1) % 2) || 21
+          ((this.props.kinematicParameters.iterations + 1) % 2) || 21
           : 21;
         for (let iteration = 0; iteration < howManyIterations; iteration++) {
           direction = !direction;
@@ -9332,7 +9382,7 @@ class GLTFRenderer extends Component {
                   if (isActuatorNode) {
                     let propsElement =
                       this.props.kinematicItemList[
-                        propsElementIndex === -1 ? index : propsElementIndex
+                      propsElementIndex === -1 ? index : propsElementIndex
                       ];
                     const currentAxis = currentAxisNode;
                     const currentPosition = currentPositionNode;
@@ -9443,14 +9493,14 @@ class GLTFRenderer extends Component {
                           if (differenceBetween > 0) {
                             differenceBetween = Math.sqrt(
                               differencePosition.x * differencePosition.x +
-                                differencePosition.y * differencePosition.y +
-                                differencePosition.z * differencePosition.z
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
                             );
                           } else {
                             differenceBetween = -Math.sqrt(
                               differencePosition.x * differencePosition.x +
-                                differencePosition.y * differencePosition.y +
-                                differencePosition.z * differencePosition.z
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
                             );
                           }
                         }
@@ -9788,11 +9838,11 @@ class GLTFRenderer extends Component {
                           );
                         let differenceCalculatedBetween =
                           differenceCalcuatedPosition.x *
-                            differenceCalcuatedPosition.x +
+                          differenceCalcuatedPosition.x +
                           differenceCalcuatedPosition.y *
-                            differenceCalcuatedPosition.y +
+                          differenceCalcuatedPosition.y +
                           differenceCalcuatedPosition.z *
-                            differenceCalcuatedPosition.z;
+                          differenceCalcuatedPosition.z;
                         if (
                           differenceCalculatedBetween <
                           lengthBetweenTargetAndEndEffector
@@ -9993,8 +10043,8 @@ class GLTFRenderer extends Component {
       ? this.props.kinematicParameters.gap
         ? this.props.kinematicParameters.gap
         : this.props.kinematicParameters.gap === 0 //Include all points
-        ? this.props.kinematicParameters.gap
-        : 0.001
+          ? this.props.kinematicParameters.gap
+          : 0.001
       : 0.001;
     const gapSquare = gap * gap;
     let lastPoint = new Vector3();
@@ -10029,7 +10079,7 @@ class GLTFRenderer extends Component {
       const firstSelectedPoint = selectedObjectsElement.curvePoints[0];
       const lastSelectedPoint =
         selectedObjectsElement.curvePoints[
-          selectedObjectsElement.curvePoints.length - 1
+        selectedObjectsElement.curvePoints.length - 1
         ];
       if (
         selectedObjectsElement.curveCode === 'L' &&
@@ -10245,8 +10295,8 @@ class GLTFRenderer extends Component {
             if (this.props.setProgressAnimateText) {
               this.props.setProgressAnimateText(
                 selectedObjectsIndex.toString() +
-                  '/' +
-                  this.state_selectedObjects.length.toString()
+                '/' +
+                this.state_selectedObjects.length.toString()
               );
             }
             const selectedObjectsElement =
@@ -10282,12 +10332,12 @@ class GLTFRenderer extends Component {
                 if (this.props.setProgressAnimateText) {
                   this.props.setProgressAnimateText(
                     selectedObjectsIndex.toString() +
-                      '/' +
-                      this.state_selectedObjects.length.toString() +
-                      '-' +
-                      pointsIndex.toString() +
-                      '/' +
-                      curvePoints.length.toString()
+                    '/' +
+                    this.state_selectedObjects.length.toString() +
+                    '-' +
+                    pointsIndex.toString() +
+                    '/' +
+                    curvePoints.length.toString()
                   );
                 }
                 const pointsElement = curvePoints[pointsIndex];
@@ -10305,11 +10355,11 @@ class GLTFRenderer extends Component {
                   );
                 let lengthBetweenTargetAndEndEffector =
                   differenceBetweenTargetAndEndEffector.x *
-                    differenceBetweenTargetAndEndEffector.x +
+                  differenceBetweenTargetAndEndEffector.x +
                   differenceBetweenTargetAndEndEffector.y *
-                    differenceBetweenTargetAndEndEffector.y +
+                  differenceBetweenTargetAndEndEffector.y +
                   differenceBetweenTargetAndEndEffector.z *
-                    differenceBetweenTargetAndEndEffector.z;
+                  differenceBetweenTargetAndEndEffector.z;
                 if (lengthBetweenTargetAndEndEffector === 0) {
                   return;
                 }
@@ -10343,8 +10393,8 @@ class GLTFRenderer extends Component {
                 // );
                 const howManyIterations = this.props.kinematicParameters
                   ? this.props.kinematicParameters.iterations +
-                      ((this.props.kinematicParameters.iterations + 1) % 2) ||
-                    21
+                  ((this.props.kinematicParameters.iterations + 1) % 2) ||
+                  21
                   : 21;
                 for (
                   let iteration = 0;
@@ -10420,9 +10470,9 @@ class GLTFRenderer extends Component {
                           if (isActuatorNode) {
                             let propsElement =
                               this.props.kinematicItemList[
-                                propsElementIndex === -1
-                                  ? index
-                                  : propsElementIndex
+                              propsElementIndex === -1
+                                ? index
+                                : propsElementIndex
                               ];
                             const currentAxis = currentAxisNode;
                             const currentPosition = currentPositionNode;
@@ -10518,11 +10568,11 @@ class GLTFRenderer extends Component {
                                 if (methodIndex === 0 || methodIndex === 1) {
                                   differenceBetween =
                                     differencePosition.x *
-                                      currentPositionAxis.x +
+                                    currentPositionAxis.x +
                                     differencePosition.y *
-                                      currentPositionAxis.y +
+                                    currentPositionAxis.y +
                                     differencePosition.z *
-                                      currentPositionAxis.z;
+                                    currentPositionAxis.z;
 
                                   if (methodIndex === 0) {
                                     leastTheta = differenceBetween;
@@ -10538,28 +10588,28 @@ class GLTFRenderer extends Component {
                                 if (methodIndex === 3) {
                                   differenceBetween =
                                     differencePosition.x *
-                                      currentPositionAxis.x +
+                                    currentPositionAxis.x +
                                     differencePosition.y *
-                                      currentPositionAxis.y +
+                                    currentPositionAxis.y +
                                     differencePosition.z *
-                                      currentPositionAxis.z;
+                                    currentPositionAxis.z;
                                   if (differenceBetween > 0) {
                                     differenceBetween = Math.sqrt(
                                       differencePosition.x *
-                                        differencePosition.x +
-                                        differencePosition.y *
-                                          differencePosition.y +
-                                        differencePosition.z *
-                                          differencePosition.z
+                                      differencePosition.x +
+                                      differencePosition.y *
+                                      differencePosition.y +
+                                      differencePosition.z *
+                                      differencePosition.z
                                     );
                                   } else {
                                     differenceBetween = -Math.sqrt(
                                       differencePosition.x *
-                                        differencePosition.x +
-                                        differencePosition.y *
-                                          differencePosition.y +
-                                        differencePosition.z *
-                                          differencePosition.z
+                                      differencePosition.x +
+                                      differencePosition.y *
+                                      differencePosition.y +
+                                      differencePosition.z *
+                                      differencePosition.z
                                     );
                                   }
                                 }
@@ -10920,11 +10970,11 @@ class GLTFRenderer extends Component {
                                   );
                                 let differenceCalculatedBetween =
                                   differenceCalcuatedPosition.x *
-                                    differenceCalcuatedPosition.x +
+                                  differenceCalcuatedPosition.x +
                                   differenceCalcuatedPosition.y *
-                                    differenceCalcuatedPosition.y +
+                                  differenceCalcuatedPosition.y +
                                   differenceCalcuatedPosition.z *
-                                    differenceCalcuatedPosition.z;
+                                  differenceCalcuatedPosition.z;
                                 if (
                                   differenceCalculatedBetween <
                                   lengthBetweenTargetAndEndEffector
@@ -11264,7 +11314,7 @@ class GLTFRenderer extends Component {
                   const percentage =
                     ((this.state_selectedObjectsIndex +
                       this.state_pointsIndex /
-                        this.state_curvePoints[0].length) *
+                      this.state_curvePoints[0].length) *
                       100.0) /
                     this.state_selectedObjects.length;
                   this.props.setProgressAnimate(percentage);
@@ -11273,12 +11323,12 @@ class GLTFRenderer extends Component {
                 if (this.props.setProgressAnimateText) {
                   this.props.setProgressAnimateText(
                     this.state_selectedObjectsIndex.toString() +
-                      '/' +
-                      this.state_selectedObjects.length.toString() +
-                      '-' +
-                      this.state_pointsIndex.toString() +
-                      '/' +
-                      this.state_curvePoints[0].length.toString()
+                    '/' +
+                    this.state_selectedObjects.length.toString() +
+                    '-' +
+                    this.state_pointsIndex.toString() +
+                    '/' +
+                    this.state_curvePoints[0].length.toString()
                   );
                 }
                 const pointsElement =
@@ -11297,15 +11347,11 @@ class GLTFRenderer extends Component {
                   );
                 let lengthBetweenTargetAndEndEffector =
                   differenceBetweenTargetAndEndEffector.x *
-                    differenceBetweenTargetAndEndEffector.x +
+                  differenceBetweenTargetAndEndEffector.x +
                   differenceBetweenTargetAndEndEffector.y *
-                    differenceBetweenTargetAndEndEffector.y +
+                  differenceBetweenTargetAndEndEffector.y +
                   differenceBetweenTargetAndEndEffector.z *
-                    differenceBetweenTargetAndEndEffector.z;
-                if (lengthBetweenTargetAndEndEffector === 0) {
-                  return;
-                }
-
+                  differenceBetweenTargetAndEndEffector.z;
                 originalTargetPosition.sub(
                   this.state_originalXYZShiftablePosition
                 );
@@ -11323,663 +11369,723 @@ class GLTFRenderer extends Component {
                 originalTargetPosition.add(
                   this.state_calculatedKinematicItemChain[endOfActuator].L
                 );
-
-                let direction = false;
-                //let directionMultiplier = -1;
-                let foundThePosition = false;
-                let changeMade = false;
-                let directionIndex = 0;
-
-                // console.log(
-                //   'GOt inititally',
-                //   currentMountPosition,
-                //   originalEndEffectorPosition,
-                //   originalTargetPosition,
-                //   targetEndEffectorPosition
-                // );
+                if (this.state_angleIteration === 0) {
+                  this.state_lastKnownLength = lengthBetweenTargetAndEndEffector;
+                  this.state_previousCalculatedKinematicItemChain =
+                    this.cloneChainInfoForward(
+                      this.state_calculatedKinematicItemChain
+                    );
+                }
                 const howManyIterations = this.props.kinematicParameters
                   ? this.props.kinematicParameters.iterations +
-                      ((this.props.kinematicParameters.iterations + 1) % 2) ||
-                    21
+                  ((this.props.kinematicParameters.iterations + 1) % 2) ||
+                  21
                   : 21;
-                for (
-                  let iteration = 0;
-                  iteration < howManyIterations;
-                  iteration++
-                ) {
-                  direction = !direction;
-                  let couldFindTheta = false;
-                  //let lastPositionalIndex = 0;
-                  //let startPositionalIndex = 0;
-                  directionIndex = beginOfActuator;
-                  for (; directionIndex < endOfActuator; directionIndex++) {
-                    const positionalIndex =
-                      direction === true
-                        ? directionIndex
-                        : endOfActuator - directionIndex + beginOfActuator - 1;
-                    const isActuatorOrEndEffector =
-                      this.state_calculatedKinematicItemChain[
-                        positionalIndex + 1
-                      ].K;
-                    if (isActuatorOrEndEffector) {
-                      let previousCalculatedKinematicItemChain =
-                        this.cloneChainInfoForward(
-                          this.state_calculatedKinematicItemChain
-                        );
-                      let leastTheta = 6.28;
-                      let mostTheta = -6.28;
-                      const howManyMethods = this.props.kinematicParameters
-                        ? this.props.kinematicParameters.methods || 1
-                        : 1;
-                      for (
-                        let methodIndex = 0;
-                        methodIndex < howManyMethods;
-                        methodIndex++
-                      ) {
-                        let localQuaternion =
-                          this.state_calculatedKinematicItemChain[
-                            positionalIndex
-                          ].Q;
-                        let localPosition =
-                          this.state_calculatedKinematicItemChain[
-                            positionalIndex
-                          ].L;
-                        let localTranslation =
-                          this.state_calculatedKinematicItemChain[
-                            positionalIndex
-                          ].T;
-                        let localShiftedPosition =
-                          this.state_calculatedKinematicItemChain[
-                            positionalIndex
-                          ].S;
-                        //let globalShiftedPosition = new Vector3(0, 0, 0);
-                        let changeMadeInInnerLoop = false;
-                        let positionalIndexFound = false;
+                let changeMade = false;
+                if (lengthBetweenTargetAndEndEffector !== 0) {
+
+                  let direction = false;
+                  //let directionMultiplier = -1;
+                  let foundThePosition = false;
+
+                  let directionIndex = 0;
+
+                  // console.log(
+                  //   'GOt inititally',
+                  //   currentMountPosition,
+                  //   originalEndEffectorPosition,
+                  //   originalTargetPosition,
+                  //   targetEndEffectorPosition
+                  // );
+
+                  for (
+                    let iteration = 0;
+                    iteration < howManyIterations;
+                    iteration++
+                  ) {
+                    direction = !direction;
+                    let couldFindTheta = false;
+                    //let lastPositionalIndex = 0;
+                    //let startPositionalIndex = 0;
+                    directionIndex = beginOfActuator;
+                    for (; directionIndex < endOfActuator; directionIndex++) {
+                      const positionalIndex =
+                        direction === true
+                          ? directionIndex
+                          : endOfActuator - directionIndex + beginOfActuator - 1;
+                      const isActuatorOrEndEffector =
+                        this.state_calculatedKinematicItemChain[
+                          positionalIndex + 1
+                        ].K;
+                      if (isActuatorOrEndEffector) {
+                        let previousCalculatedKinematicItemChain =
+                          this.cloneChainInfoForward(
+                            this.state_calculatedKinematicItemChain
+                          );
+                        let leastTheta = 6.28;
+                        let mostTheta = -6.28;
+                        const howManyMethods = this.props.kinematicParameters
+                          ? this.props.kinematicParameters.methods || 1
+                          : 1;
                         for (
-                          let index = positionalIndex;
-                          index <
-                          this.state_calculatedKinematicItemChain.length - 1;
-                          index++
+                          let methodIndex = 0;
+                          methodIndex < howManyMethods;
+                          methodIndex++
                         ) {
-                          // console.log(
-                          //   'Parsed Index info',
-                          //   index,
-                          //   positionalIndex,
-                          //   beginOfActuator,
-                          //   endOfActuator,
-                          //   directionIndex
-                          // );
-                          let [
-                            sequence,
-                            sequenceItem,
-                            propsElementIndex,
-                            currentNodeIndex,
-                            isActuatorNode,
-                            isLinearNode,
-                            isEndEffectorNode,
-                            currentAxisNode,
-                            currentPositionNode
-                          ] = parsedIndexInfo[index];
+                          let localQuaternion =
+                            this.state_calculatedKinematicItemChain[
+                              positionalIndex
+                            ].Q;
+                          let localPosition =
+                            this.state_calculatedKinematicItemChain[
+                              positionalIndex
+                            ].L;
+                          let localTranslation =
+                            this.state_calculatedKinematicItemChain[
+                              positionalIndex
+                            ].T;
+                          let localShiftedPosition =
+                            this.state_calculatedKinematicItemChain[
+                              positionalIndex
+                            ].S;
+                          //let globalShiftedPosition = new Vector3(0, 0, 0);
+                          let changeMadeInInnerLoop = false;
+                          let positionalIndexFound = false;
+                          for (
+                            let index = positionalIndex;
+                            index <
+                            this.state_calculatedKinematicItemChain.length - 1;
+                            index++
+                          ) {
+                            // console.log(
+                            //   'Parsed Index info',
+                            //   index,
+                            //   positionalIndex,
+                            //   beginOfActuator,
+                            //   endOfActuator,
+                            //   directionIndex
+                            // );
+                            let [
+                              sequence,
+                              sequenceItem,
+                              propsElementIndex,
+                              currentNodeIndex,
+                              isActuatorNode,
+                              isLinearNode,
+                              isEndEffectorNode,
+                              currentAxisNode,
+                              currentPositionNode
+                            ] = parsedIndexInfo[index];
 
-                          let currentChainValue =
-                            this.state_calculatedKinematicItemChain[index + 1];
+                            let currentChainValue =
+                              this.state_calculatedKinematicItemChain[index + 1];
 
-                          if (isActuatorNode) {
-                            if (direction) {
-                              this.state_lastActuator = index;
-                            }
-                            let propsElement =
-                              this.props.kinematicItemList[
+                            if (isActuatorNode) {
+                              if (direction) {
+                                this.state_lastActuator = index;
+                              }
+                              let propsElement =
+                                this.props.kinematicItemList[
                                 propsElementIndex === -1
                                   ? index
                                   : propsElementIndex
-                              ];
-                            const currentAxis = currentAxisNode;
-                            const currentPosition = currentPositionNode;
-                            // localQuaternion = calculatedKinematicItemChain[index].Q;
-                            // localPosition = calculatedKinematicItemChain[index].L;
-                            // localTranslation = calculatedKinematicItemChain[index].T;
-                            // localShiftedPosition = calculatedKinematicItemChain[index].S;
-                            let localCurrentQuaternion =
-                              localQuaternion.clone();
-                            let localCurrentTranslation =
-                              localTranslation.clone();
-                            let currentShiftedPosition =
-                              currentPosition.clone();
-                            currentShiftedPosition.sub(localPosition);
-                            currentShiftedPosition.applyQuaternion(
-                              localCurrentQuaternion
-                            );
-                            currentShiftedPosition.add(localShiftedPosition);
-                            let currentPositionAxis = currentAxis.clone();
-                            currentPositionAxis.applyQuaternion(
-                              localCurrentQuaternion
-                            );
-                            currentPositionAxis.normalize();
-                            this.state_lastAxis = currentPositionAxis.clone();
-                            const isLinear = isLinearNode;
-                            if (positionalIndex === index) {
-                              positionalIndexFound = true;
-                              let differenceBetween = 0;
-                              if (isLinear) {
-                                let currentOriginalEndEffectorPosition,
-                                  currentOriginalTargetPosition,
-                                  currentEndEffectorposition,
-                                  currentTargetPosition,
-                                  differencePosition;
-                                if (
-                                  methodIndex === 0 ||
-                                  methodIndex === 4 ||
-                                  methodIndex === 5
-                                ) {
-                                  currentOriginalEndEffectorPosition =
-                                    this.state_calculatedMountPosition.clone();
+                                ];
+                              const currentAxis = currentAxisNode;
+                              const currentPosition = currentPositionNode;
+                              // localQuaternion = calculatedKinematicItemChain[index].Q;
+                              // localPosition = calculatedKinematicItemChain[index].L;
+                              // localTranslation = calculatedKinematicItemChain[index].T;
+                              // localShiftedPosition = calculatedKinematicItemChain[index].S;
+                              let localCurrentQuaternion =
+                                localQuaternion.clone();
+                              let localCurrentTranslation =
+                                localTranslation.clone();
+                              let currentShiftedPosition =
+                                currentPosition.clone();
+                              currentShiftedPosition.sub(localPosition);
+                              currentShiftedPosition.applyQuaternion(
+                                localCurrentQuaternion
+                              );
+                              currentShiftedPosition.add(localShiftedPosition);
+                              let currentPositionAxis = currentAxis.clone();
+                              currentPositionAxis.applyQuaternion(
+                                localCurrentQuaternion
+                              );
+                              currentPositionAxis.normalize();
+                              this.state_lastAxis = currentPositionAxis.clone();
+                              const isLinear = isLinearNode;
+                              if (positionalIndex === index) {
+                                positionalIndexFound = true;
+                                let differenceBetween = 0;
+                                if (isLinear) {
+                                  let currentOriginalEndEffectorPosition,
+                                    currentOriginalTargetPosition,
+                                    currentEndEffectorposition,
+                                    currentTargetPosition,
+                                    differencePosition;
+                                  if (
+                                    methodIndex === 0 ||
+                                    methodIndex === 4 ||
+                                    methodIndex === 5
+                                  ) {
+                                    currentOriginalEndEffectorPosition =
+                                      this.state_calculatedMountPosition.clone();
 
-                                  currentOriginalTargetPosition =
-                                    targetEndEffectorPosition.clone();
-                                }
-                                if (methodIndex === 1 || methodIndex === 3) {
-                                  currentOriginalEndEffectorPosition =
-                                    originalEndEffectorPosition.clone();
-                                  currentOriginalEndEffectorPosition.sub(
-                                    currentPosition
-                                  );
-                                  currentOriginalEndEffectorPosition.applyQuaternion(
-                                    localCurrentQuaternion
-                                  );
-                                  currentOriginalEndEffectorPosition.add(
-                                    currentShiftedPosition
-                                  );
-                                  currentOriginalTargetPosition =
-                                    originalTargetPosition.clone();
-                                  currentOriginalTargetPosition.sub(
-                                    currentPosition
-                                  );
-                                  currentOriginalTargetPosition.applyQuaternion(
-                                    localCurrentQuaternion
-                                  );
-                                  currentOriginalTargetPosition.add(
-                                    currentShiftedPosition
-                                  );
-                                }
-                                if (methodIndex === 2) {
-                                  currentOriginalEndEffectorPosition =
-                                    originalEndEffectorPosition.clone();
-                                  currentOriginalTargetPosition =
-                                    originalTargetPosition.clone();
-                                }
-                                // console.log(
-                                //   'Method Index',
-                                //   methodIndex,
-                                //   currentOriginalEndEffectorPosition,
-                                //   this.props.kinematicParameters,
-                                //   this.props.kinematicParameters
-                                //     ? this.props.kinematicParameters.methods || 5
-                                //     : 5
-                                // );
-                                currentEndEffectorposition =
-                                  currentOriginalEndEffectorPosition.clone();
-                                currentTargetPosition =
-                                  currentOriginalTargetPosition.clone();
-                                differencePosition = new Vector3().subVectors(
-                                  currentTargetPosition,
-                                  currentEndEffectorposition
-                                );
-                                if (methodIndex === 0 || methodIndex === 1) {
-                                  differenceBetween =
-                                    differencePosition.x *
-                                      currentPositionAxis.x +
-                                    differencePosition.y *
-                                      currentPositionAxis.y +
-                                    differencePosition.z *
-                                      currentPositionAxis.z;
-
-                                  if (methodIndex === 0) {
-                                    leastTheta = differenceBetween;
-                                    mostTheta = differenceBetween;
+                                    currentOriginalTargetPosition =
+                                      targetEndEffectorPosition.clone();
                                   }
-                                }
-                                if (methodIndex === 2) {
-                                  differenceBetween =
-                                    differencePosition.x * currentAxis.x +
-                                    differencePosition.y * currentAxis.y +
-                                    differencePosition.z * currentAxis.z;
-                                }
-                                if (methodIndex === 3) {
-                                  differenceBetween =
-                                    differencePosition.x *
-                                      currentPositionAxis.x +
-                                    differencePosition.y *
-                                      currentPositionAxis.y +
-                                    differencePosition.z *
-                                      currentPositionAxis.z;
-                                  if (differenceBetween > 0) {
-                                    differenceBetween = Math.sqrt(
-                                      differencePosition.x *
-                                        differencePosition.x +
-                                        differencePosition.y *
-                                          differencePosition.y +
-                                        differencePosition.z *
-                                          differencePosition.z
+                                  if (methodIndex === 1 || methodIndex === 3) {
+                                    currentOriginalEndEffectorPosition =
+                                      originalEndEffectorPosition.clone();
+                                    currentOriginalEndEffectorPosition.sub(
+                                      currentPosition
                                     );
-                                  } else {
-                                    differenceBetween = -Math.sqrt(
-                                      differencePosition.x *
-                                        differencePosition.x +
-                                        differencePosition.y *
-                                          differencePosition.y +
-                                        differencePosition.z *
-                                          differencePosition.z
+                                    currentOriginalEndEffectorPosition.applyQuaternion(
+                                      localCurrentQuaternion
+                                    );
+                                    currentOriginalEndEffectorPosition.add(
+                                      currentShiftedPosition
+                                    );
+                                    currentOriginalTargetPosition =
+                                      originalTargetPosition.clone();
+                                    currentOriginalTargetPosition.sub(
+                                      currentPosition
+                                    );
+                                    currentOriginalTargetPosition.applyQuaternion(
+                                      localCurrentQuaternion
+                                    );
+                                    currentOriginalTargetPosition.add(
+                                      currentShiftedPosition
                                     );
                                   }
-                                }
-                                if (methodIndex === 4) {
-                                  differenceBetween = leastTheta / 2;
-                                }
-                                if (methodIndex === 5) {
-                                  differenceBetween = mostTheta / 2;
-                                }
-                              } else {
-                                let currentBeforeLocalQuaternion,
-                                  currentBeforeLocalQuaternionApplied,
-                                  currentOriginalEndEffectorPosition,
-                                  currentOriginalTargetPosition =
-                                    targetEndEffectorPosition.clone();
-                                if (
-                                  methodIndex === 0 ||
-                                  methodIndex === 3 ||
-                                  methodIndex === 4 ||
-                                  methodIndex === 5
-                                ) {
-                                  currentOriginalEndEffectorPosition =
-                                    this.state_calculatedMountPosition.clone();
-                                  currentOriginalTargetPosition =
-                                    targetEndEffectorPosition.clone();
-                                }
-                                if (methodIndex === 1) {
-                                  currentBeforeLocalQuaternion =
-                                    new Quaternion();
-
-                                  currentBeforeLocalQuaternion
-                                    .setFromAxisAngle(
-                                      currentPositionAxis,
-                                      currentChainValue.A
-                                    )
-                                    .normalize();
-                                  currentBeforeLocalQuaternionApplied =
-                                    localCurrentQuaternion.clone();
-                                  currentBeforeLocalQuaternionApplied
-                                    .premultiply(currentBeforeLocalQuaternion)
-                                    .normalize();
-                                  currentOriginalEndEffectorPosition =
-                                    originalEndEffectorPosition.clone();
-                                  currentOriginalEndEffectorPosition.sub(
-                                    currentPosition
+                                  if (methodIndex === 2) {
+                                    currentOriginalEndEffectorPosition =
+                                      originalEndEffectorPosition.clone();
+                                    currentOriginalTargetPosition =
+                                      originalTargetPosition.clone();
+                                  }
+                                  // console.log(
+                                  //   'Method Index',
+                                  //   methodIndex,
+                                  //   currentOriginalEndEffectorPosition,
+                                  //   this.props.kinematicParameters,
+                                  //   this.props.kinematicParameters
+                                  //     ? this.props.kinematicParameters.methods || 5
+                                  //     : 5
+                                  // );
+                                  currentEndEffectorposition =
+                                    currentOriginalEndEffectorPosition.clone();
+                                  currentTargetPosition =
+                                    currentOriginalTargetPosition.clone();
+                                  differencePosition = new Vector3().subVectors(
+                                    currentTargetPosition,
+                                    currentEndEffectorposition
                                   );
-                                  currentOriginalEndEffectorPosition.applyQuaternion(
+                                  if (methodIndex === 0 || methodIndex === 1) {
+                                    differenceBetween =
+                                      differencePosition.x *
+                                      currentPositionAxis.x +
+                                      differencePosition.y *
+                                      currentPositionAxis.y +
+                                      differencePosition.z *
+                                      currentPositionAxis.z;
+
+                                    if (methodIndex === 0) {
+                                      leastTheta = differenceBetween;
+                                      mostTheta = differenceBetween;
+                                    }
+                                  }
+                                  if (methodIndex === 2) {
+                                    differenceBetween =
+                                      differencePosition.x * currentAxis.x +
+                                      differencePosition.y * currentAxis.y +
+                                      differencePosition.z * currentAxis.z;
+                                  }
+                                  if (methodIndex === 3) {
+                                    differenceBetween =
+                                      differencePosition.x *
+                                      currentPositionAxis.x +
+                                      differencePosition.y *
+                                      currentPositionAxis.y +
+                                      differencePosition.z *
+                                      currentPositionAxis.z;
+                                    if (differenceBetween > 0) {
+                                      differenceBetween = Math.sqrt(
+                                        differencePosition.x *
+                                        differencePosition.x +
+                                        differencePosition.y *
+                                        differencePosition.y +
+                                        differencePosition.z *
+                                        differencePosition.z
+                                      );
+                                    } else {
+                                      differenceBetween = -Math.sqrt(
+                                        differencePosition.x *
+                                        differencePosition.x +
+                                        differencePosition.y *
+                                        differencePosition.y +
+                                        differencePosition.z *
+                                        differencePosition.z
+                                      );
+                                    }
+                                  }
+                                  if (methodIndex === 4) {
+                                    differenceBetween = leastTheta / 2;
+                                  }
+                                  if (methodIndex === 5) {
+                                    differenceBetween = mostTheta / 2;
+                                  }
+                                } else {
+                                  let currentBeforeLocalQuaternion,
+                                    currentBeforeLocalQuaternionApplied,
+                                    currentOriginalEndEffectorPosition,
+                                    currentOriginalTargetPosition =
+                                      targetEndEffectorPosition.clone();
+                                  if (
+                                    methodIndex === 0 ||
+                                    methodIndex === 3 ||
+                                    methodIndex === 4 ||
+                                    methodIndex === 5
+                                  ) {
+                                    currentOriginalEndEffectorPosition =
+                                      this.state_calculatedMountPosition.clone();
+                                    currentOriginalTargetPosition =
+                                      targetEndEffectorPosition.clone();
+                                  }
+                                  if (methodIndex === 1) {
+                                    currentBeforeLocalQuaternion =
+                                      new Quaternion();
+
+                                    currentBeforeLocalQuaternion
+                                      .setFromAxisAngle(
+                                        currentPositionAxis,
+                                        currentChainValue.A
+                                      )
+                                      .normalize();
+                                    currentBeforeLocalQuaternionApplied =
+                                      localCurrentQuaternion.clone();
                                     currentBeforeLocalQuaternionApplied
-                                  );
-                                  currentOriginalEndEffectorPosition.add(
-                                    currentShiftedPosition
-                                  );
-                                  currentOriginalTargetPosition =
-                                    originalTargetPosition.clone();
-                                  currentOriginalTargetPosition.sub(
-                                    currentPosition
-                                  );
-                                  currentOriginalTargetPosition.applyQuaternion(
-                                    currentBeforeLocalQuaternionApplied
-                                  );
-                                  currentOriginalTargetPosition.add(
-                                    currentShiftedPosition
-                                  );
-                                }
-                                if (methodIndex === 2) {
-                                  currentOriginalEndEffectorPosition =
-                                    originalEndEffectorPosition.clone();
-                                  currentOriginalTargetPosition =
-                                    originalTargetPosition.clone();
-                                }
+                                      .premultiply(currentBeforeLocalQuaternion)
+                                      .normalize();
+                                    currentOriginalEndEffectorPosition =
+                                      originalEndEffectorPosition.clone();
+                                    currentOriginalEndEffectorPosition.sub(
+                                      currentPosition
+                                    );
+                                    currentOriginalEndEffectorPosition.applyQuaternion(
+                                      currentBeforeLocalQuaternionApplied
+                                    );
+                                    currentOriginalEndEffectorPosition.add(
+                                      currentShiftedPosition
+                                    );
+                                    currentOriginalTargetPosition =
+                                      originalTargetPosition.clone();
+                                    currentOriginalTargetPosition.sub(
+                                      currentPosition
+                                    );
+                                    currentOriginalTargetPosition.applyQuaternion(
+                                      currentBeforeLocalQuaternionApplied
+                                    );
+                                    currentOriginalTargetPosition.add(
+                                      currentShiftedPosition
+                                    );
+                                  }
+                                  if (methodIndex === 2) {
+                                    currentOriginalEndEffectorPosition =
+                                      originalEndEffectorPosition.clone();
+                                    currentOriginalTargetPosition =
+                                      originalTargetPosition.clone();
+                                  }
 
-                                let currentEndEffectorposition =
-                                  currentOriginalEndEffectorPosition.clone();
-                                let currentTargetPosition =
-                                  currentOriginalTargetPosition.clone();
+                                  let currentEndEffectorposition =
+                                    currentOriginalEndEffectorPosition.clone();
+                                  let currentTargetPosition =
+                                    currentOriginalTargetPosition.clone();
 
-                                if (
-                                  methodIndex === 0 ||
-                                  methodIndex === 1 ||
-                                  methodIndex === 3 ||
-                                  methodIndex === 4 ||
-                                  methodIndex === 5
-                                ) {
-                                  currentEndEffectorposition.sub(
-                                    currentShiftedPosition
-                                  );
-                                  currentTargetPosition.sub(
-                                    currentShiftedPosition
-                                  );
-                                }
-                                if (methodIndex === 2) {
-                                  currentEndEffectorposition.sub(
-                                    currentPosition
-                                  );
-                                  currentTargetPosition.sub(currentPosition);
-                                }
+                                  if (
+                                    methodIndex === 0 ||
+                                    methodIndex === 1 ||
+                                    methodIndex === 3 ||
+                                    methodIndex === 4 ||
+                                    methodIndex === 5
+                                  ) {
+                                    currentEndEffectorposition.sub(
+                                      currentShiftedPosition
+                                    );
+                                    currentTargetPosition.sub(
+                                      currentShiftedPosition
+                                    );
+                                  }
+                                  if (methodIndex === 2) {
+                                    currentEndEffectorposition.sub(
+                                      currentPosition
+                                    );
+                                    currentTargetPosition.sub(currentPosition);
+                                  }
 
-                                if (methodIndex === 0 || methodIndex === 1) {
-                                  differenceBetween = this.angleToMoveToTarget(
-                                    currentPositionAxis,
-                                    currentEndEffectorposition,
-                                    currentTargetPosition
-                                  );
-                                }
-                                if (methodIndex === 2) {
-                                  differenceBetween = this.angleToMoveToTarget(
-                                    currentAxis,
-                                    currentEndEffectorposition,
-                                    currentTargetPosition
-                                  );
-                                }
-                                if (methodIndex === 3) {
-                                  differenceBetween =
-                                    this.getAngleBetweenVectorsFromAxis(
+                                  if (methodIndex === 0 || methodIndex === 1) {
+                                    differenceBetween = this.angleToMoveToTarget(
                                       currentPositionAxis,
                                       currentEndEffectorposition,
                                       currentTargetPosition
                                     );
+                                  }
+                                  if (methodIndex === 2) {
+                                    differenceBetween = this.angleToMoveToTarget(
+                                      currentAxis,
+                                      currentEndEffectorposition,
+                                      currentTargetPosition
+                                    );
+                                  }
+                                  if (methodIndex === 3) {
+                                    differenceBetween =
+                                      this.getAngleBetweenVectorsFromAxis(
+                                        currentPositionAxis,
+                                        currentEndEffectorposition,
+                                        currentTargetPosition
+                                      );
+                                  }
+                                  if (methodIndex === 4) {
+                                    differenceBetween = leastTheta / 2;
+                                    //console.log('Least method theta', leastTheta);
+                                  }
+                                  if (methodIndex === 5) {
+                                    differenceBetween = mostTheta / 2;
+                                    //console.log('Most method theta', mostTheta);
+                                  }
                                 }
-                                if (methodIndex === 4) {
-                                  differenceBetween = leastTheta / 2;
-                                  //console.log('Least method theta', leastTheta);
-                                }
-                                if (methodIndex === 5) {
-                                  differenceBetween = mostTheta / 2;
-                                  //console.log('Most method theta', mostTheta);
-                                }
-                              }
-                              if (differenceBetween !== 0) {
-                                currentChainValue.A += differenceBetween;
-                                if (!isLinear) {
-                                  let normalizedAngle = this.getNormalizedAngle(
-                                    currentChainValue.A
-                                  );
-                                  differenceBetween =
-                                    normalizedAngle -
-                                    currentChainValue.A +
-                                    differenceBetween;
-                                  currentChainValue.A = normalizedAngle;
-                                }
-                                console.log(
-                                  'Applying difference',
-                                  differenceBetween,
-                                  currentChainValue.A,
-                                  propsElement.actuator_motion_control
-                                    .minimum_limit,
-                                  propsElement.actuator_motion_control
-                                    .maximum_limit
-                                );
-                                if (
-                                  currentChainValue.A >
-                                  propsElement.actuator_motion_control
-                                    .maximum_limit
-                                ) {
-                                  let previousDifferenceBetween =
-                                    differenceBetween;
-                                  differenceBetween =
-                                    propsElement.actuator_motion_control
-                                      .maximum_limit -
-                                    currentChainValue.A +
-                                    differenceBetween;
-                                  currentChainValue.A =
-                                    propsElement.actuator_motion_control.maximum_limit;
+                                if (differenceBetween !== 0) {
+                                  currentChainValue.A += differenceBetween;
+                                  if (!isLinear) {
+                                    let normalizedAngle = this.getNormalizedAngle(
+                                      currentChainValue.A
+                                    );
+                                    differenceBetween =
+                                      normalizedAngle -
+                                      currentChainValue.A +
+                                      differenceBetween;
+                                    currentChainValue.A = normalizedAngle;
+                                  }
                                   console.log(
-                                    'Applied maximum Limit difference',
+                                    'Applying difference',
                                     differenceBetween,
-                                    previousDifferenceBetween,
                                     currentChainValue.A,
                                     propsElement.actuator_motion_control
                                       .minimum_limit,
                                     propsElement.actuator_motion_control
                                       .maximum_limit
                                   );
-                                }
-                                if (
-                                  currentChainValue.A <
-                                  propsElement.actuator_motion_control
-                                    .minimum_limit
-                                ) {
-                                  let previousDifferenceBetween =
-                                    differenceBetween;
-                                  differenceBetween =
-                                    propsElement.actuator_motion_control
-                                      .minimum_limit -
-                                    currentChainValue.A +
-                                    differenceBetween;
-                                  currentChainValue.A =
-                                    propsElement.actuator_motion_control.minimum_limit;
-                                  console.log(
-                                    'Applied Minimum Limit difference',
-                                    differenceBetween,
-                                    previousDifferenceBetween,
-                                    currentChainValue.A,
-                                    propsElement.actuator_motion_control
-                                      .minimum_limit,
+                                  if (
+                                    currentChainValue.A >
                                     propsElement.actuator_motion_control
                                       .maximum_limit
+                                  ) {
+                                    let previousDifferenceBetween =
+                                      differenceBetween;
+                                    differenceBetween =
+                                      propsElement.actuator_motion_control
+                                        .maximum_limit -
+                                      currentChainValue.A +
+                                      differenceBetween;
+                                    currentChainValue.A =
+                                      propsElement.actuator_motion_control.maximum_limit;
+                                    console.log(
+                                      'Applied maximum Limit difference',
+                                      differenceBetween,
+                                      previousDifferenceBetween,
+                                      currentChainValue.A,
+                                      propsElement.actuator_motion_control
+                                        .minimum_limit,
+                                      propsElement.actuator_motion_control
+                                        .maximum_limit
+                                    );
+                                  }
+                                  if (
+                                    currentChainValue.A <
+                                    propsElement.actuator_motion_control
+                                      .minimum_limit
+                                  ) {
+                                    let previousDifferenceBetween =
+                                      differenceBetween;
+                                    differenceBetween =
+                                      propsElement.actuator_motion_control
+                                        .minimum_limit -
+                                      currentChainValue.A +
+                                      differenceBetween;
+                                    currentChainValue.A =
+                                      propsElement.actuator_motion_control.minimum_limit;
+                                    console.log(
+                                      'Applied Minimum Limit difference',
+                                      differenceBetween,
+                                      previousDifferenceBetween,
+                                      currentChainValue.A,
+                                      propsElement.actuator_motion_control
+                                        .minimum_limit,
+                                      propsElement.actuator_motion_control
+                                        .maximum_limit
+                                    );
+                                  }
+                                  if (leastTheta > differenceBetween) {
+                                    leastTheta = differenceBetween;
+                                  }
+                                  if (mostTheta < differenceBetween) {
+                                    mostTheta = differenceBetween;
+                                  }
+                                } else {
+                                  console.log(
+                                    'Applying 0 diffference',
+                                    positionalIndex,
+                                    index,
+                                    propsElement.actuator_motion_control
                                   );
-                                }
-                                if (leastTheta > differenceBetween) {
-                                  leastTheta = differenceBetween;
-                                }
-                                if (mostTheta < differenceBetween) {
-                                  mostTheta = differenceBetween;
                                 }
                               } else {
-                                console.log(
-                                  'Applying 0 diffference',
-                                  positionalIndex,
-                                  index,
-                                  propsElement.actuator_motion_control
-                                );
+                                // console.log(
+                                //   'Positional Index does not match',
+                                //   positionalIndex,
+                                //   index,
+                                //   isActuatorNode,
+                                //   isLinearNode
+                                // );
                               }
-                            } else {
+
+                              if (isLinear) {
+                                // const currentLength = Math.sqrt(
+                                //   currentPositionAxis.x * currentPositionAxis.x +
+                                //     currentPositionAxis.y * currentPositionAxis.y +
+                                //     currentPositionAxis.z * currentPositionAxis.z
+                                // );
+                                // console.log(
+                                //   'Before Adding values to the translation',
+                                //   localCurrentTranslation,
+                                //   localTranslation,
+                                //   currentLength,
+                                //   currentChainValue.A
+                                // );
+                                // if (currentLength !== 0) {
+                                localCurrentTranslation.add(
+                                  new Vector3(
+                                    currentPositionAxis.x * currentChainValue.A,
+                                    currentPositionAxis.y * currentChainValue.A,
+                                    currentPositionAxis.z * currentChainValue.A
+                                  )
+                                );
+                                // }
+                                // console.log(
+                                //   'Adding values to the translation',
+                                //   localCurrentTranslation,
+                                //   localTranslation,
+                                //   currentChainValue.A
+                                // );
+                              } else {
+                                let currentAxisQuaternion = new Quaternion();
+                                currentAxisQuaternion
+                                  .setFromAxisAngle(
+                                    currentPositionAxis,
+                                    currentChainValue.A
+                                  )
+                                  .normalize();
+                                localCurrentQuaternion
+                                  .premultiply(currentAxisQuaternion)
+                                  .normalize();
+                              }
+
+                              // let shiftedPosition = currentPosition.clone();
+                              // shiftedPosition.applyQuaternion(localQuaternion);
+                              // shiftedPosition.add(globalShiftedPosition);
+                              // let shiftingPosition = currentPosition.clone();
+                              // shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                              // shiftedPosition.sub(shiftingPosition);
+                              // shiftedPosition.sub(localTranslation);
+                              // shiftedPosition.add(localCurrentTranslation);
                               // console.log(
-                              //   'Positional Index does not match',
-                              //   positionalIndex,
+                              //   'Chain Values before',
+                              //   currentChainValue.A,
+                              //   currentChainValue.L,
+                              //   currentChainValue.Q,
+                              //   currentChainValue.S,
+                              //   currentChainValue.T,
+                              //   calculatedKinematicItemChain[index + 1].A,
+                              //   calculatedKinematicItemChain[index + 1].L,
+                              //   calculatedKinematicItemChain[index + 1].Q,
+                              //   calculatedKinematicItemChain[index + 1].S,
+                              //   calculatedKinematicItemChain[index + 1].T,
+                              //   index
+                              // );
+                              localPosition = currentPosition.clone();
+                              localQuaternion = localCurrentQuaternion.clone();
+                              localShiftedPosition =
+                                currentShiftedPosition.clone();
+                              localTranslation = localCurrentTranslation.clone();
+                              currentChainValue.L = currentPosition.clone();
+                              currentChainValue.Q =
+                                localCurrentQuaternion.clone();
+                              currentChainValue.S =
+                                currentShiftedPosition.clone();
+                              currentChainValue.T =
+                                localCurrentTranslation.clone();
+                              // console.log(
+                              //   'Chain Values after',
+                              //   currentChainValue.A,
+                              //   currentChainValue.L,
+                              //   currentChainValue.Q,
+                              //   currentChainValue.S,
+                              //   currentChainValue.T,
+                              //   calculatedKinematicItemChain[index + 1].A,
+                              //   calculatedKinematicItemChain[index + 1].L,
+                              //   calculatedKinematicItemChain[index + 1].Q,
+                              //   calculatedKinematicItemChain[index + 1].S,
+                              //   calculatedKinematicItemChain[index + 1].T,
+                              //   index
+                              // );
+                              //globalShiftedPosition = shiftedPosition.clone();
+                            } else {
+                              currentChainValue.L = localPosition.clone();
+                              currentChainValue.Q = localQuaternion.clone();
+                              currentChainValue.S = localShiftedPosition.clone();
+                              currentChainValue.T = localTranslation.clone();
+                              // console.log(
+                              //   'Not an actuator',
+                              //   propsElement,
                               //   index,
-                              //   isActuatorNode,
-                              //   isLinearNode
+                              //   localPosition,
+                              //   localQuaternion,
+                              //   calculatedMountPosition
                               // );
                             }
-
-                            if (isLinear) {
-                              // const currentLength = Math.sqrt(
-                              //   currentPositionAxis.x * currentPositionAxis.x +
-                              //     currentPositionAxis.y * currentPositionAxis.y +
-                              //     currentPositionAxis.z * currentPositionAxis.z
-                              // );
+                            if (isEndEffectorNode) {
+                              // localQuaternion = calculatedKinematicItemChain[index].Q;
+                              // localPosition = calculatedKinematicItemChain[index].L;
+                              // localTranslation = calculatedKinematicItemChain[index].T;
+                              // localShiftedPosition = calculatedKinematicItemChain[index].S;
                               // console.log(
-                              //   'Before Adding values to the translation',
-                              //   localCurrentTranslation,
+                              //   'Adding values at endeffector to the translation',
                               //   localTranslation,
-                              //   currentLength,
-                              //   currentChainValue.A
+                              //   calculatedKinematicItemChain[index + 1].T
                               // );
-                              // if (currentLength !== 0) {
-                              localCurrentTranslation.add(
-                                new Vector3(
-                                  currentPositionAxis.x * currentChainValue.A,
-                                  currentPositionAxis.y * currentChainValue.A,
-                                  currentPositionAxis.z * currentChainValue.A
-                                )
-                              );
-                              // }
-                              // console.log(
-                              //   'Adding values to the translation',
-                              //   localCurrentTranslation,
-                              //   localTranslation,
-                              //   currentChainValue.A
-                              // );
-                            } else {
-                              let currentAxisQuaternion = new Quaternion();
-                              currentAxisQuaternion
-                                .setFromAxisAngle(
-                                  currentPositionAxis,
-                                  currentChainValue.A
-                                )
-                                .normalize();
-                              localCurrentQuaternion
-                                .premultiply(currentAxisQuaternion)
-                                .normalize();
-                            }
 
-                            // let shiftedPosition = currentPosition.clone();
-                            // shiftedPosition.applyQuaternion(localQuaternion);
-                            // shiftedPosition.add(globalShiftedPosition);
-                            // let shiftingPosition = currentPosition.clone();
-                            // shiftingPosition.applyQuaternion(localCurrentQuaternion);
-                            // shiftedPosition.sub(shiftingPosition);
-                            // shiftedPosition.sub(localTranslation);
-                            // shiftedPosition.add(localCurrentTranslation);
-                            // console.log(
-                            //   'Chain Values before',
-                            //   currentChainValue.A,
-                            //   currentChainValue.L,
-                            //   currentChainValue.Q,
-                            //   currentChainValue.S,
-                            //   currentChainValue.T,
-                            //   calculatedKinematicItemChain[index + 1].A,
-                            //   calculatedKinematicItemChain[index + 1].L,
-                            //   calculatedKinematicItemChain[index + 1].Q,
-                            //   calculatedKinematicItemChain[index + 1].S,
-                            //   calculatedKinematicItemChain[index + 1].T,
-                            //   index
-                            // );
-                            localPosition = currentPosition.clone();
-                            localQuaternion = localCurrentQuaternion.clone();
-                            localShiftedPosition =
-                              currentShiftedPosition.clone();
-                            localTranslation = localCurrentTranslation.clone();
-                            currentChainValue.L = currentPosition.clone();
-                            currentChainValue.Q =
-                              localCurrentQuaternion.clone();
-                            currentChainValue.S =
-                              currentShiftedPosition.clone();
-                            currentChainValue.T =
-                              localCurrentTranslation.clone();
-                            // console.log(
-                            //   'Chain Values after',
-                            //   currentChainValue.A,
-                            //   currentChainValue.L,
-                            //   currentChainValue.Q,
-                            //   currentChainValue.S,
-                            //   currentChainValue.T,
-                            //   calculatedKinematicItemChain[index + 1].A,
-                            //   calculatedKinematicItemChain[index + 1].L,
-                            //   calculatedKinematicItemChain[index + 1].Q,
-                            //   calculatedKinematicItemChain[index + 1].S,
-                            //   calculatedKinematicItemChain[index + 1].T,
-                            //   index
-                            // );
-                            //globalShiftedPosition = shiftedPosition.clone();
-                          } else {
-                            currentChainValue.L = localPosition.clone();
-                            currentChainValue.Q = localQuaternion.clone();
-                            currentChainValue.S = localShiftedPosition.clone();
-                            currentChainValue.T = localTranslation.clone();
-                            // console.log(
-                            //   'Not an actuator',
-                            //   propsElement,
-                            //   index,
-                            //   localPosition,
-                            //   localQuaternion,
-                            //   calculatedMountPosition
-                            // );
-                          }
-                          if (isEndEffectorNode) {
-                            // localQuaternion = calculatedKinematicItemChain[index].Q;
-                            // localPosition = calculatedKinematicItemChain[index].L;
-                            // localTranslation = calculatedKinematicItemChain[index].T;
-                            // localShiftedPosition = calculatedKinematicItemChain[index].S;
-                            // console.log(
-                            //   'Adding values at endeffector to the translation',
-                            //   localTranslation,
-                            //   calculatedKinematicItemChain[index + 1].T
-                            // );
-
-                            if (this.props.itemProperties) {
-                              const itemProperties = this.props.itemProperties;
-                              //console.log('Got itemproperties as', itemProperties);
-                              if (
-                                itemProperties.actuator_motion_control &&
-                                itemProperties.actuator_motion_control
-                                  .cylindrical_axis_of_rotation &&
-                                itemProperties.actuator_motion_control
-                                  .cylindrical_axis_of_rotation.mountobb
-                              ) {
-                                const mountSurface =
-                                  itemProperties.actuator_motion_control
-                                    .cylindrical_axis_of_rotation.mountobb;
-                                let mountPosition = new Vector3(
-                                  mountSurface.cx,
-                                  mountSurface.cy,
-                                  mountSurface.cz
-                                );
-                                mountPosition.sub(localPosition);
-                                mountPosition.applyQuaternion(localQuaternion);
-                                mountPosition.add(localShiftedPosition);
-                                mountPosition.add(localTranslation);
-                                mountPosition.add(
-                                  this.state_originalXYZShiftablePosition
-                                );
-                                let currentTargetPosition =
-                                  targetEndEffectorPosition.clone();
-                                let differenceCalcuatedPosition =
-                                  new Vector3().subVectors(
-                                    currentTargetPosition,
-                                    mountPosition
-                                  );
-                                let differenceCalculatedBetween =
-                                  differenceCalcuatedPosition.x *
-                                    differenceCalcuatedPosition.x +
-                                  differenceCalcuatedPosition.y *
-                                    differenceCalcuatedPosition.y +
-                                  differenceCalcuatedPosition.z *
-                                    differenceCalcuatedPosition.z;
+                              if (this.props.itemProperties) {
+                                const itemProperties = this.props.itemProperties;
+                                //console.log('Got itemproperties as', itemProperties);
                                 if (
-                                  differenceCalculatedBetween <
-                                  lengthBetweenTargetAndEndEffector
+                                  itemProperties.actuator_motion_control &&
+                                  itemProperties.actuator_motion_control
+                                    .cylindrical_axis_of_rotation &&
+                                  itemProperties.actuator_motion_control
+                                    .cylindrical_axis_of_rotation.mountobb
                                 ) {
-                                  changeMadeInInnerLoop = true;
-                                  this.state_changeMadeInInnerLoop = true;
-                                  couldFindTheta = true;
-                                  changeMade = true;
+                                  const mountSurface =
+                                    itemProperties.actuator_motion_control
+                                      .cylindrical_axis_of_rotation.mountobb;
+                                  let mountPosition = new Vector3(
+                                    mountSurface.cx,
+                                    mountSurface.cy,
+                                    mountSurface.cz
+                                  );
+                                  mountPosition.sub(localPosition);
+                                  mountPosition.applyQuaternion(localQuaternion);
+                                  mountPosition.add(localShiftedPosition);
+                                  mountPosition.add(localTranslation);
+                                  mountPosition.add(
+                                    this.state_originalXYZShiftablePosition
+                                  );
+                                  let currentTargetPosition =
+                                    targetEndEffectorPosition.clone();
+                                  let differenceCalcuatedPosition =
+                                    new Vector3().subVectors(
+                                      currentTargetPosition,
+                                      mountPosition
+                                    );
+                                  let differenceCalculatedBetween =
+                                    differenceCalcuatedPosition.x *
+                                    differenceCalcuatedPosition.x +
+                                    differenceCalcuatedPosition.y *
+                                    differenceCalcuatedPosition.y +
+                                    differenceCalcuatedPosition.z *
+                                    differenceCalcuatedPosition.z;
                                   if (
-                                    differenceCalculatedBetween <=
-                                    (this.state.kinematicPrecision ||
-                                      0.00000001)
+                                    differenceCalculatedBetween <
+                                    lengthBetweenTargetAndEndEffector
                                   ) {
-                                    foundThePosition = true;
+                                    if (differenceCalculatedBetween < this.state_lastKnownLength) {
+                                      this.state_lastKnownLength = differenceCalculatedBetween;
+                                      this.state_previousCalculatedKinematicItemChain =
+                                        this.cloneChainInfoForward(
+                                          this.state_calculatedKinematicItemChain
+                                        );
+                                    }
+                                    changeMadeInInnerLoop = true;
+                                    this.state_changeMadeInInnerLoop = true;
+                                    couldFindTheta = true;
+                                    changeMade = true;
+                                    if (
+                                      differenceCalculatedBetween <=
+                                      (this.state.kinematicPrecision ||
+                                        0.00000001)
+                                    ) {
+                                      foundThePosition = true;
+                                      console.log(
+                                        'Reached after ',
+                                        iteration + 1,
+                                        'iterations',
+                                        'error rate',
+                                        differenceCalculatedBetween,
+                                        lengthBetweenTargetAndEndEffector,
+                                        this.state_calculatedMountPosition,
+                                        targetEndEffectorPosition,
+                                        mountPosition,
+                                        localPosition,
+                                        localQuaternion,
+                                        index,
+                                        positionalIndex,
+                                        directionIndex
+                                      );
+                                    } else {
+                                      console.log(
+                                        'Difference Length',
+                                        differenceCalculatedBetween,
+                                        lengthBetweenTargetAndEndEffector,
+                                        this.state_calculatedMountPosition,
+                                        targetEndEffectorPosition,
+                                        mountPosition,
+                                        localPosition,
+                                        localQuaternion,
+                                        'iteration no',
+                                        iteration + 1,
+                                        index,
+                                        positionalIndex,
+                                        directionIndex
+                                      );
+                                    }
+                                    lengthBetweenTargetAndEndEffector =
+                                      differenceCalculatedBetween;
+                                    this.state_calculatedMountPosition =
+                                      mountPosition.clone();
+                                    originalTargetPosition =
+                                      targetEndEffectorPosition.clone();
+                                    originalTargetPosition.sub(
+                                      this.state_originalXYZShiftablePosition
+                                    );
+                                    originalTargetPosition.sub(localTranslation);
+                                    originalTargetPosition.sub(
+                                      localShiftedPosition
+                                    );
+                                    originalTargetPosition.applyQuaternion(
+                                      localQuaternion.clone().invert()
+                                    );
+                                    originalTargetPosition.add(localPosition);
                                     console.log(
-                                      'Reached after ',
-                                      iteration + 1,
-                                      'iterations',
-                                      'error rate',
-                                      differenceCalculatedBetween,
-                                      lengthBetweenTargetAndEndEffector,
-                                      this.state_calculatedMountPosition,
-                                      targetEndEffectorPosition,
-                                      mountPosition,
-                                      localPosition,
-                                      localQuaternion,
-                                      index,
-                                      positionalIndex,
-                                      directionIndex
+                                      'Got original target pos',
+                                      originalTargetPosition,
+                                      new Vector3(
+                                        mountSurface.cx,
+                                        mountSurface.cy,
+                                        mountSurface.cz
+                                      )
                                     );
                                   } else {
                                     console.log(
-                                      'Difference Length',
+                                      'Difference Length Exceeds',
                                       differenceCalculatedBetween,
                                       lengthBetweenTargetAndEndEffector,
                                       this.state_calculatedMountPosition,
@@ -11987,114 +12093,74 @@ class GLTFRenderer extends Component {
                                       mountPosition,
                                       localPosition,
                                       localQuaternion,
-                                      'iteration no',
+                                      'iteration',
                                       iteration + 1,
                                       index,
                                       positionalIndex,
                                       directionIndex
                                     );
+                                    // for (
+                                    //   let chainPrintIndex = 0;
+                                    //   chainPrintIndex < calculatedKinematicItemList.length;
+                                    //   chainPrintIndex++
+                                    // ) {
+                                    //   console.log(
+                                    //     calculatedKinematicItemList[chainPrintIndex]
+                                    //       .actuator_motion_control,
+                                    //     previousCalculatedKinematicItemList[chainPrintIndex]
+                                    //       .actuator_motion_control
+                                    //   );
+                                    // }
+                                    this.state_calculatedKinematicItemChain =
+                                      this.cloneChainInfoForward(
+                                        previousCalculatedKinematicItemChain
+                                      );
                                   }
-                                  lengthBetweenTargetAndEndEffector =
-                                    differenceCalculatedBetween;
-                                  this.state_calculatedMountPosition =
-                                    mountPosition.clone();
-                                  originalTargetPosition =
-                                    targetEndEffectorPosition.clone();
-                                  originalTargetPosition.sub(
-                                    this.state_originalXYZShiftablePosition
-                                  );
-                                  originalTargetPosition.sub(localTranslation);
-                                  originalTargetPosition.sub(
-                                    localShiftedPosition
-                                  );
-                                  originalTargetPosition.applyQuaternion(
-                                    localQuaternion.clone().invert()
-                                  );
-                                  originalTargetPosition.add(localPosition);
-                                  console.log(
-                                    'Got original target pos',
-                                    originalTargetPosition,
-                                    new Vector3(
-                                      mountSurface.cx,
-                                      mountSurface.cy,
-                                      mountSurface.cz
-                                    )
-                                  );
-                                } else {
-                                  console.log(
-                                    'Difference Length Exceeds',
-                                    differenceCalculatedBetween,
-                                    lengthBetweenTargetAndEndEffector,
-                                    this.state_calculatedMountPosition,
-                                    targetEndEffectorPosition,
-                                    mountPosition,
-                                    localPosition,
-                                    localQuaternion,
-                                    'iteration',
-                                    iteration + 1,
-                                    index,
-                                    positionalIndex,
-                                    directionIndex
-                                  );
-                                  // for (
-                                  //   let chainPrintIndex = 0;
-                                  //   chainPrintIndex < calculatedKinematicItemList.length;
-                                  //   chainPrintIndex++
-                                  // ) {
-                                  //   console.log(
-                                  //     calculatedKinematicItemList[chainPrintIndex]
-                                  //       .actuator_motion_control,
-                                  //     previousCalculatedKinematicItemList[chainPrintIndex]
-                                  //       .actuator_motion_control
-                                  //   );
-                                  // }
-                                  this.state_calculatedKinematicItemChain =
-                                    this.cloneChainInfoForward(
-                                      previousCalculatedKinematicItemChain
-                                    );
                                 }
                               }
+                            }
+                            if (foundThePosition) {
+                              break;
                             }
                           }
                           if (foundThePosition) {
                             break;
                           }
+                          if (changeMadeInInnerLoop) {
+                            break;
+                          }
+                          if (!positionalIndexFound) {
+                            console.log('end effector or not an actuator');
+                            break;
+                          }
                         }
+                        //lastPositionalIndex = positionalIndex + 1;
                         if (foundThePosition) {
                           break;
                         }
-                        if (changeMadeInInnerLoop) {
-                          break;
-                        }
-                        if (!positionalIndexFound) {
-                          console.log('end effector or not an actuator');
-                          break;
-                        }
                       }
-                      //lastPositionalIndex = positionalIndex + 1;
-                      if (foundThePosition) {
-                        break;
-                      }
+                      //startPositionalIndex = positionalIndex;
+                      //lastPositionalIndex = startPositionalIndex;
                     }
-                    //startPositionalIndex = positionalIndex;
-                    //lastPositionalIndex = startPositionalIndex;
-                  }
-                  if (foundThePosition) {
-                    break;
-                  }
+                    if (foundThePosition) {
+                      break;
+                    }
 
-                  if (!couldFindTheta) {
-                    console.log(
-                      'Not reachable beyond this',
-                      iteration + 1,
-                      'iterations',
-                      lengthBetweenTargetAndEndEffector,
-                      'error rate'
-                    );
-                    break;
+                    if (!couldFindTheta) {
+                      console.log(
+                        'Not reachable beyond this',
+                        iteration + 1,
+                        'iterations',
+                        lengthBetweenTargetAndEndEffector,
+                        'error rate'
+                      );
+                      break;
+                    }
+                    directionIndex = beginOfActuator + 1;
                   }
-                  directionIndex = beginOfActuator + 1;
                 }
+
+
                 if (this.props.applyTangentToEdges) {
                   if (this.props.itemProperties) {
                     const itemProperties = this.props.itemProperties;
@@ -12134,8 +12200,8 @@ class GLTFRenderer extends Component {
                         ? this.props.kinematicParameters.gap
                           ? this.props.kinematicParameters.gap
                           : this.props.kinematicParameters.gap === 0 //Include all points
-                          ? this.props.kinematicParameters.gap
-                          : 0.001
+                            ? this.props.kinematicParameters.gap
+                            : 0.001
                         : 0.001;
                       if (
                         Math.abs(angleBetween) > gap &&
@@ -12158,6 +12224,17 @@ class GLTFRenderer extends Component {
                           howManyIterations
                         );
                         this.state_angleIteration = 0;
+                        if (lengthBetweenTargetAndEndEffector - this.state_lastKnownLength > 10) {
+                          console.log("Angles making worst and hence reverting back",
+                            lengthBetweenTargetAndEndEffector,
+                            this.state_lastKnownLength,
+                            this.state_calculatedKinematicItemChain,
+                            this.state_previousCalculatedKinematicItemChain);
+                          this.state_calculatedKinematicItemChain =
+                            this.cloneChainInfoForward(
+                              this.state_previousCalculatedKinematicItemChain
+                            );
+                        }
                       }
                     } else {
                       console.log(
@@ -12345,14 +12422,14 @@ class GLTFRenderer extends Component {
         if (this.props.setProgressAnimateText) {
           this.props.setProgressAnimateText(
             this.state_selectedObjectsIndex.toString() +
-              '/' +
-              this.state_selectedObjects.length.toString() +
-              '-' +
-              this.state_pointsIndex.toString() +
-              '/' +
-              this.state_curvePoints[0].length.toString() +
-              '/' +
-              this.state_angleIteration.toString()
+            '/' +
+            this.state_selectedObjects.length.toString() +
+            '-' +
+            this.state_pointsIndex.toString() +
+            '/' +
+            this.state_curvePoints[0].length.toString() +
+            '/' +
+            this.state_angleIteration.toString()
           );
         }
 
@@ -12364,11 +12441,11 @@ class GLTFRenderer extends Component {
         );
         let lengthBetweenTargetAndEndEffector =
           differenceBetweenTargetAndEndEffector.x *
-            differenceBetweenTargetAndEndEffector.x +
+          differenceBetweenTargetAndEndEffector.x +
           differenceBetweenTargetAndEndEffector.y *
-            differenceBetweenTargetAndEndEffector.y +
+          differenceBetweenTargetAndEndEffector.y +
           differenceBetweenTargetAndEndEffector.z *
-            differenceBetweenTargetAndEndEffector.z;
+          differenceBetweenTargetAndEndEffector.z;
         if (lengthBetweenTargetAndEndEffector === 0) {
           return;
         }
@@ -12404,7 +12481,7 @@ class GLTFRenderer extends Component {
         // );
         const howManyIterations = this.props.kinematicParameters
           ? this.props.kinematicParameters.iterations +
-              ((this.props.kinematicParameters.iterations + 1) % 2) || 21
+          ((this.props.kinematicParameters.iterations + 1) % 2) || 21
           : 21;
         for (let iteration = 0; iteration < howManyIterations; iteration++) {
           direction = !direction;
@@ -12476,7 +12553,7 @@ class GLTFRenderer extends Component {
                   if (isActuatorNode) {
                     let propsElement =
                       this.props.kinematicItemList[
-                        propsElementIndex === -1 ? index : propsElementIndex
+                      propsElementIndex === -1 ? index : propsElementIndex
                       ];
                     const currentAxis = currentAxisNode;
                     const currentPosition = currentPositionNode;
@@ -12590,14 +12667,14 @@ class GLTFRenderer extends Component {
                           if (differenceBetween > 0) {
                             differenceBetween = Math.sqrt(
                               differencePosition.x * differencePosition.x +
-                                differencePosition.y * differencePosition.y +
-                                differencePosition.z * differencePosition.z
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
                             );
                           } else {
                             differenceBetween = -Math.sqrt(
                               differencePosition.x * differencePosition.x +
-                                differencePosition.y * differencePosition.y +
-                                differencePosition.z * differencePosition.z
+                              differencePosition.y * differencePosition.y +
+                              differencePosition.z * differencePosition.z
                             );
                           }
                         }
@@ -12958,11 +13035,11 @@ class GLTFRenderer extends Component {
                           );
                         let differenceCalculatedBetween =
                           differenceCalcuatedPosition.x *
-                            differenceCalcuatedPosition.x +
+                          differenceCalcuatedPosition.x +
                           differenceCalcuatedPosition.y *
-                            differenceCalcuatedPosition.y +
+                          differenceCalcuatedPosition.y +
                           differenceCalcuatedPosition.z *
-                            differenceCalcuatedPosition.z;
+                          differenceCalcuatedPosition.z;
                         if (
                           differenceCalculatedBetween <
                           lengthBetweenTargetAndEndEffector
@@ -13125,7 +13202,7 @@ class GLTFRenderer extends Component {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
         JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
-          JSON.stringify(this.props.kinematicItemList || []) &&
+        JSON.stringify(this.props.kinematicItemList || []) &&
         JSON.stringify(parsedInfo || []) !== JSON.stringify([])
       ) {
         /*console.log(
@@ -13181,9 +13258,9 @@ class GLTFRenderer extends Component {
 
             const propsElement = sequencedElement
               ? this.getKinematicItem(
-                  this.props.kinematicItemList,
-                  sequencedElement
-                )
+                this.props.kinematicItemList,
+                sequencedElement
+              )
               : this.props.kinematicItemList[index];
 
             const currentNode = this.findNodeFrom(propsElement);
@@ -13200,7 +13277,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control &&
               !propsElement.actuator_motion_control.is_end_effector &&
               propsElement.actuator_motion_control.child_part_type ===
-                'ACTUATOR'
+              'ACTUATOR'
             ) {
               // if (prevProps === null) {
               //  /*  const axisLine = this.drawAxisLineToKinematic(propsElement);
@@ -13258,7 +13335,7 @@ class GLTFRenderer extends Component {
                   ? prevPropsElement.actuator_motion_control &&
                     propsElement.actuator_motion_control
                     ? propsElement.actuator_motion_control.chain_number -
-                      prevPropsElement.actuator_motion_control.chain_number
+                    prevPropsElement.actuator_motion_control.chain_number
                     : 0
                   : 0;
               if (!sameGLTF || !prevPropsElement) {
@@ -13271,28 +13348,28 @@ class GLTFRenderer extends Component {
               if (
                 differenceElement ||
                 propsElement.actuator_motion_control.chain_number !==
-                  0 /* || prevProps === null */
+                0 /* || prevProps === null */
               ) {
                 let currentAxis = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
                   ? propsElement.actuator_motion_control
-                      .cylindrical_axis_of_rotation.axis
+                    .cylindrical_axis_of_rotation.axis
                     ? new Vector3(
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
-                      )
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                    )
                     : new Vector3()
                   : new Vector3();
                 let currentPosition = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
                   ? propsElement.actuator_motion_control
-                      .cylindrical_axis_of_rotation.position
+                    .cylindrical_axis_of_rotation.position
                     ? new Vector3(
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
-                      )
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                    )
                     : new Vector3()
                   : new Vector3();
 
@@ -13327,21 +13404,21 @@ class GLTFRenderer extends Component {
                 if (isLinear) {
                   const currentLength = Math.sqrt(
                     currentPositionAxis.x * currentPositionAxis.x +
-                      currentPositionAxis.y * currentPositionAxis.y +
-                      currentPositionAxis.z * currentPositionAxis.z
+                    currentPositionAxis.y * currentPositionAxis.y +
+                    currentPositionAxis.z * currentPositionAxis.z
                   );
                   if (currentLength !== 0) {
                     localCurrentTranslation.add(
                       new Vector3(
                         (currentPositionAxis.x *
                           propsElement.actuator_motion_control.chain_number) /
-                          currentLength,
+                        currentLength,
                         (currentPositionAxis.y *
                           propsElement.actuator_motion_control.chain_number) /
-                          currentLength,
+                        currentLength,
                         (currentPositionAxis.z *
                           propsElement.actuator_motion_control.chain_number) /
-                          currentLength
+                        currentLength
                       )
                     );
                   }
@@ -13622,7 +13699,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control &&
               propsElement.actuator_motion_control.is_end_effector &&
               propsElement.actuator_motion_control.child_part_type ===
-                'ACTUATOR'
+              'ACTUATOR'
             ) {
               if (this.props.itemProperties) {
                 const itemProperties = this.props.itemProperties;
@@ -13728,9 +13805,9 @@ class GLTFRenderer extends Component {
         sequence === -1 || sequencedElement === null
           ? index
           : this.getKinematicIndex(
-              this.props.kinematicItemList,
-              sequencedElement
-            );
+            this.props.kinematicItemList,
+            sequencedElement
+          );
       const propsElement =
         propsElementIndex === -1
           ? this.props.kinematicItemList[index]
@@ -13749,24 +13826,24 @@ class GLTFRenderer extends Component {
       const currentAxis = isActuator
         ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
           ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
-              .axis
+            .axis
             ? new Vector3(
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
-              )
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+            )
             : new Vector3()
           : new Vector3()
         : new Vector3();
       const currentPosition = isActuator
         ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
           ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
-              .position
+            .position
             ? new Vector3(
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
-                propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
-              )
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+            )
             : new Vector3()
           : new Vector3()
         : new Vector3();
@@ -13777,7 +13854,7 @@ class GLTFRenderer extends Component {
         currentNodeIndex,
         isActuator && !propsElement.actuator_motion_control.is_end_effector,
         isActuator &&
-          propsElement.actuator_motion_control.is_linear_or_rotational,
+        propsElement.actuator_motion_control.is_linear_or_rotational,
         isActuator && propsElement.actuator_motion_control.is_end_effector,
         currentAxis,
         currentPosition
@@ -13790,7 +13867,7 @@ class GLTFRenderer extends Component {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
         JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
-          JSON.stringify(this.props.kinematicItemList || []) &&
+        JSON.stringify(this.props.kinematicItemList || []) &&
         JSON.stringify(parsedInfo || []) !== JSON.stringify([])
       ) {
         if (
@@ -13826,9 +13903,9 @@ class GLTFRenderer extends Component {
 
             const propsElement = sequencedElement
               ? this.getKinematicItem(
-                  this.props.kinematicItemList,
-                  sequencedElement
-                )
+                this.props.kinematicItemList,
+                sequencedElement
+              )
               : this.props.kinematicItemList[index];
 
             const currentNode = this.findNodeFrom(propsElement);
@@ -13839,7 +13916,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control &&
               !propsElement.actuator_motion_control.is_end_effector &&
               propsElement.actuator_motion_control.child_part_type ===
-                'ACTUATOR'
+              'ACTUATOR'
             ) {
               if (prevProps === null) {
                 const axisLine = this.drawAxisLineToKinematic(propsElement);
@@ -13870,7 +13947,7 @@ class GLTFRenderer extends Component {
                   ? prevPropsElement.actuator_motion_control &&
                     propsElement.actuator_motion_control
                     ? propsElement.actuator_motion_control.chain_number -
-                      prevPropsElement.actuator_motion_control.chain_number
+                    prevPropsElement.actuator_motion_control.chain_number
                     : 0
                   : 0;
               if (!sameGLTF || !prevPropsElement) {
@@ -13883,28 +13960,28 @@ class GLTFRenderer extends Component {
               if (
                 differenceElement ||
                 propsElement.actuator_motion_control.chain_number !==
-                  0 /* || prevProps === null */
+                0 /* || prevProps === null */
               ) {
                 let currentAxis = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
                   ? propsElement.actuator_motion_control
-                      .cylindrical_axis_of_rotation.axis
+                    .cylindrical_axis_of_rotation.axis
                     ? new Vector3(
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
-                      )
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                    )
                     : new Vector3()
                   : new Vector3();
                 let currentPosition = propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
                   ? propsElement.actuator_motion_control
-                      .cylindrical_axis_of_rotation.position
+                    .cylindrical_axis_of_rotation.position
                     ? new Vector3(
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
-                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
-                      )
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                      propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                    )
                     : new Vector3()
                   : new Vector3();
 
@@ -13936,13 +14013,13 @@ class GLTFRenderer extends Component {
                   localCurrentTranslation.add(
                     new Vector3(
                       currentPositionAxis.x *
-                        propsElement.actuator_motion_control.chain_number /* /
+                      propsElement.actuator_motion_control.chain_number /* /
                           currentLength */,
                       currentPositionAxis.y *
-                        propsElement.actuator_motion_control.chain_number /* /
+                      propsElement.actuator_motion_control.chain_number /* /
                           currentLength */,
                       currentPositionAxis.z *
-                        propsElement.actuator_motion_control.chain_number /* /
+                      propsElement.actuator_motion_control.chain_number /* /
                           currentLength */
                     )
                   );
@@ -14013,7 +14090,7 @@ class GLTFRenderer extends Component {
               propsElement.actuator_motion_control &&
               propsElement.actuator_motion_control.is_end_effector &&
               propsElement.actuator_motion_control.child_part_type ===
-                'ACTUATOR'
+              'ACTUATOR'
             ) {
               if (this.props.itemProperties) {
                 const itemProperties = this.props.itemProperties;
@@ -14099,7 +14176,7 @@ class GLTFRenderer extends Component {
         (JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
           JSON.stringify(this.props.kinematicItemList || []) ||
           JSON.stringify(prevProps ? prevProps.xyzShiftPosition || [] : []) !==
-            JSON.stringify(this.props.xyzShiftPosition || [])) &&
+          JSON.stringify(this.props.xyzShiftPosition || [])) &&
         JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
       ) {
         if (
@@ -14170,11 +14247,11 @@ class GLTFRenderer extends Component {
             ] = parsedIndexInfo[index];
             let propsElement =
               this.props.kinematicItemList[
-                propsElementIndex === -1 ? index : propsElementIndex
+              propsElementIndex === -1 ? index : propsElementIndex
               ];
             let currentNode =
               this.partsMeshes[
-                currentNodeIndex === -1 ? index : currentNodeIndex
+              currentNodeIndex === -1 ? index : currentNodeIndex
               ];
             if (isActuatorNode) {
               if (beginOfActuator === -1) {
@@ -14244,11 +14321,11 @@ class GLTFRenderer extends Component {
                   localCurrentTranslation.add(
                     new Vector3(
                       currentPositionAxis.x *
-                        propsElement.actuator_motion_control.chain_number,
+                      propsElement.actuator_motion_control.chain_number,
                       currentPositionAxis.y *
-                        propsElement.actuator_motion_control.chain_number,
+                      propsElement.actuator_motion_control.chain_number,
                       currentPositionAxis.z *
-                        propsElement.actuator_motion_control.chain_number
+                      propsElement.actuator_motion_control.chain_number
                     )
                   );
                   // }
@@ -14462,7 +14539,7 @@ class GLTFRenderer extends Component {
             ] = parsedIndexInfo[index];
             let propsElement =
               myKinematicItemList[
-                propsElementIndex === -1 ? index : propsElementIndex
+              propsElementIndex === -1 ? index : propsElementIndex
               ];
 
             if (isActuatorNode) {
@@ -14490,11 +14567,11 @@ class GLTFRenderer extends Component {
                   localCurrentTranslation.add(
                     new Vector3(
                       currentPositionAxis.x *
-                        propsElement.actuator_motion_control.chain_number,
+                      propsElement.actuator_motion_control.chain_number,
                       currentPositionAxis.y *
-                        propsElement.actuator_motion_control.chain_number,
+                      propsElement.actuator_motion_control.chain_number,
                       currentPositionAxis.z *
-                        propsElement.actuator_motion_control.chain_number
+                      propsElement.actuator_motion_control.chain_number
                     )
                   );
                   // }
@@ -14594,7 +14671,7 @@ class GLTFRenderer extends Component {
 
       if (
         JSON.stringify(prevProps ? prevProps.xyzShiftPosition || [] : []) !==
-          JSON.stringify(this.props.xyzShiftPosition || []) &&
+        JSON.stringify(this.props.xyzShiftPosition || []) &&
         JSON.stringify(parsedIndexInfo || []) !== JSON.stringify([])
       ) {
         this.state_calculatedKinematicItemChainChanged = true;
@@ -14644,7 +14721,7 @@ class GLTFRenderer extends Component {
 
               let currentNode =
                 this.partsMeshes[
-                  currentNodeIndex === -1 ? index : currentNodeIndex
+                currentNodeIndex === -1 ? index : currentNodeIndex
                 ];
               console.log(
                 'index',
@@ -14888,14 +14965,14 @@ class GLTFRenderer extends Component {
       myOpaque === 'True'
         ? true
         : myOpaque === 'False'
-        ? false
-        : !material.transparent;
+          ? false
+          : !material.transparent;
     material.side =
       mySide === 'Front'
         ? FrontSide
         : mySide === 'Back'
-        ? BackSide
-        : DoubleSide;
+          ? BackSide
+          : DoubleSide;
 
     //console.log(material);
   }
@@ -15400,8 +15477,8 @@ class GLTFRenderer extends Component {
       myParentDic[myParentID.toString()] = data.children
         ? data.children[myParentID]
         : data.files
-        ? data.files[myParentID]
-        : 1;
+          ? data.files[myParentID]
+          : 1;
       if (allEdges === 0 && data.children) {
         myParentDic = data.children;
       }
@@ -15688,30 +15765,30 @@ class GLTFRenderer extends Component {
                           curveCode === 'P'
                             ? 0
                             : major *
-                              (curveCode === 'H'
-                                ? Math.cosh(tindex)
-                                : Math.cos(tindex));
+                            (curveCode === 'H'
+                              ? Math.cosh(tindex)
+                              : Math.cos(tindex));
                         let A1t =
                           curveCode === 'P'
                             ? 0
                             : major *
-                              (curveCode === 'H'
-                                ? Math.sinh(tindex)
-                                : -Math.sin(tindex));
+                            (curveCode === 'H'
+                              ? Math.sinh(tindex)
+                              : -Math.sin(tindex));
                         let A2 =
                           curveCode === 'P'
                             ? 0
                             : minor *
-                              (curveCode === 'H'
-                                ? Math.sinh(tindex)
-                                : Math.sin(tindex));
+                            (curveCode === 'H'
+                              ? Math.sinh(tindex)
+                              : Math.sin(tindex));
                         let A2t =
                           curveCode === 'P'
                             ? 0
                             : minor *
-                              (curveCode === 'H'
-                                ? Math.cosh(tindex)
-                                : Math.cos(tindex));
+                            (curveCode === 'H'
+                              ? Math.cosh(tindex)
+                              : Math.cos(tindex));
                         if (curveCode === 'P') {
                           const focal = major;
                           if (focal === 0) {
@@ -15775,21 +15852,21 @@ class GLTFRenderer extends Component {
                               (floater -
                                 len_pole * 256.0 * 256.0 -
                                 len_knot * 256.0) /
-                                4.0
+                              4.0
                             );
                             rational = Math.trunc(
                               (floater -
                                 len_pole * 256.0 * 256.0 -
                                 len_knot * 256.0 -
                                 degree * 4.0) /
-                                2.0
+                              2.0
                             );
                             periodic = Math.round(
                               floater -
-                                len_pole * 256.0 * 256.0 -
-                                len_knot * 256.0 -
-                                degree * 4.0 -
-                                rational * 2.0
+                              len_pole * 256.0 * 256.0 -
+                              len_knot * 256.0 -
+                              degree * 4.0 -
+                              rational * 2.0
                             );
                             buffer_index += 1;
                             if (curveCode === 'I') {
@@ -16260,8 +16337,8 @@ class GLTFRenderer extends Component {
             myParentDic[myParentID.toString()] = data.children
               ? data.children[myParentID]
               : data.files
-              ? data.files[myParentID]
-              : 1;
+                ? data.files[myParentID]
+                : 1;
             if (allEdges === 0 && data.children) {
               myParentDic = data.children;
             }
@@ -16402,8 +16479,8 @@ class GLTFRenderer extends Component {
         myParentDic[myParentID.toString()] = data.children
           ? data.children[myParentID]
           : data.files
-          ? data.files[myParentID]
-          : 1;
+            ? data.files[myParentID]
+            : 1;
         if (allEdges === 0 && data.children) {
           myParentDic = data.children;
         }
@@ -17013,7 +17090,7 @@ class GLTFRenderer extends Component {
     let message = '';
     try {
       message += messages.toString();
-    } catch (exc) {}
+    } catch (exc) { }
     let openFiles = [...this.state.progressOpenedFiles];
     openFiles = arrayRemoveFromValue(openFiles, aFile);
     try {
