@@ -6857,6 +6857,19 @@ class GLTFRenderer extends Component {
       }
     }
   };
+  getCollisionObjects = (nodeMesh, collidableMeshList) => {
+    for (var vertexIndex = 0; vertexIndex < nodeMesh.geometry.attributes.position.array.length; vertexIndex++) {
+      var localVertex = new Vector3().fromBufferAttribute(nodeMesh.geometry.attributes.position, vertexIndex).clone();
+      var globalVertex = localVertex.applyMatrix4(nodeMesh.matrix);
+      var directionVector = globalVertex.sub(nodeMesh.position);
+
+      var ray = new Raycaster(nodeMesh.position, directionVector.clone().normalize());
+      var collisionResults = ray.intersectObjects(collidableMeshList);
+      if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+        // a collision occurred... do something...
+      }
+    }
+  }
   getNormalizedAngle = (angle) => {
     const pi = Math.PI;
     let retAngle = angle;
