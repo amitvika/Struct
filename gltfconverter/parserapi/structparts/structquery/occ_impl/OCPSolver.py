@@ -85,10 +85,7 @@ class ConstraintSolver(object):
 
     def _cost(
         self,
-    ) -> Tuple[
-        Callable[[Array[(Any,), float]], float],
-        Callable[[Array[(Any,), float]], Array[(Any,), float]],
-    ]:
+    ) -> Any:
         def pt_cost(
             m1: gp_Pnt,
             m2: gp_Pnt,
