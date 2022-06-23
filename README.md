@@ -112,6 +112,10 @@ yarn install
 
 - run `conda deactivate`
 
+### if you want completely in local,
+
+- Please comment `line no 10 in common.js and line no 9 in fileUpload.api.js` in order to work totally from local. (these lines should be again uncommented while pushing to production)
+
 ## Usage
 
 ### Internal App (Node)
@@ -155,7 +159,7 @@ export DONOTUSES3=False
 
 # Start s3fs system is not needed everytime while restarting but only one time it is needed whenever you reboot the system
 
-#- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
+- run `s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs`
 
 # Start xvfb
 
