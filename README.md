@@ -114,7 +114,7 @@ yarn install
 
 ### if you want completely in local,
 
-- Please comment `line no 10 in common.js and line no 9 in fileUpload.api.js` in order to work totally from local. (these lines should be again uncommented while pushing to production)
+- Please comment `line no 10 in common.js and line no 9 in fileUpload.api.js in packages/common/api folder` in order to work totally from local. (these lines should be again uncommented while pushing to production)
 
 ## Usage
 

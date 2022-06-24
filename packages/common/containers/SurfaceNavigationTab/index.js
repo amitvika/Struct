@@ -381,7 +381,7 @@ export default function SurfaceNavigation({
     }
   };
 
-  const removeFile = (data) => {};
+  const removeFile = (data) => { };
 
   let gltfjsonlen = gltfobj ? Object.keys(gltfobj).length : 0;
   if (get(gltfobj, 'gltf.accessors')) {
@@ -409,7 +409,7 @@ export default function SurfaceNavigation({
                 /*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
               !isFileLoading &&*/ <GLTFRenderer
-                  gltfobj={gltfobj}
+                  gltfobj={[gltfobj]}
                   fileGDT={itemProperties.surfGDT}
                   fileUUId={fileUUId}
                   fileAnimation={false}

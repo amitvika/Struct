@@ -402,7 +402,7 @@ export default function BaseItemProperties({
     }
   };
 
-  const removeFile = (data) => {};
+  const removeFile = (data) => { };
 
   let gltfjsonlen = gltfobj ? Object.keys(gltfobj).length : 0;
   if (get(gltfobj, 'gltf.accessors')) {
@@ -430,7 +430,7 @@ export default function BaseItemProperties({
                 /*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
               !isFileLoading &&*/ <GLTFRenderer
-                  gltfobj={gltfobj}
+                  gltfobj={[gltfobj]}
                   fileGDT={itemProperties.fileGDT}
                   fileUUId={fileUUId}
                   fileAnimation={false}

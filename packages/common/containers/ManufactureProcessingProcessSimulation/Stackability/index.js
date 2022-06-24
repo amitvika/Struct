@@ -202,7 +202,7 @@ export default function Stackability(props) {
         {
           /*!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&*/ <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
-            gltfobj={gltfjson}
+            gltfobj={[gltfjson]}
             fileGDT={null}
             fileUUId={fileUUId}
             fileAnimation={true}
