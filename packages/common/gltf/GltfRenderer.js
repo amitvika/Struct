@@ -760,7 +760,7 @@ class GLTFRenderer extends Component {
       }
     }
     if (this.isEqualGLTFObj(prevProps.gltfobj, this.props.gltfobj) == false) {
-      this.loadAllGLTFObjectsAndTreeAndTree();
+      this.loadAllGLTFObjectsAndTree();
     }
     /* 
         if((this.state.gltfobj!==this.props.gltfobj) || (prevState.gltfobj !==this.state.gltfobj)) {
@@ -16260,7 +16260,7 @@ class GLTFRenderer extends Component {
   };
 
 
-  loadAllGLTFObjectsAndTreeAndTree = async (
+  loadAllGLTFObjectsAndTree = async (
 
   ) => {
     let gapBetween = this.props.gapBetween ? this.props.gapBetween : 10;
