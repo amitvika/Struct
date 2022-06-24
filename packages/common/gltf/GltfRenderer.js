@@ -16266,11 +16266,11 @@ class GLTFRenderer extends Component {
     let gapBetween = this.props.gapBetween ? this.props.gapBetween : 10;
     let gltfObjFirst = this.props.gltfobj[0];
     let topLeftPrevious = [0, 0, 0];
-    let bottomRightPrevious = [0, 0, 0];
+    //let bottomRightPrevious = [0, 0, 0];
     let treeLengthSofar = 0;
     if (gltfObjFirst && gltfObjFirst.tree && gltfObjFirst.tree.length > 0) {
       topLeftPrevious = gltfObjFirst.tree[0][gltf_Dict['topLeft']];
-      bottomRightPrevious = gltfObjFirst.tree[0][gltf_Dict['bottomRight']];
+      //bottomRightPrevious = gltfObjFirst.tree[0][gltf_Dict['bottomRight']];
       treeLengthSofar = gltfObjFirst.tree.length;
     }
     const onload = async (gltf, displacementPosition) => {
@@ -16421,8 +16421,11 @@ class GLTFRenderer extends Component {
         }
         let displacementPosition = { x: 0, y: 0, z: 0 };
         displacementPosition.x = ((topLeftPrevious[0] - bottomRightCurrent[0]) + gapBetween) * 0.001;
-        topLeftPrevious = topLeftCurrent;
-        bottomRightPrevious = bottomRightCurrent;
+        topLeftPrevious[0] = topLeftCurrent[0];
+        topLeftPrevious[1] = topLeftCurrent[1];
+        topLeftPrevious[2] = topLeftCurrent[2];
+        topLeftPrevious[0] += displacementPosition.x;
+        //bottomRightPrevious = bottomRightCurrent;
         const fileUUId = gltfObjElement.fileUUId ? gltfObjElement.fileUUId : this.props.fileUUId;
         const myResourcePath = gltfObjElement.resourcepath ? gltfObjElement.resourcepath : resourcePathURL;
         const myParserParams = {
