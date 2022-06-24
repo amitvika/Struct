@@ -16261,12 +16261,7 @@ class GLTFRenderer extends Component {
 
 
   loadAllGLTFObjectsAndTreeAndTree = async (
-    allEdges = 0,
-    featureSetStart = 0,
-    featureSetFinish = 3,
-    mynode = null,
-    gdttableEdges = null,
-    firstTime = false
+
   ) => {
     let gapBetween = this.props.gapBetween ? this.props.gapBetween : 10;
     let gltfObjFirst = this.props.gltfobj[0];
