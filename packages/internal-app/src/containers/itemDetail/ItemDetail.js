@@ -54,6 +54,7 @@ import AssignToClient from './AssignToClient';
 import SupplyingVendors from './SupplyingVendors';
 import InstanceOfThisItem from './InstanceOfThisItem/InstanceOfThisItem';
 import FeaturesTab from '../ItemFeaturesTab/FeaturesTab';
+import MachineAndToolWorkspaceProgramming from './MachineAndToolWorkspaceProgramming';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -132,10 +133,10 @@ const ItemDetail = ({ itemValue }) => {
   const setActiveGLTFile = (data) => {
     try {
       setActiveGDTTable(0);
-    } catch (error) {}
+    } catch (error) { }
     try {
       setActiveGLTFileState(data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   useEffect(() => {
@@ -222,7 +223,7 @@ const ItemDetail = ({ itemValue }) => {
           setInternalProductConfig(get(resp, 'data[0]'));
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   }, []);
 
   const handleGLTFAndTreeLoading = ({ item, myTabedIndex, whatEffect }) => {
@@ -251,7 +252,7 @@ const ItemDetail = ({ itemValue }) => {
         (myTabedIndex === 'iupc' &&
           !showKinematicMove &&
           !showKinematicSliderMove) ||
-        myTabedIndex === 'pdcu'
+          myTabedIndex === 'pdcu'
           ? 'gdtac'
           : myTabedIndex;
       let axisArray = [];
@@ -401,13 +402,13 @@ const ItemDetail = ({ itemValue }) => {
           console.log(
             'Setting active gltf file to',
             myFileKinamatic +
-              regenerateKinematicMove.toString() +
-              showKinematicSliderMove.toString()
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
           );
           setActiveGLTFile(
             myFileKinamatic +
-              regenerateKinematicMove.toString() +
-              showKinematicSliderMove.toString()
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
           );
         }
 
@@ -585,7 +586,7 @@ const ItemDetail = ({ itemValue }) => {
           handleSave({ child_item_status: 'COMPLETED' });
         }
       }
-    } catch (error) {}
+    } catch (error) { }
     setIsLoading(false);
     setIsFileLoading(false);
     setProgressBarLoad(false);
@@ -704,7 +705,7 @@ const ItemDetail = ({ itemValue }) => {
         if (state_additionalSaveFunction) {
           state_additionalSaveFunction();
         }
-      } catch (error) {}
+      } catch (error) { }
       return;
     }
 
@@ -725,7 +726,7 @@ const ItemDetail = ({ itemValue }) => {
       if (state_additionalSaveFunction) {
         state_additionalSaveFunction();
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const renderPageSwitch = () => {
@@ -1048,6 +1049,8 @@ const ItemDetail = ({ itemValue }) => {
             }}
           />
         );
+      case 'MachineAndToolWorkspaceProgramming':
+        return <MachineAndToolWorkspaceProgramming />
       default:
         return 'Undefined Tab Index';
     }
@@ -1092,7 +1095,8 @@ const ItemDetail = ({ itemValue }) => {
     AssignToClient: 'Assign to Client(s)',
     sv: 'Supplying Vendors',
     instanceOfThisItem: 'Instance of this Item',
-    pricing: 'pricinggggg'
+    pricing: 'pricinggggg',
+    MachineAndToolWorkspaceProgramming: 'Machine and Tool workspace programming'
   };
 
   const renderTab = () => {
@@ -1115,8 +1119,8 @@ const ItemDetail = ({ itemValue }) => {
         ? item.filePartName
         : item.name
       : item.filePartName
-      ? item.filePartName
-      : 'Untitled-2';
+        ? item.filePartName
+        : 'Untitled-2';
   };
   return (
     <>
