@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import get from 'lodash/get';
 import MainModal from '@monostruct/common/components/Modal';
 import FactoriesAPI from '@monostruct/common/api/factories.api';
-import { useDispatch, useSelector } from 'react-redux';
 import SelectorView from '@monostruct/common/components/SelectorView';
 import { columnsFields } from '@monostruct/common/constants/factory';
 
@@ -12,10 +11,9 @@ export default function SelectFactoryModal({
   selectedValue = {},
   setSelectedValue,
   assignFactory,
-  isItemSelectionVisible
 }) {
   const handleChange = (data) => {
-    console.log('data', data);
+
     if (data[0]) {
       let updatedValue = { ...selectedValue, factory_id: data[0] };
       console.log('updatedValue', updatedValue);
@@ -44,7 +42,7 @@ export default function SelectFactoryModal({
         fields={columnsFields}
         mapValues={(data) => data}
         handleUpdate={handleChange}
-        handleSelection={(data) => {}}
+        handleSelection={(data) => { }}
         isMultiSelection={false}
         isItemSelectionVisible={true}
       />

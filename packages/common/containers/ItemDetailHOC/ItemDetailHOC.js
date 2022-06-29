@@ -67,10 +67,10 @@ const ItemDetailHOC = (Component) =>
     const setActiveGLTFile = (data) => {
       try {
         setActiveGDTTable(0);
-      } catch (error) {}
+      } catch (error) { }
       try {
         setActiveGLTFileState(data);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     // console.log('--------itemValue', itemValue);
@@ -87,12 +87,7 @@ const ItemDetailHOC = (Component) =>
       }
       setAllowFirstLevelItems(itemValue?.child_item_status === 'INITIATED');
       setActiveGLTFile('');
-      console.log(
-        'Started handleGLTFAndTreeLoading from useeffect myTabIndex HOC',
-        itemProperties,
-        myTabIndex,
-        tabIndex
-      );
+
       handleGLTFAndTreeLoading({
         item: itemValue,
         myTabedIndex: myTabIndex,
@@ -104,14 +99,7 @@ const ItemDetailHOC = (Component) =>
       if (!itemValue) {
         return;
       }
-      console.log(
-        'Started handleGLTFAndTreeLoading from useeffect itemValue.fileStore, showKinematicMove, regenerateKinematicMove HOC',
-        itemProperties,
-        itemValue.fileStore,
-        showKinematicMove,
-        regenerateKinematicMove,
-        tabIndex
-      );
+
       handleGLTFAndTreeLoading({
         item: itemValue,
         myTabedIndex: tabIndex,
@@ -133,7 +121,7 @@ const ItemDetailHOC = (Component) =>
             setInternalProductConfig(get(resp, 'data[0]'));
           }
         })
-        .catch((error) => {});
+        .catch((error) => { });
     }, []);
 
     const handleGLTFAndTreeLoading = ({ item, myTabedIndex, whatEffect }) => {
@@ -163,7 +151,7 @@ const ItemDetailHOC = (Component) =>
           (myTabedIndex === 'iupc' &&
             !showKinematicMove &&
             !showKinematicSliderMove) ||
-          myTabedIndex === 'pdcu'
+            myTabedIndex === 'pdcu'
             ? 'gdtac'
             : myTabedIndex;
         let axisArray = [];
@@ -275,13 +263,13 @@ const ItemDetailHOC = (Component) =>
             console.log(
               'Setting active gltf file to',
               myFileKinamatic +
-                regenerateKinematicMove.toString() +
-                showKinematicSliderMove.toString()
+              regenerateKinematicMove.toString() +
+              showKinematicSliderMove.toString()
             );
             setActiveGLTFile(
               myFileKinamatic +
-                regenerateKinematicMove.toString() +
-                showKinematicSliderMove.toString()
+              regenerateKinematicMove.toString() +
+              showKinematicSliderMove.toString()
             );
           }
           if (!showKinematicSliderMove) {
@@ -455,7 +443,7 @@ const ItemDetailHOC = (Component) =>
             handleSave({ child_item_status: 'COMPLETED' });
           }
         }
-      } catch (error) {}
+      } catch (error) { }
       setIsLoading(false);
       setIsFileLoading(false);
       setProgressBarLoad(false);
