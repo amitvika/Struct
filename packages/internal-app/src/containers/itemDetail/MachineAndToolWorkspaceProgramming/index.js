@@ -9,9 +9,52 @@ import ChooseTools from './ChooseTools';
 import ChooseRobot from './ChooseRobot';
 import Layout from './Layout';
 
-export default function MachineAndToolWorkspaceProgramming() {
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
+
+import {
+    DEFAULTBACKCOLOR,
+    DEFAULTSELECTCOLOR,
+    DEFAULTTOUCHCOLOR,
+    SELECTHIRERACHY,
+    STATEPROPS,
+    USESTYLES,
+    pollFunction,
+    getFileNameWithoutExtension
+} from '@monostruct/common/gltf/Tree/utils';
+import get from 'lodash/get';
+
+
+export default function MachineAndToolWorkspaceProgramming({
+    gltfjson = {},
+    itemProperties = {},
+    selectedOption,
+    setSelectedOption,
+    percentage,
+    progressBarLoad,
+    currentProgressText,
+    completionProgressText,
+    centerActionText,
+    drawLine,
+    activeGLTFFile,
+    setActiveGLTFile,
+}) {
     const [tabIndex, setTabIndex] = useState(-1);
     const [isModalOpened, setIsModalOpened] = useState(false);
+    const [gltfobj, setGltfObj] = useState(gltfjson);
+    const [fileId, setFileId] = useState(0);
+    const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
+    const [progressBarRender, setProgressBarRender] = useState(false);
+    const [percentager, setPercentager] = useState(percentage || 0);
+    const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+    const [currentProgressTexter, setCurrentProgressTexter] =
+        useState(currentProgressText);
+    const [completionProgressTexter, setCompletionProgressTexter] = useState(
+        completionProgressText
+    );
+    const [centerActionTexter, setCenterActionTexter] =
+        useState(centerActionText);
+
+    const [drawLiner, setDrawLiner] = useState(drawLine);
 
     const tabList = {
         chooseItem: 'Choose Item(s)',
@@ -52,9 +95,16 @@ export default function MachineAndToolWorkspaceProgramming() {
         }
     }
 
+    let gltfjsonlen = gltfobj ? Object.keys(gltfobj).length : 0;
+    if (get(gltfobj, 'gltf.accessors')) {
+        gltfjsonlen += gltfobj?.gltf?.accessors?.length;
+    }
 
     return (
-        <Grid>
+        <Grid style={{
+            display: 'flex',
+            flexDirection: 'row'
+        }}>
             <TabContainer>
                 <Tabs
                     className="MuiTab-wrapper"
@@ -67,6 +117,7 @@ export default function MachineAndToolWorkspaceProgramming() {
                 </Tabs>
             </TabContainer>
             <TabPanelContainer>
+
                 {tabIndex === 'setupWorkPlane' && <ChooseItemModal {...{
                     toggleModal,
                     isModalOpened
@@ -75,6 +126,57 @@ export default function MachineAndToolWorkspaceProgramming() {
                 {tabIndex === 'chooseRobot' && <ChooseRobot />}
                 {tabIndex === 'chooseTools' && <ChooseTools />}
                 {tabIndex === 'layout' && <Layout />}
+                <GLTFRenderer
+                    gltfobj={[gltfobj]}
+                    fileGDT={itemProperties.fileGDT}
+                    fileUUId={fileUUId}
+                    fileAnimation={false}
+                    activefile={
+                        (fileId || fileUUId || '') +
+                        gltfjsonlen.toString() +
+                        tabIndex.toString()
+                    }
+                    backcolor={DEFAULTBACKCOLOR()}
+                    selectcolor={DEFAULTSELECTCOLOR()}
+                    touchcolor={DEFAULTTOUCHCOLOR()}
+                    selectedoption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    splitmethod={SELECTHIRERACHY}
+                    changedata={[]}
+                    data2texture={null}
+                    data3texture={null}
+                    materialtype={STATEPROPS.materialname}
+                    whatchanged={0}
+                    dataselection={0}
+                    activeDataTable={0}
+                    setProgressBarRender={setProgressBarRender}
+                    setPercentage={setPercentager}
+                    setProgressBarLoad={setProgressBarLoader}
+                    setCurrentProgressText={setCurrentProgressTexter}
+                    setCompletionProgressText={setCompletionProgressTexter}
+                    setCenterActionText={setCenterActionTexter}
+                    drawLine={drawLiner}
+                    edgecolor={STATEPROPS.edgecolor}
+                    activeGLTFFile={activeGLTFFile}
+                    setActiveGLTFile={setActiveGLTFile}
+                    xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
+                    setXYZEndEffectorPosition={null}
+                    xyzControlPosition={{ X: 0, Y: 0, Z: 0 }}
+                    setXYZControlPosition={null}
+                    xyzBeginPosition={{ X: 0, Y: 0, Z: 0 }}
+                    setXYZBeginPosition={null}
+                    xyzShiftPosition={{ X: 0, Y: 0, Z: 0 }}
+                    setXYZShiftPosition={null}
+                    kinematicParameters={{
+                        step: 1,
+                        error: 4,
+                        iterations: 21,
+                        methods: 1,
+                        gap: 0.001
+                    }}
+                    setKinematicParameters={null}
+                    itemProperties={null}
+                />
             </TabPanelContainer>
         </Grid >
     )
