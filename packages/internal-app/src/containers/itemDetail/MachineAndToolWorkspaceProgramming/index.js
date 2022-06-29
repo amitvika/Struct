@@ -118,7 +118,7 @@ export default function MachineAndToolWorkspaceProgramming({
             </TabContainer>
             <TabPanelContainer>
 
-                {tabIndex === 'setupWorkPlane' && <ChooseItemModal {...{
+                {tabIndex === 'chooseItem' && <ChooseItemModal {...{
                     toggleModal,
                     isModalOpened
                 }} />}
