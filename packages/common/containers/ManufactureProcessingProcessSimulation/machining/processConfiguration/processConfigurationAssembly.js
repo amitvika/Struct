@@ -66,7 +66,7 @@ export default function ProcessConfigurationAssembly(props) {
           {
             /*Object.keys(gltfjson).length > 0 &&*/ <GLTFRenderer
               //gltfjson={JSON.stringify(gltfjson)}
-              gltfobj={gltfjson}
+              gltfobj={[gltfjson]}
               activefile={fileId}
               backcolor={DEFAULTBACKCOLOR()}
               selectcolor={DEFAULTSELECTCOLOR()}

@@ -1477,11 +1477,11 @@ export default function ManufacturabilityAnalysis(props) {
       ) {
         if (
           currentData[index].AX !==
-            gltfjsonParam.assemblyorder.direction[index][0][0] ||
+          gltfjsonParam.assemblyorder.direction[index][0][0] ||
           currentData[index].AY !==
-            gltfjsonParam.assemblyorder.direction[index][0][1] ||
+          gltfjsonParam.assemblyorder.direction[index][0][1] ||
           currentData[index].AZ !==
-            gltfjsonParam.assemblyorder.direction[index][0][2]
+          gltfjsonParam.assemblyorder.direction[index][0][2]
         ) {
           currentData[index].AX =
             gltfjsonParam.assemblyorder.direction[index][0][0];
@@ -1686,7 +1686,7 @@ export default function ManufacturabilityAnalysis(props) {
           Object.keys(state.gltfjson).length > 0 &&
           !isFileLoading &&*/ <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
-            gltfobj={state.gltfjson}
+            gltfobj={[state.gltfjson]}
             fileGDT={null}
             fileUUId={fileUUId}
             fileAnimation={true}
@@ -1732,7 +1732,7 @@ export default function ManufacturabilityAnalysis(props) {
             }}
             setKinematicParameters={null}
             itemProperties={null}
-            //resetSelectionFromTree={resetSelectionFromTree}
+          //resetSelectionFromTree={resetSelectionFromTree}
           />
         }
         {/*  {

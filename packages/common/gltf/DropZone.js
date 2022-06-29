@@ -304,8 +304,8 @@ class DropZone extends Component {
               this.state.selectedindex == -1
                 ? 'No Shells Selected'
                 : this.getBaseName(
-                    this.state.files[this.state.selectedindex].filename
-                  )
+                  this.state.files[this.state.selectedindex].filename
+                )
             }
             firstshell={this.state.firstshell}
             secondshell={this.state.secondshell}
@@ -667,7 +667,7 @@ class DropZone extends Component {
         <div id="rowcontent">
           <GLTFRenderer
             gltfjson={this.state.gltfjson}
-            gltfobj={this.state.gltfobj}
+            gltfobj={[this.state.gltfobj]}
             activefile={this.state.activefile}
             backcolor={this.state.databackcolor}
             selectcolor={this.state.dataselectcolor}
@@ -776,9 +776,9 @@ class DropZone extends Component {
           this.setState((prevState) => ({
             files: [...prevState.files, res.data]
             /* distancegap: [...prevState.distancegap,DEFAULTDISTANCEGAP],
-						anglegap: [...prevState.anglegap,DEFAULTANGLEGAP],
-						disect: [...prevState.disect,DEFAULTDISECT],
-						materialtype : [...prevState.materialtype,DEFAULTMATERIALTYPE],	 */
+            anglegap: [...prevState.anglegap,DEFAULTANGLEGAP],
+            disect: [...prevState.disect,DEFAULTDISECT],
+            materialtype : [...prevState.materialtype,DEFAULTMATERIALTYPE],	 */
           }));
           //console.log(res.data);
           this.setStateLoadingContent(false);
@@ -804,9 +804,9 @@ class DropZone extends Component {
         this.setState({
           files: repos
           /* distancegap: new Array(repos.length).fill(DEFAULTDISTANCEGAP),
-					anglegap:new Array(repos.length).fill(DEFAULTANGLEGAP),
-					disect: new Array(repos.length).fill(DEFAULTDISECT),
-					materialtype: new Array(repos.length).fill(DEFAULTMATERIALTYPE) */
+          anglegap:new Array(repos.length).fill(DEFAULTANGLEGAP),
+          disect: new Array(repos.length).fill(DEFAULTDISECT),
+          materialtype: new Array(repos.length).fill(DEFAULTMATERIALTYPE) */
         });
         this.setStateLoadingContent(false);
       })
@@ -1069,47 +1069,47 @@ class DropZone extends Component {
   };
 
   /* toggleSubRow = (rows, id) => {
-		const rowIndex = rows.findIndex(r => r[gltf_Dict["id"]] === id);
-		const row = rows[rowIndex];
-		const { children } = row;
-		if (!children) return rows;
-	  
-		const newRows = [...rows];
-		newRows[rowIndex] = { ...row, isExpanded: !row.isExpanded };
-		if (!row.isExpanded) {
-		  newRows.splice(rowIndex + 1, 0, ...children);
-		} else {
-		  newRows.splice(rowIndex + 1, children.length);
-		}
-		return newRows;
-	} */
+    const rowIndex = rows.findIndex(r => r[gltf_Dict["id"]] === id);
+    const row = rows[rowIndex];
+    const { children } = row;
+    if (!children) return rows;
+    
+    const newRows = [...rows];
+    newRows[rowIndex] = { ...row, isExpanded: !row.isExpanded };
+    if (!row.isExpanded) {
+      newRows.splice(rowIndex + 1, 0, ...children);
+    } else {
+      newRows.splice(rowIndex + 1, children.length);
+    }
+    return newRows;
+  } */
   /* dataColumns =  [
-			{
-				dataIndex: 'name',
-				sortable: false,
-				expandable: true,					
-				name: 'Assembly Name'
-				},
-		  
-			{
-				dataIndex: 'topLeft',
-				name: 'Top Left',
-				renderer: (ob) =>  {
-				  console.log(ob);
-				  return (
-					<>
-					{ ob.row.topLeft && (
-					  <div className="rdg-cell-value">
-					   
-						  x : {ob.row.topLeft[0] } y : {ob.row.topLeft[1] } z : {ob.row.topLeft[2] }
-					   
-					  </div>
-					)}
-					</>
-				  );
-				}
-			},
-		]; */
+      {
+        dataIndex: 'name',
+        sortable: false,
+        expandable: true,					
+        name: 'Assembly Name'
+        },
+      
+      {
+        dataIndex: 'topLeft',
+        name: 'Top Left',
+        renderer: (ob) =>  {
+          console.log(ob);
+          return (
+          <>
+          { ob.row.topLeft && (
+            <div className="rdg-cell-value">
+             
+              x : {ob.row.topLeft[0] } y : {ob.row.topLeft[1] } z : {ob.row.topLeft[2] }
+             
+            </div>
+          )}
+          </>
+          );
+        }
+      },
+    ]; */
 
   render() {
     return (
@@ -1160,7 +1160,7 @@ const SplitPane = ({ children, ...props }) => {
     //   return leftWidth !== 0 && setLeftWidth(0);
     // }
     /* console.log("my ref",splitPaneRef);
-		console.log("my ref c",splitPaneRef.current); */
+    console.log("my ref c",splitPaneRef.current); */
     //const splitPaneWidth = splitPaneRef.current.clientWidth;
 
     // if (newLeftWidth >= splitPaneWidth) {

@@ -25,14 +25,14 @@ export default function Viewer({
   whatchange = 0,
   selectedOption = SELECTFEATURE,
   splitMethod = SELECTHIRERACHY,
-  handleModelClick = () => {},
-  setSelectedOption = () => {},
-  setCtrlKey = () => {},
-  resetSelections = () => {},
-  selectAllSelectedSolids = () => {},
-  resetSelectionFromTree = () => {},
-  setStateOfTree = () => {},
-  setStateOfgltf = () => {},
+  handleModelClick = () => { },
+  setSelectedOption = () => { },
+  setCtrlKey = () => { },
+  resetSelections = () => { },
+  selectAllSelectedSolids = () => { },
+  resetSelectionFromTree = () => { },
+  setStateOfTree = () => { },
+  setStateOfgltf = () => { },
   activeDataTable = 0,
   setIsProgressOpen = (value) => {
     console.log('Set Is Progress Open', value);
@@ -51,22 +51,22 @@ export default function Viewer({
   showKinematicMove = false,
   regenerateKinematicMove = 0,
   activeGLTFFile = '',
-  setActiveGLTFile = () => {},
+  setActiveGLTFile = () => { },
   drawAxisLines = null,
   showKinematicSliderMove = false,
   showKinematicSliderAnimate = false,
   showKinematicSliderAnimateValues = false,
   applyTangentToEdges = false,
   kinematicItemList = [],
-  setKinematicItemList = () => {},
+  setKinematicItemList = () => { },
   xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
-  setXYZEndEffectorPosition = () => {},
+  setXYZEndEffectorPosition = () => { },
   xyzControlPosition = { X: 0, Y: 0, Z: 0 },
-  setXYZControlPosition = () => {},
+  setXYZControlPosition = () => { },
   xyzBeginPosition = { X: 0, Y: 0, Z: 0 },
-  setXYZBeginPosition = () => {},
+  setXYZBeginPosition = () => { },
   xyzShiftPosition = { X: 0, Y: 0, Z: 0 },
-  setXYZShiftPosition = () => {},
+  setXYZShiftPosition = () => { },
   kinematicParameters = {
     step: 1,
     error: 4,
@@ -151,7 +151,7 @@ export default function Viewer({
       {
         /*!isLoading && gltfjsonlen > 0 &&*/ <GLTFRenderer
           //gltfjson={JSON.stringify(gltfjson)}
-          gltfobj={gltfjson}
+          gltfobj={[gltfjson]}
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
           activefile={
@@ -223,8 +223,8 @@ export default function Viewer({
           itemProperties={itemProperties}
           setProgressAnimate={setProgressAnimate}
           setProgressAnimateText={setProgressAnimateText}
-          /*  openSnackBar={openSnackBar}
-            closeSnackBar={closeSnackBar} */
+        /*  openSnackBar={openSnackBar}
+          closeSnackBar={closeSnackBar} */
         />
       }
       {/* {isLoading && <CircularProgress />} */}

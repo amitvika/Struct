@@ -20,7 +20,7 @@ export default function Viewer({
   fileGDT = '',
   selectedOption = SELECTSOLID,
   splitMethod = SELECTHIRERACHY,
-  handleModelClick = () => {},
+  handleModelClick = () => { },
   progressBarLoad = false,
   percentage = 0,
   currentProgressText = null,
@@ -28,7 +28,7 @@ export default function Viewer({
   centerActionText = null,
   drawLine = false,
   activeGLTFFile = '',
-  setActiveGLTFile = () => {}
+  setActiveGLTFile = () => { }
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -80,7 +80,7 @@ export default function Viewer({
         // Object.keys(gltfjson).length > 0 &&
         <GLTFRenderer
           //gltfjson={JSON.stringify(gltfjson)}
-          gltfobj={gltfjson}
+          gltfobj={[gltfjson]}
           activefile={fileId}
           fileUUId={fileUUId}
           fileGDT={fileGDT}

@@ -97,7 +97,7 @@ class GLTFLoader extends Loader {
     });
   }
 
-  load(url, onLoad, onProgress, onError, renderOrder) {
+  load(url, onLoad, onProgress, onError, renderOrder, displacementPosition) {
     const scope = this;
 
     let resourcePath;
@@ -141,7 +141,7 @@ class GLTFLoader extends Loader {
             data,
             resourcePath,
             function (gltf) {
-              onLoad(gltf, url);
+              onLoad(gltf, url, displacementPosition);
 
               scope.manager.itemEnd(url);
             },
@@ -975,8 +975,8 @@ class GLTFTextureTransformExtension {
     if (transform.texCoord !== undefined) {
       console.warn(
         'THREE.GLTFLoader: Custom UV sets in "' +
-          this.name +
-          '" extension not yet supported.'
+        this.name +
+        '" extension not yet supported.'
       );
     }
 
@@ -1781,7 +1781,7 @@ class GLTFParser {
     this.plugins = plugins;
   }
 
-  parse(onLoad, onError, onProgress) {
+  parse(onLoad, onError, onProgress, displacementPosition) {
     this.onProgress = onProgress;
     const parser = this;
     const json = this.json;
@@ -1834,7 +1834,7 @@ class GLTFParser {
           })
         ).then(function () {
           //console.log("loading results");
-          onLoad(result);
+          onLoad(result, displacementPosition);
         });
       })
       .catch(onError);
@@ -2051,17 +2051,17 @@ class GLTFParser {
     return dependencies;
   }
   /*
-	sleep(milliseconds) {
-		const date = Date.now();
-		let currentDate = null;
-		do {
-		  currentDate = Date.now();
-		} while (currentDate - date < milliseconds);
-	}
+  sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
 	
-	sleep(ms) {
-		return new Promise(resolve => setTimeout(resolve, ms));
-	}*/
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }*/
   /**
    * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#buffers-and-buffer-views
    * @param {number} bufferIndex
@@ -2091,17 +2091,17 @@ class GLTFParser {
     const onProgress = this.onProgress;
 
     /* 		if(this.bufferFetch>1000) {
-			this.bufferFetch=0;
-			return new Promise( function ( resolve, reject ) {
-				new Promise(resolver => setTimeout(resolver, 5000)).then(() =>{
-					console.log("delaying by a sec",new Date().toLocaleTimeString());
-					loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
+      this.bufferFetch=0;
+      return new Promise( function ( resolve, reject ) {
+        new Promise(resolver => setTimeout(resolver, 5000)).then(() =>{
+          console.log("delaying by a sec",new Date().toLocaleTimeString());
+          loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
-				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
+        reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
-				} );} );
-			} );
-		}  else  {*/
+        } );} );
+      } );
+    }  else  {*/
     return new Promise(function (resolve, reject) {
       loader.load(
         resolveURL(bufferDef.uri, options.path),
@@ -2369,8 +2369,8 @@ class GLTFParser {
     } else if (source.uri === undefined) {
       throw new Error(
         'THREE.GLTFLoader: Image ' +
-          textureIndex +
-          ' is missing URI and bufferView'
+        textureIndex +
+        ' is missing URI and bufferView'
       );
     }
 
@@ -2449,10 +2449,10 @@ class GLTFParser {
       ) {
         console.warn(
           'THREE.GLTFLoader: Custom UV set ' +
-            mapDef.texCoord +
-            ' for texture ' +
-            mapName +
-            ' not yet supported.'
+          mapDef.texCoord +
+          ' for texture ' +
+          mapName +
+          ' not yet supported.'
         );
       }
 

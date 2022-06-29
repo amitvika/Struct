@@ -46,11 +46,11 @@ yarn install
 
 ### Following is for pythonocc-core 7.4 environment supplied by cadquery which is recommended
 
-- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel`
+- run `conda create --name structquery -c conda-forge -c cadquery -c pypi pythonocc-core=7.4.1 occt=7.4.0 cadquery=2.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel`
 
 ### Following is for pythonocc-core 7.5 environment without cadquery which is not recommended since this version has lot of hanging functionalities which is found while running
 
-- run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel` ### or structquery
+- run `conda create --name structserver -c conda-forge -c pypi pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel` ### or structquery
 
 ### Following is needed for both pythonocc-core 7.4 and 7.5
 
@@ -59,7 +59,7 @@ yarn install
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
 
-### Following is needed for Headless AWS and For windows, it is not needed.
+### Following up to line no 108 is needed for Headless AWS and For windows, it is not needed and Jump to line no 108
 
 - sudo apt install s3fs
 
@@ -112,6 +112,10 @@ yarn install
 
 - run `conda deactivate`
 
+### if you want completely in local,
+
+- Please comment `line no 10 in common.js and line no 9 in fileUpload.api.js in packages/common/api folder` in order to work totally from local. (these lines should be again uncommented while pushing to production)
+
 ## Usage
 
 ### Internal App (Node)
@@ -155,7 +159,7 @@ export DONOTUSES3=False
 
 # Start s3fs system is not needed everytime while restarting but only one time it is needed whenever you reboot the system
 
-#- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
+- run `s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs`
 
 # Start xvfb
 
