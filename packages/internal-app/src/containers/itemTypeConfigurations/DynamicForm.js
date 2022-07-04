@@ -27,8 +27,10 @@ export default function DynamicCriteria({
   showKinematicSliderAnimate,
   showKinematicSliderAnimateValues,
   applyTangentToEdges,
-  isMountSufaceFaceSelection,
-  setIsMountSufaceFaceSelection
+  isMountSurfaceFaceSelection,
+  setIsMountSurfaceFaceSelection,
+  isJointSurfaceFaceSelection,
+  setIsJointSurfaceFaceSelection
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -109,9 +111,8 @@ export default function DynamicCriteria({
           <Grid item xs={3}>
             <Headding
               bold
-              title={`${fieldItem.fieldName} ${
-                fieldItem.inputUnits ? '(' + fieldItem.inputUnits + ')' : ''
-              }`}
+              title={`${fieldItem.fieldName} ${fieldItem.inputUnits ? '(' + fieldItem.inputUnits + ')' : ''
+                }`}
             />
           </Grid>
           <Grid item xs={8}>
@@ -121,7 +122,8 @@ export default function DynamicCriteria({
                 type={fieldItem.dataType === 'Numerical' ? 'number' : 'text'}
                 onChange={(event) => {
                   setIsCircularFaceOrEdgeSelection(false);
-                  setIsMountSufaceFaceSelection(false);
+                  setIsMountSurfaceFaceSelection(false);
+                  setIsJointSurfaceFaceSelection(false);
                   handleOnChange(fieldItem.fieldName, event.target.value);
                 }}
                 value={fieldItem.value || ''}
@@ -135,7 +137,8 @@ export default function DynamicCriteria({
                   .map((option) => ({ label: option, value: option }))}
                 onChange={({ value, label }) => {
                   setIsCircularFaceOrEdgeSelection(false);
-                  setIsMountSufaceFaceSelection(false);
+                  setIsMountSurfaceFaceSelection(false);
+                  setIsJointSurfaceFaceSelection(false);
                   handleOnChange(fieldItem.fieldName, value);
                 }}
                 value={fieldItem.value}
@@ -167,17 +170,19 @@ export default function DynamicCriteria({
                   cylindrical_axis_of_rotation={
                     fieldItem.dataType === 'CircularFaceOrEdgeSelection'
                       ? get(
-                          itemProperties,
-                          'actuator_motion_control.cylindrical_axis_of_rotation'
-                        )
+                        itemProperties,
+                        'actuator_motion_control.cylindrical_axis_of_rotation'
+                      )
                       : null
                   }
                   onClick={handleOnClick}
                   {...{
                     setIsCircularFaceOrEdgeSelection,
                     handleRotationalAxisChange,
-                    isMountSufaceFaceSelection,
-                    setIsMountSufaceFaceSelection
+                    isMountSurfaceFaceSelection,
+                    setIsMountSurfaceFaceSelection,
+                    isJointSurfaceFaceSelection,
+                    setIsJointSurfaceFaceSelection
                   }}
                 />
               )}

@@ -6955,7 +6955,7 @@ class GLTFRenderer extends Component {
 
     return Math.atan2(targetDot, endEffectorDot);
   };
-  getAngleBetweenVectorsWithoutAxis = (
+  getAngleBetweenVectorsWithoutReferenceAxis = (
     EndEffectorPosition,
     TargetPosition,
     precision = 0.000001
@@ -12225,7 +12225,7 @@ class GLTFRenderer extends Component {
                         tangentAxisNode.y
                       );
                       const angleBetween =
-                        this.getAngleBetweenVectorsWithoutAxis(
+                        this.getAngleBetweenVectorsWithoutReferenceAxis(
                           mountAxis,
                           tangentAxis
                         );
@@ -16268,17 +16268,37 @@ class GLTFRenderer extends Component {
     let topLeftPrevious = [0, 0, 0];
     //let bottomRightPrevious = [0, 0, 0];
     let treeLengthSofar = 0;
+    let mountAxisPrevious = [0, 0, 0];
+    let jointAxisCurrent = [0, 0, 0];
+    let mountPositionPrevious = [0, 0, 0];
+    let jointPositionCurrent = [0, 0, 0];
+    let mountAxisPreviousVector = new Vector3(mountAxisPrevious[0], mountAxisPrevious[1], mountAxisPrevious[2]);
+    let jointAxisCurrentVector = new Vector3(jointAxisCurrent[0], jointAxisCurrent[1], jointAxisCurrent[2]);
     if (gltfObjFirst && gltfObjFirst.tree && gltfObjFirst.tree.length > 0) {
       topLeftPrevious = gltfObjFirst.tree[0][gltf_Dict['topLeft']];
       //bottomRightPrevious = gltfObjFirst.tree[0][gltf_Dict['bottomRight']];
       treeLengthSofar = gltfObjFirst.tree.length;
+      if (gltfObjFirst.cylindrical_axis_of_rotation) {
+        if (gltfObjFirst.cylindrical_axis_of_rotation.mountaxis) {
+          mountAxisPrevious = gltfObjFirst.cylindrical_axis_of_rotation.mountaxis;
+        }
+        if (gltfObjFirst.cylindrical_axis_of_rotation.mountposition) {
+          mountPositionPrevious = gltfObjFirst.cylindrical_axis_of_rotation.mountposition;
+        }
+      }
     }
+    let mountPositionPreviousVector = new Vector3(mountPositionPrevious[0], mountPositionPrevious[1], mountPositionPrevious[2]);
+    let jointPositionCurrentVector = new Vector3(jointPositionCurrent[0], jointPositionCurrent[1], jointPositionCurrent[2]);
+
     const onload = async (gltf, displacementPosition) => {
       try {
         const myobject = gltf.scene || gltf.scenes[0];
         myobject.position.x += this.shiftposition.x + displacementPosition.x;
         myobject.position.y += this.shiftposition.y + displacementPosition.y;
         myobject.position.z += this.shiftposition.z + displacementPosition.z;
+        myobject.applyQuaternion(displacementPosition.q);
+        myobject.updateMatrix();
+        myobject.updateMatrixWorld();
         myobject.renderOrder += 1;
         this.scene.add(myobject);
         this.content.push(myobject);
@@ -16400,6 +16420,9 @@ class GLTFRenderer extends Component {
         }
         let topLeftCurrent = [0, 0, 0];
         let bottomRightCurrent = [0, 0, 0];
+        let toBeShiftedDisplacement = new Vector3();
+        let displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign };
+
         if (gltfObjElement.tree && gltfObjElement.tree.length > 0) {
           for (let nodeIndex = 0; nodeIndex < gltfObjElement.tree.length; nodeIndex++) {
             const element = gltfObjElement.tree[nodeIndex];
@@ -16415,16 +16438,45 @@ class GLTFRenderer extends Component {
               element[gltf_Dict['parentId']] = 1;
             }
           }
+          if (gltfObjElement.cylindrical_axis_of_rotation) {
+            if (gltfObjElement.cylindrical_axis_of_rotation.jointaxis) {
+              jointAxisCurrent = gltfObjElement.cylindrical_axis_of_rotation.jointaxis;
+              jointAxisCurrentVector = new Vector3(jointAxisCurrent[0], jointAxisCurrent[1], jointAxisCurrent[2]);
+            }
+            if (gltfObjElement.cylindrical_axis_of_rotation.jointposition) {
+              jointPositionCurrent = gltfObjElement.cylindrical_axis_of_rotation.jointposition;
+              jointPositionCurrentVector = new Vector3(jointPositionCurrent[0], jointPositionCurrent[1], jointPositionCurrent[2]);
+            }
+          }
+          let positionAngle = this.getAngleBetweenVectorsWithoutReferenceAxis(jointAxisCurrentVector, mountAxisPreviousVector);
+          if (gltfObjElement.constraint) {
+            positionAngle += Math.PI / 2;
+          }
+          const quaternionToAlign = new Quaternion().setFromAxisAngle(jointAxisCurrentVector, positionAngle).normalize();
+          const roatedPosition = jointPositionCurrentVector.applyQuaternion(quaternionToAlign);
+          toBeShiftedDisplacement.subVectors(mountPositionPreviousVector, roatedPosition);
           topLeftCurrent = gltfObjElement.tree[0][gltf_Dict['topLeft']];
           bottomRightCurrent = gltfObjElement.tree[0][gltf_Dict['bottomRight']];
           treeLengthSofar += gltfObjElement.tree.length;
+          if (gltfObjElement.cylindrical_axis_of_rotation) {
+            if (gltfObjElement.cylindrical_axis_of_rotation.mountaxis) {
+              mountAxisPrevious = gltfObjElement.cylindrical_axis_of_rotation.mountaxis;
+              mountAxisPreviousVector = new Vector3(mountAxisPrevious[0], mountAxisPrevious[1], mountAxisPrevious[2]);
+              mountAxisPreviousVector.applyQuaternion(quaternionToAlign).normalize();
+            }
+            if (gltfObjElement.cylindrical_axis_of_rotation.mountposition) {
+              mountPositionPrevious = gltfObjElement.cylindrical_axis_of_rotation.mountposition;
+              mountPositionPreviousVector = new Vector3(mountPositionPrevious[0], mountPositionPrevious[1], mountPositionPrevious[2]);
+              mountPositionPreviousVector.applyQuaternion(quaternionToAlign).normalize();
+            }
+          }
+          displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign.clone() };
+          displacementPosition.x += ((topLeftPrevious[0] - bottomRightCurrent[0]) * 0.0 + gapBetween) * 0.001;
         }
-        let displacementPosition = { x: 0, y: 0, z: 0 };
-        displacementPosition.x = ((topLeftPrevious[0] - bottomRightCurrent[0]) + gapBetween) * 0.001;
-        topLeftPrevious[0] = topLeftCurrent[0];
+        topLeftPrevious[0] = displacementPosition.x;
         topLeftPrevious[1] = topLeftCurrent[1];
         topLeftPrevious[2] = topLeftCurrent[2];
-        topLeftPrevious[0] += displacementPosition.x;
+        //topLeftPrevious[0] = displacementPosition.x;
         //bottomRightPrevious = bottomRightCurrent;
         const fileUUId = gltfObjElement.fileUUId ? gltfObjElement.fileUUId : this.props.fileUUId;
         const myResourcePath = gltfObjElement.resourcepath ? gltfObjElement.resourcepath : resourcePathURL;

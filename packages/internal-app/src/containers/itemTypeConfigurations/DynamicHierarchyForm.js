@@ -25,8 +25,10 @@ export default function DynamicHierarchyForm(props) {
     showKinematicSliderAnimate,
     showKinematicSliderAnimateValues,
     applyTangentToEdges,
-    isMountSufaceFaceSelection,
-    setIsMountSufaceFaceSelection
+    isMountSurfaceFaceSelection,
+    setIsMountSurfaceFaceSelection,
+    isJointSurfaceFaceSelection,
+    setIsJointSurfaceFaceSelection
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -276,8 +278,10 @@ export default function DynamicHierarchyForm(props) {
               showKinematicSliderAnimate,
               showKinematicSliderAnimateValues,
               applyTangentToEdges,
-              isMountSufaceFaceSelection,
-              setIsMountSufaceFaceSelection
+              isMountSurfaceFaceSelection,
+              setIsMountSurfaceFaceSelection,
+              isJointSurfaceFaceSelection,
+              setIsJointSurfaceFaceSelection
             }}
           />
         );

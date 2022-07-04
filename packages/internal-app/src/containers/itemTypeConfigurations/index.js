@@ -129,8 +129,9 @@ export default function ItemTypeConfigurations(props) {
   const [internalProductConfig, setInternalProductConfig] = useState(null);
   const [isCircularFaceOrEdgeSelection, setIsCircularFaceOrEdgeSelection] =
     useState(false);
-  const [isMountSufaceFaceSelection, setIsMountSufaceFaceSelection] =
+  const [isMountSurfaceFaceSelection, setIsMountSurfaceFaceSelection] =
     useState(false);
+  const [isJointSurfaceFaceSelection, setIsJointSurfaceFaceSelection] = useState(false);
   useEffect(() => {
     CriteriaUploadAPI.fetchCriteriaUpload(
       `type=Internal Use Product Configuration`
@@ -140,7 +141,7 @@ export default function ItemTypeConfigurations(props) {
           setInternalProductConfig(get(resp, 'data[0]'));
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   }, []);
 
   useEffect(() => {
@@ -243,7 +244,7 @@ export default function ItemTypeConfigurations(props) {
   const handleChangeOfSelection = async (mySelectedObjects) => {
     const fieldItemKey = fieldKey
       ? fieldKey.name
-        ? fieldKey.name.length == 0
+        ? fieldKey.name.length === 0
           ? 'fieldKey'
           : fieldKey
         : 'fieldKey'
@@ -273,10 +274,64 @@ export default function ItemTypeConfigurations(props) {
       if (
         mySelectedObjects[0] &&
         (mySelectedObjects[0].obb || mySelectedObjects[0].axis) &&
-        (isCircularFaceOrEdgeSelection || isMountSufaceFaceSelection)
+        (isCircularFaceOrEdgeSelection || isMountSurfaceFaceSelection || isJointSurfaceFaceSelection)
       ) {
         let actuator_dictionary = isCircularFaceOrEdgeSelection
           ? {
+            actuator_motion_control: {
+              ...(itemProperties.actuator_motion_control || {}),
+              cylindrical_axis_of_rotation: {
+                ...(itemProperties.actuator_motion_control
+                  .cylindrical_axis_of_rotation || {}),
+                axis: mySelectedObjects[0].axis,
+                obb: mySelectedObjects[0].obb,
+                step:
+                  (fileUUIder ? fileUUIder + '/' : '') +
+                  mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                position: mySelectedObjects[0].position
+                  ? mySelectedObjects[0].position
+                  : [0, 0, 0]
+              }
+            }
+          }
+          : isMountSurfaceFaceSelection ? {
+            actuator_motion_control: {
+              ...(itemProperties.actuator_motion_control || {}),
+              cylindrical_axis_of_rotation: {
+                ...(itemProperties.actuator_motion_control
+                  .cylindrical_axis_of_rotation || {}),
+                mountaxis: mySelectedObjects[0].axis,
+                mountobb: mySelectedObjects[0].obb,
+                mountstep:
+                  (fileUUIder ? fileUUIder + '/' : '') +
+                  mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                mountposition: mySelectedObjects[0].position
+                  ? mySelectedObjects[0].position
+                  : [0, 0, 0]
+              }
+            }
+          } : {
+            actuator_motion_control: {
+              ...(itemProperties.actuator_motion_control || {}),
+              cylindrical_axis_of_rotation: {
+                ...(itemProperties.actuator_motion_control
+                  .cylindrical_axis_of_rotation || {}),
+                jointaxis: mySelectedObjects[0].axis,
+                jointtobb: mySelectedObjects[0].obb,
+                jointstep:
+                  (fileUUIder ? fileUUIder + '/' : '') +
+                  mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                jointposition: mySelectedObjects[0].position
+                  ? mySelectedObjects[0].position
+                  : [0, 0, 0]
+              }
+            }
+          };
+        let cloneItemProperties = { ...itemProperties, ...actuator_dictionary };
+        setItemProperties(cloneItemProperties);
+        handleSave(
+          isCircularFaceOrEdgeSelection
+            ? {
               actuator_motion_control: {
                 ...(itemProperties.actuator_motion_control || {}),
                 cylindrical_axis_of_rotation: {
@@ -293,7 +348,7 @@ export default function ItemTypeConfigurations(props) {
                 }
               }
             }
-          : {
+            : {
               actuator_motion_control: {
                 ...(itemProperties.actuator_motion_control || {}),
                 cylindrical_axis_of_rotation: {
@@ -309,45 +364,7 @@ export default function ItemTypeConfigurations(props) {
                     : [0, 0, 0]
                 }
               }
-            };
-        let cloneItemProperties = { ...itemProperties, ...actuator_dictionary };
-        setItemProperties(cloneItemProperties);
-        handleSave(
-          isCircularFaceOrEdgeSelection
-            ? {
-                actuator_motion_control: {
-                  ...(itemProperties.actuator_motion_control || {}),
-                  cylindrical_axis_of_rotation: {
-                    ...(itemProperties.actuator_motion_control
-                      .cylindrical_axis_of_rotation || {}),
-                    axis: mySelectedObjects[0].axis,
-                    obb: mySelectedObjects[0].obb,
-                    step:
-                      (fileUUIder ? fileUUIder + '/' : '') +
-                      mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
-                    position: mySelectedObjects[0].position
-                      ? mySelectedObjects[0].position
-                      : [0, 0, 0]
-                  }
-                }
-              }
-            : {
-                actuator_motion_control: {
-                  ...(itemProperties.actuator_motion_control || {}),
-                  cylindrical_axis_of_rotation: {
-                    ...(itemProperties.actuator_motion_control
-                      .cylindrical_axis_of_rotation || {}),
-                    mountaxis: mySelectedObjects[0].axis,
-                    mountobb: mySelectedObjects[0].obb,
-                    mountstep:
-                      (fileUUIder ? fileUUIder + '/' : '') +
-                      mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
-                    mountposition: mySelectedObjects[0].position
-                      ? mySelectedObjects[0].position
-                      : [0, 0, 0]
-                  }
-                }
-              }
+            }
         );
 
         // setIsCircularFaceOrEdgeSelection(false);
@@ -366,7 +383,7 @@ export default function ItemTypeConfigurations(props) {
     setIsFileLoading(isLoading);
   }, [isLoading]);
 
-  const handleRotationalAxisChange = () => {};
+  const handleRotationalAxisChange = () => { };
 
   const renderExcelUI = () => {
     return (
@@ -390,8 +407,10 @@ export default function ItemTypeConfigurations(props) {
           gltfjson,
           setIsCircularFaceOrEdgeSelection,
           handleRotationalAxisChange,
-          isMountSufaceFaceSelection,
-          setIsMountSufaceFaceSelection
+          isMountSurfaceFaceSelection,
+          setIsMountSurfaceFaceSelection,
+          isJointSurfaceFaceSelection,
+          setIsJointSurfaceFaceSelection
         }}
       />
     );
@@ -580,9 +599,9 @@ export default function ItemTypeConfigurations(props) {
       );
 
       if (
-        datastore != itemProperties.surfStore ||
-        localFileId != itemProperties.surfName ||
-        data.uuid != itemProperties.fileUUId
+        datastore !== itemProperties.surfStore ||
+        localFileId !== itemProperties.surfName ||
+        data.uuid !== itemProperties.fileUUId
       ) {
         console.log('Entering to save', itemProperties, datastore, dataload);
         setItemProperties((prevData) => ({
@@ -600,8 +619,8 @@ export default function ItemTypeConfigurations(props) {
         const myTabedIndex = 'iupc';
         const myTabIndex =
           myTabedIndex === 'iupc' &&
-          !showKinematicMove &&
-          !showKinematicSliderMove
+            !showKinematicMove &&
+            !showKinematicSliderMove
             ? 'gdtac'
             : myTabedIndex;
         let item = arrayCopy(itemProperties);
@@ -627,20 +646,20 @@ export default function ItemTypeConfigurations(props) {
         updatedItemProp.surfStore = datastore;
         handleItemSaveOnServer(updatedItemProp);
       }
-      if (activeGLTFFile != localFileId || !localFileId) {
+      if (activeGLTFFile !== localFileId || !localFileId) {
         console.log('Setting active gltf file to', localFileId);
         setActiveGLTFile(localFileId);
       } else {
         console.log(
           'Setting active gltf file to',
           localFileId +
-            regenerateKinematicMove.toString() +
-            showKinematicSliderMove.toString()
+          regenerateKinematicMove.toString() +
+          showKinematicSliderMove.toString()
         );
         setActiveGLTFile(
           localFileId +
-            regenerateKinematicMove.toString() +
-            showKinematicSliderMove.toString()
+          regenerateKinematicMove.toString() +
+          showKinematicSliderMove.toString()
         );
       }
       setIsLoading(false);
@@ -649,7 +668,7 @@ export default function ItemTypeConfigurations(props) {
       setIsFileLoading(false);
     }
   };
-  const removeFile = (data) => {};
+  const removeFile = (data) => { };
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
@@ -967,7 +986,7 @@ export default function ItemTypeConfigurations(props) {
         itemProperties={itemProperties}
         setProgressAnimate={setProgressAnimate}
         setProgressAnimateText={setProgressAnimateText}
-        //{...{ whatchange }}
+      //{...{ whatchange }}
       />
     </>
   );

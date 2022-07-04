@@ -32,8 +32,10 @@ export default function ThreejsSelection(props) {
     showKinematicSliderAnimate,
     showKinematicSliderAnimateValues,
     applyTangentToEdges,
-    isMountSufaceFaceSelection,
-    setIsMountSufaceFaceSelection
+    isMountSurfaceFaceSelection,
+    setIsMountSurfaceFaceSelection,
+    isJointSurfaceFaceSelection,
+    setIsJointSurfaceFaceSelection
   } = props;
 
   const [myvalue, setMyvalue] = useState(value);
@@ -304,13 +306,19 @@ export default function ThreejsSelection(props) {
       mytype === 'LinearFaceOrEdgeSelection3D'
     ) {
       setIsCircularFaceOrEdgeSelection(true);
-      setIsMountSufaceFaceSelection(false);
+      setIsMountSurfaceFaceSelection(false);
+      setIsJointSurfaceFaceSelection(false);
     } else if (mykey === 'Mount Surface(s)' && mytype === 'FaceSelection') {
       setIsCircularFaceOrEdgeSelection(false);
-      setIsMountSufaceFaceSelection(true);
+      setIsMountSurfaceFaceSelection(true);
+      setIsJointSurfaceFaceSelection(false);
+    } else if (mykey === 'Joint Surface(s)' && mytype === 'FaceSelection') {
+      setIsCircularFaceOrEdgeSelection(false);
+      setIsMountSurfaceFaceSelection(false);
+      setIsJointSurfaceFaceSelection(true);
     } else {
       setIsCircularFaceOrEdgeSelection(false);
-      setIsMountSufaceFaceSelection(false);
+      setIsMountSurfaceFaceSelection(false);
     }
     onClick(mykey);
     //setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
