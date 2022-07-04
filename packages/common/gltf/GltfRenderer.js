@@ -16293,10 +16293,10 @@ class GLTFRenderer extends Component {
     const onload = async (gltf, displacementPosition) => {
       try {
         const myobject = gltf.scene || gltf.scenes[0];
+        myobject.applyQuaternion(displacementPosition.q);
         myobject.position.x += this.shiftposition.x + displacementPosition.x;
         myobject.position.y += this.shiftposition.y + displacementPosition.y;
         myobject.position.z += this.shiftposition.z + displacementPosition.z;
-        myobject.applyQuaternion(displacementPosition.q);
         myobject.updateMatrix();
         myobject.updateMatrixWorld();
         myobject.renderOrder += 1;
@@ -16468,6 +16468,7 @@ class GLTFRenderer extends Component {
               mountPositionPrevious = gltfObjElement.cylindrical_axis_of_rotation.mountposition;
               mountPositionPreviousVector = new Vector3(mountPositionPrevious[0], mountPositionPrevious[1], mountPositionPrevious[2]);
               mountPositionPreviousVector.applyQuaternion(quaternionToAlign).normalize();
+              mountPositionPreviousVector.add(toBeShiftedDisplacement);
             }
           }
           displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign.clone() };
