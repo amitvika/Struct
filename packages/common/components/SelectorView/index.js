@@ -18,10 +18,11 @@ export default function SelectorView({
   fetchList,
   fields,
   mapValues,
-  handleUpdate,
-  handleSelection,
-  fetchSelectedList,
-  isMultiSelection = true
+  handleUpdate = () => ({}),
+  handleSelection = () => ({}),
+  fetchSelectedList = () => ({}),
+  isMultiSelection = true,
+  getSelectedItem = () => ({})
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [itemList, setItemList] = useState([]);
@@ -51,7 +52,11 @@ export default function SelectorView({
       const itemRes = await fetchList();
       const alreadySelected = await fetchSelectedList();
 
-      const items = get(itemRes, 'data', []);
+      let items = get(itemRes, 'data', []);
+
+      if (get(itemRes, 'data.docs')) {
+        items = get(itemRes, 'data.docs');
+      }
 
       const mappedItems = mapValues(
         items.filter((item) => {
@@ -81,6 +86,7 @@ export default function SelectorView({
         );
         setSelectedItemList(selectedItems);
         setSelectedFilteredItemList(selectedItems);
+        getSelectedItem(selectedItems);
       }
 
       setItemList(mappedItems);
@@ -109,6 +115,7 @@ export default function SelectorView({
 
       setSelectedItemList(updatdSelected);
       setSelectedFilteredItemList(updatdSelected);
+      getSelectedItem(updatdSelected);
 
       handleUpdate(updatdSelected.map((item) => item.id));
       // handleUpdate({
@@ -130,6 +137,7 @@ export default function SelectorView({
         (item) => item.id != data.id
       );
       setSelectedItemList(updatdSelected);
+      getSelectedItem(updatdSelected);
 
       setSelectedFilteredItemList(updatdSelected);
 

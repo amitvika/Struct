@@ -1,16 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MainModal from '@monostruct/common/components/Modal';
-import FactoriesAPI from '@monostruct/common/api/factories.api';
+import ItemsAPI from '@monostruct/common/api/items.api';
 import SelectorView from '@monostruct/common/components/SelectorView';
-import { columnsFields } from '@monostruct/common/constants/factory';
+import { columnsForItemView } from '@monostruct/common/constants/item';
 
 export default function ChooseItemModal({
     isModalOpened,
     toggleModal,
+    handleItemSelection
 }) {
-
-    const handleChange = () => {
-    }
 
     const fetchSelectedList = () => {
         return new Promise((resolve, reject) => {
@@ -18,18 +16,21 @@ export default function ChooseItemModal({
         });
     };
 
+    const getSelectedItem = (updatedItem) => {
+        console.log('-updatedItem---->>>', updatedItem)
+    }
+
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal}>
             <SelectorView
                 title={'Choose Item'}
-                fetchList={FactoriesAPI.fetchFactories}
+                fetchList={() => ItemsAPI.getItemsAPI(`page=1&limit=100&select_fields= name,source,multiAssembly,direct_parent_id,origin_parent_id,child_item_created,fileStore,material,fileUUId,child_item_status`)}
                 fetchSelectedList={fetchSelectedList}
-                fields={columnsFields}
+                fields={columnsForItemView}
                 mapValues={(data) => data}
-                handleUpdate={handleChange}
-                handleSelection={(data) => { }}
-                isMultiSelection={false}
+                isMultiSelection={true}
                 isItemSelectionVisible={true}
+                getSelectedItem={getSelectedItem}
             />
         </MainModal>
     )

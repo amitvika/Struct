@@ -17,9 +17,6 @@ import {
     DEFAULTTOUCHCOLOR,
     SELECTHIRERACHY,
     STATEPROPS,
-    USESTYLES,
-    pollFunction,
-    getFileNameWithoutExtension
 } from '@monostruct/common/gltf/Tree/utils';
 import get from 'lodash/get';
 
@@ -40,7 +37,7 @@ export default function MachineAndToolWorkspaceProgramming({
 }) {
     const [tabIndex, setTabIndex] = useState(-1);
     const [isModalOpened, setIsModalOpened] = useState(false);
-    const [gltfobj, setGltfObj] = useState(gltfjson);
+    const [gltfobj, setGltfObj] = useState([]);
     const [fileId, setFileId] = useState(0);
     const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
     const [progressBarRender, setProgressBarRender] = useState(false);
@@ -53,6 +50,8 @@ export default function MachineAndToolWorkspaceProgramming({
     );
     const [centerActionTexter, setCenterActionTexter] =
         useState(centerActionText);
+
+    const [selectedGltfItemList, setSelectedGltfItemList] = useState([]);
 
     const [drawLiner, setDrawLiner] = useState(drawLine);
 
@@ -100,6 +99,10 @@ export default function MachineAndToolWorkspaceProgramming({
         gltfjsonlen += gltfobj?.gltf?.accessors?.length;
     }
 
+    const handleItemSelection = (data) => {
+        setSelectedGltfItemList(data)
+    }
+
     return (
         <Grid style={{
             display: 'flex',
@@ -120,14 +123,15 @@ export default function MachineAndToolWorkspaceProgramming({
 
                 {tabIndex === 'chooseItem' && <ChooseItemModal {...{
                     toggleModal,
-                    isModalOpened
+                    isModalOpened,
+                    handleItemSelection
                 }} />}
                 {tabIndex === 'setupWorkPlane' && <SetupWorkPlane />}
                 {tabIndex === 'chooseRobot' && <ChooseRobot />}
                 {tabIndex === 'chooseTools' && <ChooseTools />}
                 {tabIndex === 'layout' && <Layout />}
                 <GLTFRenderer
-                    gltfobj={[gltfobj]}
+                    gltfobj={selectedGltfItemList}
                     fileGDT={itemProperties.fileGDT}
                     fileUUId={fileUUId}
                     fileAnimation={false}

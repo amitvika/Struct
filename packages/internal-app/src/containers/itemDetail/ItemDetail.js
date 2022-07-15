@@ -1095,7 +1095,7 @@ const ItemDetail = ({ itemValue }) => {
     AssignToClient: 'Assign to Client(s)',
     sv: 'Supplying Vendors',
     instanceOfThisItem: 'Instance of this Item',
-    pricing: 'pricinggggg',
+    pricing: 'pricing',
     MachineAndToolWorkspaceProgramming: 'Machine and Tool workspace programming'
   };
 
@@ -1114,6 +1114,9 @@ const ItemDetail = ({ itemValue }) => {
     return tabP;
   };
   const itemName = (item) => {
+    if (item.name === null) {
+      return 'Untitled-0'
+    }
     return item.name
       ? item.name + '0' === item.fileStore
         ? item.filePartName
