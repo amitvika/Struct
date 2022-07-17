@@ -16452,9 +16452,11 @@ class GLTFRenderer extends Component {
           if (gltfObjElement.constraint) {
             positionAngle += Math.PI / 2;
           }
+
           const quaternionToAlign = new Quaternion().setFromAxisAngle(jointAxisCurrentVector, positionAngle).normalize();
           const roatedPosition = jointPositionCurrentVector.applyQuaternion(quaternionToAlign);
           toBeShiftedDisplacement.subVectors(mountPositionPreviousVector, roatedPosition);
+
           topLeftCurrent = gltfObjElement.tree[0][gltf_Dict['topLeft']];
           bottomRightCurrent = gltfObjElement.tree[0][gltf_Dict['bottomRight']];
           treeLengthSofar += gltfObjElement.tree.length;
@@ -16470,13 +16472,17 @@ class GLTFRenderer extends Component {
               mountPositionPreviousVector.applyQuaternion(quaternionToAlign).normalize();
               mountPositionPreviousVector.add(toBeShiftedDisplacement);
             }
+            if (gltfObjElement.cocentric) {
+              const tobeAlignedCoCenric = new Vector3(mountAxisPreviousVector.x * gapBetween, mountAxisPreviousVector.y * gapBetween, mountAxisPreviousVector.z * gapBetween);
+              toBeShiftedDisplacement.add(tobeAlignedCoCenric);
+            }
           }
           displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign.clone() };
           displacementPosition.x += ((topLeftPrevious[0] - bottomRightCurrent[0]) * 0.0 + gapBetween) * 0.001;
         }
         topLeftPrevious[0] = displacementPosition.x;
-        topLeftPrevious[1] = topLeftCurrent[1];
-        topLeftPrevious[2] = topLeftCurrent[2];
+        topLeftPrevious[1] = gltfObjElement.cocentric ? topLeftCurrent[1] + displacementPosition.y : topLeftCurrent[1];
+        topLeftPrevious[2] = gltfObjElement.cocentric ? topLeftCurrent[2] + displacementPosition.z : topLeftCurrent[2];
         //topLeftPrevious[0] = displacementPosition.x;
         //bottomRightPrevious = bottomRightCurrent;
         const fileUUId = gltfObjElement.fileUUId ? gltfObjElement.fileUUId : this.props.fileUUId;
@@ -16497,8 +16503,254 @@ class GLTFRenderer extends Component {
       }
     }
 
+
   };
 
+  loadAllGLTFObjectsAndTreeOld = async (
+
+  ) => {
+    let gapBetween = this.props.gapBetween ? this.props.gapBetween : 10;
+    let gltfObjFirst = this.props.gltfobj[0];
+    let topLeftPrevious = [0, 0, 0];
+    //let bottomRightPrevious = [0, 0, 0];
+    let treeLengthSofar = 0;
+    let mountAxisPrevious = [0, 0, 0];
+    let jointAxisCurrent = [0, 0, 0];
+    let mountPositionPrevious = [0, 0, 0];
+    let jointPositionCurrent = [0, 0, 0];
+    let mountAxisPreviousVector = new Vector3(mountAxisPrevious[0], mountAxisPrevious[1], mountAxisPrevious[2]);
+    let jointAxisCurrentVector = new Vector3(jointAxisCurrent[0], jointAxisCurrent[1], jointAxisCurrent[2]);
+    if (gltfObjFirst && gltfObjFirst.tree && gltfObjFirst.tree.length > 0) {
+      topLeftPrevious = gltfObjFirst.tree[0][gltf_Dict['topLeft']];
+      //bottomRightPrevious = gltfObjFirst.tree[0][gltf_Dict['bottomRight']];
+      treeLengthSofar = gltfObjFirst.tree.length;
+      if (gltfObjFirst.cylindrical_axis_of_rotation) {
+        if (gltfObjFirst.cylindrical_axis_of_rotation.mountaxis) {
+          mountAxisPrevious = gltfObjFirst.cylindrical_axis_of_rotation.mountaxis;
+        }
+        if (gltfObjFirst.cylindrical_axis_of_rotation.mountposition) {
+          mountPositionPrevious = gltfObjFirst.cylindrical_axis_of_rotation.mountposition;
+        }
+      }
+    }
+    let mountPositionPreviousVector = new Vector3(mountPositionPrevious[0], mountPositionPrevious[1], mountPositionPrevious[2]);
+    let jointPositionCurrentVector = new Vector3(jointPositionCurrent[0], jointPositionCurrent[1], jointPositionCurrent[2]);
+
+    const onload = async (gltf, displacementPosition) => {
+      try {
+        const myobject = gltf.scene || gltf.scenes[0];
+        myobject.applyQuaternion(displacementPosition.q);
+        myobject.position.x += this.shiftposition.x + displacementPosition.x;
+        myobject.position.y += this.shiftposition.y + displacementPosition.y;
+        myobject.position.z += this.shiftposition.z + displacementPosition.z;
+        myobject.updateMatrix();
+        myobject.updateMatrixWorld();
+        myobject.renderOrder += 1;
+        this.scene.add(myobject);
+        this.content.push(myobject);
+
+        let partsMeshes = myobject.children;
+
+        if (partsMeshes[0].children.length > 0) {
+          partsMeshes = partsMeshes[0].children;
+        }
+
+        if (partsMeshes[0].children.length > 0) {
+          partsMeshes = partsMeshes[0].children;
+        }
+
+        this.partsMeshes = [...this.partsMeshes, ...partsMeshes];
+
+        this.raycastObjects = [
+          ...this.raycastObjects,
+          ...this.rayCastObjectFilters(partsMeshes)
+        ];
+        try {
+          this.setStateWithoutError({ progressBarRender: false });
+          if (this.props.setProgressBarRender) {
+            this.props.setProgressBarRender(false);
+          }
+        } catch (error) {
+          console.log('Error while setting progress', error);
+        }
+
+        try {
+          this.openSnackBar('success', 'Rendered Succesfully');
+        } catch (error) {
+          console.log(
+            'Error while displaying snackbar in success message',
+            error
+          );
+        }
+        const state_gltfobj = this.this_state_gltf || (this.props.gltfobj ? this.props.gltfobj.length > 0 ? this.props.gltfobj[0] : {} : {});
+        let myStateTree = state_gltfobj
+          ? state_gltfobj.tree
+            ? state_gltfobj.tree
+            : []
+          : [];
+
+        myStateTree = [...myStateTree, ...treeRes.data];
+        var gltfobj = { ...state_gltfobj };
+        gltfobj.tree = myStateTree;
+        this.this_state_gltf = { ...gltfobj };
+
+        try {
+          if (this.props.setStateOfgltf) {
+            this.props.setStateOfgltf(gltfobj);
+          }
+        } catch (error) {
+          console.log('Error while setting gltf obj', error);
+        }
+      } catch (error) {
+        console.log('Got error while loading', error);
+
+      }
+    }
+
+
+    const onError = (exception) => {
+      console.log(exception, this.props, myParserParams, this.props.fileUUId);
+      try {
+        this.setStateWithoutError({ progressBarRender: false });
+        if (this.props.setProgressBarRender) {
+          this.props.setProgressBarRender(false);
+        }
+      } catch (error) {
+        console.log('While updating error progress', error);
+      }
+
+      try {
+        let errorMessage = 'Did not Render Properly ';
+        try {
+          errorMessage += exception.toString();
+        } catch (exc) { }
+        this.openSnackBar('error', errorMessage);
+      } catch (error) {
+        console.log(
+          'Error while displaying snackbar in error message',
+          error
+        );
+      }
+    };
+    const onProgress = (progress) => {
+      //console.log(progress);
+    };
+    try {
+      this.setStateWithoutError({ progressBarRender: true });
+      if (this.props.setProgressBarRender) {
+        this.props.setProgressBarRender(true);
+      }
+    } catch (error) {
+      console.log('Error while updating progress bar', error);
+    }
+
+
+    for (let gltfObjIndex = 1; gltfObjIndex < this.props.gltfobj.length; gltfObjIndex++) {
+      const gltfObjElement = this.props.gltfobj[gltfObjIndex];
+      if (gltfObjElement && gltfObjElement.gtlf) {
+        if (gltfObjElement.gtlf.meshes && gltfObjElement.gtlf.meshes.length > 0) {
+          for (let nodeIndex = 0; nodeIndex < gltfObjElement.gtlf.meshes.length; nodeIndex++) {
+            const element = gltfObjElement.gtlf.meshes[nodeIndex];
+            if (element.name) {
+              element.name += '_' + gltfObjIndex.toString();
+            }
+          }
+        }
+        if (gltfObjElement.gtlf.nodes && gltfObjElement.gtlf.nodes.length > 0) {
+          for (let nodeIndex = 0; nodeIndex < gltfObjElement.gtlf.nodes.length; nodeIndex++) {
+            const element = gltfObjElement.gtlf.nodes[nodeIndex];
+            if (element.name) {
+              element.name += '_' + gltfObjIndex.toString();
+            }
+          }
+        }
+        let topLeftCurrent = [0, 0, 0];
+        let bottomRightCurrent = [0, 0, 0];
+        let toBeShiftedDisplacement = new Vector3();
+        let displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign };
+
+        if (gltfObjElement.tree && gltfObjElement.tree.length > 0) {
+          for (let nodeIndex = 0; nodeIndex < gltfObjElement.tree.length; nodeIndex++) {
+            const element = gltfObjElement.tree[nodeIndex];
+            if (element[gltf_Dict['name']]) {
+              element[gltf_Dict['name']] += '_' + gltfObjIndex.toString();
+            }
+            if (element[gltf_Dict['id']]) {
+              element[gltf_Dict['id']] += treeLengthSofar;
+            }
+            if (element[gltf_Dict['parentId']]) {
+              element[gltf_Dict['parentId']] += treeLengthSofar;
+            } else {
+              element[gltf_Dict['parentId']] = 1;
+            }
+          }
+          if (gltfObjElement.cylindrical_axis_of_rotation) {
+            if (gltfObjElement.cylindrical_axis_of_rotation.jointaxis) {
+              jointAxisCurrent = gltfObjElement.cylindrical_axis_of_rotation.jointaxis;
+              jointAxisCurrentVector = new Vector3(jointAxisCurrent[0], jointAxisCurrent[1], jointAxisCurrent[2]);
+            }
+            if (gltfObjElement.cylindrical_axis_of_rotation.jointposition) {
+              jointPositionCurrent = gltfObjElement.cylindrical_axis_of_rotation.jointposition;
+              jointPositionCurrentVector = new Vector3(jointPositionCurrent[0], jointPositionCurrent[1], jointPositionCurrent[2]);
+            }
+          }
+          let positionAngle = this.getAngleBetweenVectorsWithoutReferenceAxis(jointAxisCurrentVector, mountAxisPreviousVector);
+          if (gltfObjElement.constraint) {
+            positionAngle += Math.PI / 2;
+          }
+
+          const quaternionToAlign = new Quaternion().setFromAxisAngle(jointAxisCurrentVector, positionAngle).normalize();
+          const roatedPosition = jointPositionCurrentVector.applyQuaternion(quaternionToAlign);
+          toBeShiftedDisplacement.subVectors(mountPositionPreviousVector, roatedPosition);
+
+          topLeftCurrent = gltfObjElement.tree[0][gltf_Dict['topLeft']];
+          bottomRightCurrent = gltfObjElement.tree[0][gltf_Dict['bottomRight']];
+          treeLengthSofar += gltfObjElement.tree.length;
+          if (gltfObjElement.cylindrical_axis_of_rotation) {
+            if (gltfObjElement.cylindrical_axis_of_rotation.mountaxis) {
+              mountAxisPrevious = gltfObjElement.cylindrical_axis_of_rotation.mountaxis;
+              mountAxisPreviousVector = new Vector3(mountAxisPrevious[0], mountAxisPrevious[1], mountAxisPrevious[2]);
+              mountAxisPreviousVector.applyQuaternion(quaternionToAlign).normalize();
+            }
+            if (gltfObjElement.cylindrical_axis_of_rotation.mountposition) {
+              mountPositionPrevious = gltfObjElement.cylindrical_axis_of_rotation.mountposition;
+              mountPositionPreviousVector = new Vector3(mountPositionPrevious[0], mountPositionPrevious[1], mountPositionPrevious[2]);
+              mountPositionPreviousVector.applyQuaternion(quaternionToAlign).normalize();
+              mountPositionPreviousVector.add(toBeShiftedDisplacement);
+            }
+            if (gltfObjElement.cocentric) {
+              const tobeAlignedCoCenric = new Vector3(mountAxisPreviousVector.x * gapBetween, mountAxisPreviousVector.y * gapBetween, mountAxisPreviousVector.z * gapBetween);
+              toBeShiftedDisplacement.add(tobeAlignedCoCenric);
+            }
+          }
+          displacementPosition = { x: toBeShiftedDisplacement.x, y: toBeShiftedDisplacement.y, z: toBeShiftedDisplacement.z, q: quaternionToAlign.clone() };
+          displacementPosition.x += ((topLeftPrevious[0] - bottomRightCurrent[0]) * 0.0 + gapBetween) * 0.001;
+        }
+        topLeftPrevious[0] = displacementPosition.x;
+        topLeftPrevious[1] = gltfObjElement.cocentric ? topLeftCurrent[1] + displacementPosition.y : topLeftCurrent[1];
+        topLeftPrevious[2] = gltfObjElement.cocentric ? topLeftCurrent[2] + displacementPosition.z : topLeftCurrent[2];
+        //topLeftPrevious[0] = displacementPosition.x;
+        //bottomRightPrevious = bottomRightCurrent;
+        const fileUUId = gltfObjElement.fileUUId ? gltfObjElement.fileUUId : this.props.fileUUId;
+        const myResourcePath = gltfObjElement.resourcepath ? gltfObjElement.resourcepath : resourcePathURL;
+        const myParserParams = {
+          path: fileUUId
+            ? (myResourcePath || '') + fileUUId + '/'
+            : myResourcePath || '',
+          crossOrigin: 'anonymous',
+          requestHeader: null,
+          manager: DefaultLoadingManager,
+          ktx2Loader: null,
+          meshoptDecoder: null,
+          renderOrder: 0
+        };
+        const parser = new GLTFParser(gltfObjElement.gtlf, myParserParams);
+        parser.parse(onload, onError, onProgress, displacementPosition);
+      }
+    }
+
+
+  };
 
   loadAllEdgesOld = (
     allEdges,
